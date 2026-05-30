@@ -2,17 +2,21 @@
 # * ============================================
 # * Importações
 # * ============================================
+try:
+    from .lib import *
+    from .parameters import *
+    from .utils import *
+    from .core import *
+except:
+    from lib import *
+    from parameters import *
+    from utils import *
+    from core import *
 
-from lib import *
-from parameters import *
-from utils import *
-from core import *
 
 # * ============================================
 # * Início
 # * ============================================
-
-
 def main(
     nome,
     Mstar,
@@ -69,7 +73,7 @@ def main(
         cte,
     )
     sy.param(
-        ("Velocidade Inicial", u0*ve0 / 1e5, "km/s"),
+        ("Velocidade Inicial", u0 * ve0 / 1e5, "km/s"),
         ("Velocidade Inicial Adimensional", u0, "ve0"),
         ("Distância do Ponto Crítico", x_crit, "r0"),
         ("Velocidade no Ponto Crítico", y_crit, "ve0"),
@@ -144,7 +148,7 @@ def main(
         highlight_marker="o",
         highlight_label=r"$P_{crit}$",
         legend_fontsize=12,
-        y_lim=[None,1500],
+        y_lim=[None, 1500],
         block_tick=False,
         sigma_intervals=sigmas_ref,
         sigma_linestyle="",

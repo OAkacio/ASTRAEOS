@@ -1,3 +1,11 @@
+import os
+import sys
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SRC_PATH = os.path.join(BASE_DIR, "src")
+if SRC_PATH not in sys.path:
+    sys.path.append(SRC_PATH)
+
 from astraeos_core.main import *
 from astraeos_core.lib import *
 from astraeos_core.parameters import *
@@ -47,23 +55,26 @@ x_totCTE, y_totCTE, x_critCTE, y_critCTE, x_t, ve0CTE = main(
 
 gp.plot(
     x_data=[x_totRES, x_totCTE],
-    y_data=[list(np.array(y_totRES) * ve0RES / 1e5), list(np.array(y_totCTE) * ve0CTE / 1e5)],
+    y_data=[
+        list(np.array(y_totRES) * ve0RES / 1e5),
+        list(np.array(y_totCTE) * ve0CTE / 1e5),
+    ],
     show_plot=False,
     x_label=r"$r/r_{0}$",
     y_label=r"$u$ (km/s)",
     x_scale="log",
     y_scale="log",
-    linewidth=[2.0, 2.5], 
-    linestyle=["-", "-"], 
-    axis_fontsize=16, 
+    linewidth=[2.0, 2.5],
+    linestyle=["-", "-"],
+    axis_fontsize=16,
     show_grid=True,
     grid_linewidth=0.5,
-    color_style=["#1f77b4", "#6E537C"], 
+    color_style=["#1f77b4", "#6E537C"],
     grid_color="#E6E6E6",
     grid_alpha=0.5,
     grid_linestyle=":",
     save_fig=True,
-    file_format="png", 
+    file_format="png",
     filename=f"superp_perfil_dv_{round(deltav0,7)}",
     vlines=[x_t],
     v_colors=["#CC79A7"],
@@ -79,9 +90,12 @@ gp.plot(
     x_lim=[1, 300],
     y_lim=[0.05, 500],
     legend_box=False,
-    highlight_point=[(x_critRES, y_critRES * ve0RES / 1e5), (x_critCTE, y_critCTE * ve0CTE / 1e5)],
+    highlight_point=[
+        (x_critRES, y_critRES * ve0RES / 1e5),
+        (x_critCTE, y_critCTE * ve0CTE / 1e5),
+    ],
     highlight_color=["#D55E00", "#55EE4F"],
-    highlight_size=40, 
+    highlight_size=40,
     highlight_marker="o",
     highlight_label=[r"$P_{crit}$  $S=4.5$", r"$P_{crit}$  $S=5.3$"],
     legend_fontsize=12,

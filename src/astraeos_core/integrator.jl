@@ -8,7 +8,6 @@ using Printf
 # * ============================================
 # * Definição de Funções
 # * ============================================
-
 # ? --- Amoretecimento Constante ---
 function integral_subsonica(x, vA0, Ma0, y, alpha, S, L0)
     Ma = Ma0 * sqrt(y / alpha) * (x^(S / 2.0))
