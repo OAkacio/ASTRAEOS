@@ -19,23 +19,23 @@ import customtkinter as ctk
 class AppState:
     def __init__(self):
         self.nome = ctk.StringVar(value="TRAPPIST 1a")
-        self.Mstar = ctk.DoubleVar(value=0.0898)
-        self.Rstar = ctk.DoubleVar(value=0.1192)
-        self.Teff = ctk.DoubleVar(value=2566.0)
-        self.B0 = ctk.DoubleVar(value=600.0)
-        self.rho0 = ctk.DoubleVar(value=5e-14)
-        self.T = ctk.DoubleVar(value=2.0e6)
-        self.mu = ctk.DoubleVar(value=0.6)
-        self.S_divergencia = ctk.DoubleVar(value=2.5)
-        self.deltav0 = ctk.DoubleVar(value=0.12851)
-        self.phi0 = ctk.DoubleVar(value=5e7)
-        self.L0 = ctk.DoubleVar(value=1.0)
-        self.x_sim = ctk.DoubleVar(value=500.0)
-        self.h_rk = ctk.DoubleVar(value=5e-4)
-        self.u0_ini = ctk.DoubleVar(value=0.201)
-        self.u0_step = ctk.DoubleVar(value=5e-4)
+        self.Mstar = ctk.StringVar(value=0.0898)
+        self.Rstar = ctk.StringVar(value=0.1192)
+        self.Teff = ctk.StringVar(value=2566.0)
+        self.B0 = ctk.StringVar(value=600.0)
+        self.rho0 = ctk.StringVar(value=5e-14)
+        self.T = ctk.StringVar(value=2.0e6)
+        self.mu = ctk.StringVar(value=0.6)
+        self.S_divergencia = ctk.StringVar(value=2.5)
+        self.deltav0 = ctk.StringVar(value=0.12851)
+        self.phi0 = ctk.StringVar(value=5e7)
+        self.L0 = ctk.StringVar(value=1.0)
+        self.x_sim = ctk.StringVar(value=500.0)
+        self.h_rk = ctk.StringVar(value=5e-4)
+        self.u0_ini = ctk.StringVar(value=0.201)
+        self.u0_step = ctk.StringVar(value=5e-4)
         self.recuo_pulo = ctk.IntVar(value=484)
-        self.tamanho_pulo = ctk.DoubleVar(value=0.1)
+        self.tamanho_pulo = ctk.StringVar(value=0.1)
         self.cte = ctk.BooleanVar(value=False)
         self.x_ref = (37.0, 49.0, 63.0, 77.0)
         self.linestyle_ref = (":", ":", ":", ":")
@@ -62,24 +62,24 @@ class AppState:
         """
         return {
             "nome": self.nome.get(),
-            "Mstar": self.Mstar.get(),
-            "Rstar": self.Rstar.get(),
-            "Teff": self.Teff.get(),
-            "T": self.T.get(),
-            "mu": self.mu.get(),
-            "rho0": self.rho0.get(),
-            "B0": self.B0.get(),
-            "phi0": self.phi0.get(),
-            "u0_step": self.u0_step.get(),
-            "u0_ini": self.u0_ini.get(),
-            "h_rk": self.h_rk.get(),
-            "deltav0": self.deltav0.get(),
-            "S_divergencia": self.S_divergencia.get(),
-            "recuo_pulo": self.recuo_pulo.get(),
-            "tamanho_pulo": self.tamanho_pulo.get(),
-            "cte": self.cte.get(),
-            "L0": self.L0.get(),
-            "x_sim": self.x_sim.get(),
+            "Mstar": float(self.Mstar.get()),
+            "Rstar": float(self.Rstar.get()),
+            "Teff": float(self.Teff.get()),
+            "T": float(self.T.get()),
+            "mu": float(self.mu.get()),
+            "rho0": float(self.rho0.get()),
+            "B0": float(self.B0.get()),
+            "phi0": float(self.phi0.get()),
+            "u0_step": float(self.u0_step.get()),
+            "u0_ini": float(self.u0_ini.get()),
+            "h_rk": float(self.h_rk.get()),
+            "deltav0": float(self.deltav0.get()),
+            "S_divergencia": float(self.S_divergencia.get()),
+            "recuo_pulo": int(self.recuo_pulo.get()),      # Este é INT
+            "tamanho_pulo": float(self.tamanho_pulo.get()),
+            "cte": self.cte.get(),                         # Este já é Booleano
+            "L0": float(self.L0.get()),
+            "x_sim": float(self.x_sim.get()),
         }
     
     def plot_settings(self):

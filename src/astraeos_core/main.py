@@ -38,15 +38,16 @@ def main(
     L0,
     x_sim,
 ):
-    sy.header("ASTRAEOS", Versão="v0.1.0", autor="Victor M. Acacio")
+    # Nota: Mudei as chaves 'Versão' e 'autor' para inglês, supondo que sy.header aceite kwargs dinâmicos.
+    sy.header("ASTRAEOS", Version="v0.1.0", Author="Victor M. Acacio")
 
     # ? --- Apresentação dos Parâmetros ---
-    sy.status("Apresentando parâmetros de entrada...")
+    sy.status("Displaying input parameters...")
     ve0, cs, vA0, vT, x_t = calc_param(deltav0, S_divergencia)
     sy.param(
-        ("Nome", nome, ""),
-        ("Massa", Mstar, "Msun"),
-        ("Raio", Rstar, "Rsun"),
+        ("Name", nome, ""),
+        ("Mass", Mstar, "Msun"),
+        ("Radius", Rstar, "Rsun"),
         ("Teff", Teff, "K"),
         ("ve0", ve0 / 1e5, "km/s"),
         ("vA0", vA0, "ve0"),
@@ -64,7 +65,7 @@ def main(
     )
 
     # ? --- Busca por Velocidade Inicial ---
-    sy.status("Iniciando busca pela velocidade inicial...")
+    sy.status("Initiating search for initial velocity...")
     u0, x_crit, y_crit, r_crit, x_append, y_append, vetor = jl.busca_u0(
         vT,
         [B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S_divergencia, 0.0, phi0],
@@ -73,15 +74,15 @@ def main(
         cte,
     )
     sy.param(
-        ("Velocidade Inicial", u0 * ve0 / 1e5, "km/s"),
-        ("Velocidade Inicial Adimensional", u0, "ve0"),
-        ("Distância do Ponto Crítico", x_crit, "r0"),
-        ("Velocidade no Ponto Crítico", y_crit, "ve0"),
-        ("Valor da Função no Ponto Crítico", r_crit, "adm"),
+        ("Initial Velocity", u0 * ve0 / 1e5, "km/s"),
+        ("Dimensionless Initial Velocity", u0, "ve0"),
+        ("Critical Point Distance", x_crit, "r0"),
+        ("Velocity at Critical Point", y_crit, "ve0"),
+        ("Function Value at Critical Point", r_crit, "adm"),
     )
 
     # ? --- Integração de Curva ---
-    sy.status("Iniciando integração do perfil de velocidade...")
+    sy.status("Initiating velocity profile integration...")
 
     x0n, y0, x_int, y_int, x_ext, y_ext, num_alpha_list, den_alpha_list = (
         jl.integra_perfil(
@@ -105,9 +106,9 @@ def main(
     )
 
     sy.param(
-        ("Velocidade Terminal", y_tot[-1] * ve0 / 1e5, "km/s"),
-        ("Velocidade Terminal", y_tot[-1], "ve0"),
-        ("Distância do Ponto de Transição", x_t, "r0"),
+        ("Terminal Velocity", y_tot[-1] * ve0 / 1e5, "km/s"),
+        ("Terminal Velocity", y_tot[-1], "ve0"),
+        ("Transition Point Distance", x_t, "r0"),
     )
 
     # ? --- Geração de Gráfico Principal ---
@@ -156,6 +157,56 @@ def main(
         sigma_colors=sigmas_color_ref,
         sigma_alpha=0.2,
     )
+    # ? --- Geração de Gráfico de Output ---
+    gp.plot(
+        title=nome,
+        x_data=[x_tot],
+        y_data=[list(np.array(y_tot) * ve0 / 1e5)],
+        show_plot=False,
+        x_label=r"$r/r_{0}$",
+        y_label=r"$u$ (km/s)",
+        x_scale="log",
+        y_scale="log",
+        linewidth=2.5,
+        axis_fontsize=16,
+        show_grid=True,
+        grid_linewidth=0.4,
+        color_style=["#61AFEF"],          # Azul ciano vibrante para a curva principal
+        grid_color="#5C6370",             # Cinza sutil para a grade
+        grid_alpha=0.5,
+        grid_linestyle=":",
+        save_fig=True,
+        file_format="png",
+        filename="output",
+        vlines=[x_t, *x_ref],
+        v_colors=["#C678DD", *color_ref], # Magenta para a linha de transição
+        v_linewidth=1.5,
+        v_alpha=0.8,
+        v_linestyle=["--", *linestyle_ref],
+        v_labels=[rf"$r_t$ ; ${x_t}$ $r_0$", *nome_ref],
+        curve_names=[
+            rf"Velocity Profile ; $u_\infty = {y_tot[-1] * ve0 / 1e5:0.2f}$ km/s"
+        ],
+        figure_dpi=600,                   # Desempenho alto para UI em tempo real
+        fig_width=10.0,                   # Gráfico widescreen (Esticado)
+        fig_height=5.0,                   # Altura balanceada
+        x_lim=[1, x_sim],
+        legend_box=False,
+        highlight_point=[x_crit, y_crit * ve0 / 1e5],
+        highlight_color="#E06C75",        # Ponto crítico em vermelho vibrante
+        highlight_size=50,
+        highlight_marker="o",
+        highlight_label=r"$P_{crit}$",
+        legend_fontsize=8,
+        y_lim=[None, 1500],
+        block_tick=False,
+        sigma_intervals=sigmas_ref,
+        sigma_linestyle="",
+        sigma_labels=sigmas_nome_ref,
+        sigma_colors=sigmas_color_ref,
+        sigma_alpha=0.15,
+        theme="dark"                      # Ativa o modo escuro que criamos!
+    )
     # ? --- Geração de Gráfico de Análise ---
     gp.plot(
         x_data=[x_tot] * 4,
@@ -167,7 +218,7 @@ def main(
         ],
         show_plot=False,
         x_label=r"$r/r_{0}$",
-        y_label="Termos da Equação",
+        y_label="Equation Terms",
         x_scale="linear",
         y_scale="linear",
         linewidth=[1.5, 1.5, 2.0, 1.2],
@@ -185,9 +236,9 @@ def main(
         v_linestyle=["-", "--", "--"],
         v_alpha=[0.8, 0.7, 0.7],
         v_labels=[
-            "Ponto Sônico (Analítico)",
+            "Sonic Point (Analytical)",
             f"$X_{{num}}$: {x_tot[idx_crit_num]:.3f}",
-            f"$X_{{den}}$: {x_tot[idx_crit_den]:.3f} (Dif: {x_tot[idx_crit_num]-x_tot[idx_crit_den]:.1e})",
+            f"$X_{{den}}$: {x_tot[idx_crit_den]:.3f} (Diff: {x_tot[idx_crit_num]-x_tot[idx_crit_den]:.1e})",
         ],
         hlines=[0.0],
         h_colors=["black"],
@@ -198,17 +249,17 @@ def main(
         file_format="png",
         filename=f"perfil_t{round(tamanho_pulo)}_rec{round(recuo_pulo,3)}_s{round(S_divergencia)}_L0{round(L0)}_deltav0{round(deltav0,6)}_ANALISE",
         curve_names=[
-            r"Denominador ($D$)",
-            r"Numerador ($N$)",
-            rf"Velocidade ($U$): $\delta v_0^2 = {deltav0:0.4f}$",
-            r"Razão ($N/D$)",
+            r"Denominator ($D$)",
+            r"Numerator ($N$)",
+            rf"Velocity ($U$): $\delta v_0^2 = {deltav0:0.4f}$",
+            r"Ratio ($N/D$)",
         ],
         figure_dpi=600,
         x_lim=[x_crit - 0.1, x_crit + 0.2],
         legend_box=False,
         legend_fontsize=10,
     )
-    sy.fim()
+    sy.fim("EXECUTION COMPLETED")
 
     return x_tot, y_tot, x_crit, y_crit, x_t, ve0
 

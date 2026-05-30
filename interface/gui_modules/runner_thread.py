@@ -1,74 +1,63 @@
-"""
-Módulo de Execução Assíncrona (Runner Thread)
-=============================================
-
-Este módulo é responsável por isolar a execução das integrações numéricas
-e da física pesada em uma thread paralela. Ele garante que a Interface
-Gráfica (GUI) permaneça responsiva durante o processamento de longas
-simulações, evitando o congelamento da janela.
-
-Utiliza um padrão de "Callbacks" para comunicar o resultado (sucesso ou
-falha) de volta à thread principal (Tkinter) de forma segura.
-"""
-
-# * ============================================
-# * Importações
-# * ============================================
+import sys
+import queue
 import threading
-from astraeos_core.main import main as simulation
 import multiprocessing
+from astraeos_core.main import main as simulation
 
+# Classe que finge ser o terminal com todas as funções que o Python exige
+class RedirecionadorPrint:
+    def __init__(self, fila):
+        self.fila = fila
+    def write(self, mensagem):
+        self.fila.put(mensagem)
+    def flush(self):
+        pass
+    def isatty(self):
+        return False  # Evita crash em bibliotecas que checam se é um terminal real
 
-# * ============================================
-# * Funções de Orquestração Paralela
-# * ============================================
-def motor_isolado(parametros, fila_de_mensagens):
+def motor_isolado(parametros, fila_de_mensagens, fila_de_logs):
+    # Sequestra os prints e os erros do Python deste núcleo
+    sys.stdout = RedirecionadorPrint(fila_de_logs)
+    sys.stderr = RedirecionadorPrint(fila_de_logs)
+    
     try:
-        # Roda a simulação bruta e pesada
-        x_tot, y_tot, x_crit, y_crit, x_t, ve0 = simulation(**parametros)
-        
-        # Coloca os resultados na fila de comunicação para a interface pegar
-        fila_de_mensagens.put({"sucesso": True, "dados": (x_crit, y_crit)})
+        simulation(**parametros)
+        fila_de_mensagens.put({"sucesso": True})
     except Exception as e:
         fila_de_mensagens.put({"sucesso": False, "erro": str(e)})
 
-def run(parametros, callback_sucesso, callback_erro):
-    """
-    Inicia a simulação em uma thread separada em background.
-
-    Args:
-        parametros (dict): Dicionário contendo os argumentos físicos e numéricos
-            (gerado pelo AppState.parameters_input()).
-        callback_sucesso (function): Função da GUI a ser chamada se a simulação
-            terminar sem erros. Deve aceitar os argumentos retornados pela física
-            (ex: x_crit, y_crit).
-        callback_erro (function): Função da GUI a ser chamada caso ocorra uma
-            exceção. Deve aceitar uma string com a mensagem de erro.
-    """
-
+def run(parametros, callback_sucesso, callback_erro, callback_log):
     def vigia_de_processo():
-        # Cria um "tubo" de comunicação entre a Interface e o Processo do Julia
-        fila = multiprocessing.Queue()
+        fila_msg = multiprocessing.Queue()
+        fila_logs = multiprocessing.Queue()
         
-        # Instancia um PROCESSO (outro núcleo), não apenas uma thread
-        p = multiprocessing.Process(target=motor_isolado, args=(parametros, fila))
+        p = multiprocessing.Process(target=motor_isolado, args=(parametros, fila_msg, fila_logs))
         p.start()
         
-        # A thread espera pacientemente o processo terminar.
-        # (A interface continua lisa porque quem está esperando é a thread vigia!)
-        p.join()
-        
-        # Quando termina, lemos o que o Julia deixou na fila
-        if not fila.empty():
-            resposta = fila.get()
+        # Fica lendo os prints de forma segura
+        while p.is_alive():
+            while True:
+                try:
+                    # Tenta pegar um log novo. Se não tiver nada, quebra esse sub-loop.
+                    msg = fila_logs.get(timeout=0.01)
+                    callback_log(msg)
+                except queue.Empty:
+                    break
+            p.join(0.05) # Pausa mínima para o computador respirar
+            
+        # Esvazia a fila de logs caso tenha sobrado algum print após fechar o processo
+        while not fila_logs.empty():
+            callback_log(fila_logs.get())
+            
+        # Verifica o resultado da matemática
+        if not fila_msg.empty():
+            resposta = fila_msg.get()
             if resposta["sucesso"]:
-                x_crit, y_crit = resposta["dados"]
-                callback_sucesso(x_crit, y_crit)
+                callback_sucesso()
             else:
                 callback_erro(resposta["erro"])
         else:
-            callback_erro("O núcleo de cálculo falhou silenciosamente (Crash no Julia).")
+            callback_erro("O núcleo de cálculo encerrou inesperadamente.")
 
-    # Iniciamos a thread vigia
     thread = threading.Thread(target=vigia_de_processo, daemon=True)
     thread.start()
