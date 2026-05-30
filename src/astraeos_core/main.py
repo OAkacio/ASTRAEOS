@@ -208,6 +208,7 @@ def main(
         legend_box=False,
         legend_fontsize=10,
     )
+    sy.fim()
 
     return x_tot, y_tot, x_crit, y_crit, x_t, ve0
 
