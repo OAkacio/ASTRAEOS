@@ -144,7 +144,7 @@ def main(
         highlight_marker="o",
         highlight_label=r"$P_{crit}$",
         legend_fontsize=12,
-        y_lim=[1,1500],
+        y_lim=[None,1500],
         block_tick=False,
         sigma_intervals=sigmas_ref,
         sigma_linestyle="",
