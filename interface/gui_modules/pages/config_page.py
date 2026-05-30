@@ -69,11 +69,6 @@ class ConfigPage(ctk.CTkFrame):
         )
         self.btn_run.grid(row=0, column=0, pady=(0, 10))
 
-        self.lbl_status = ctk.CTkLabel(
-            self.frame_rodape, text="Aguardando configuração...", text_color="gray"
-        )
-        self.lbl_status.grid(row=1, column=0)
-
     # * ============================================
     # * Construtores de Abas Internas
     # * ============================================
@@ -157,9 +152,6 @@ class ConfigPage(ctk.CTkFrame):
         """Acionado ao clicar no botão de rodar. Trava a interface e delega a ação."""
         # Desabilita o botão para evitar múltiplos cliques acidentais
         self.btn_run.configure(state="disabled", text="Calculando...")
-        self.lbl_status.configure(
-            text="Integrando modelo JPO... Isso pode demorar.", text_color="#E5C07B"
-        )  # Tom amarelo do Atom One Dark
 
         # Avisa a janela principal (app_window.py) para disparar a thread
         self.on_run_click()

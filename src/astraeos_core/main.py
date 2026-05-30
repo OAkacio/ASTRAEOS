@@ -38,7 +38,7 @@ def main(
     L0,
     x_sim,
 ):
-    sy.header("JPOStellarWind", Estrela=nome)
+    sy.header("ASTRAEOS", Versão="v0.1.0", autor="Victor M. Acacio")
 
     # ? --- Apresentação dos Parâmetros ---
     sy.status("Apresentando parâmetros de entrada...")

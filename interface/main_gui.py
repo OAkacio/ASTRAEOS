@@ -21,36 +21,62 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC_PATH = os.path.join(BASE_DIR, "src")
 if SRC_PATH not in sys.path:
     sys.path.append(SRC_PATH)
+ASSETS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
+caminho_icone = os.path.join(ASSETS_PATH, "icon.ico")
 from gui_modules.app_state import AppState
 from gui_modules.pages.config_page import ConfigPage
 from gui_modules.runner_thread import run
 
 
 # * ============================================
-# * Controlador Principal (Janela)
+# * Controlador Principal
 # * ============================================
 class AppWindow(ctk.CTk):
     def __init__(self):
         super().__init__()
+        # ? --- Identificação ---
+        self.title("ASTRAEOS v0.1.0")
 
-        self.title("ASTRAEOS")
+        # ? --- Configuirações de Janela ---
         self.geometry("1280x720")
         self.minsize(1024, 768)
-        self.after(0, lambda: self.state('zoomed'))
+        self.after(0, lambda: self.state("zoomed"))
+        self.iconbitmap(caminho_icone)
 
+        # ? --- Janela Principal ---
         self.app_state = AppState()
 
+        # ? --- Barra de Status ---
+        self.status_bar = ctk.CTkFrame(
+            self, height=30, corner_radius=0, fg_color="#1E1E1E"
+        )
+        self.status_bar.pack(side="bottom", fill="x")
+        self.status_bar.pack_propagate(False)
+        self.lbl_status = ctk.CTkLabel(
+            self.status_bar,
+            text="",
+            text_color="#858585",
+            font=("Consolas", 12),
+        )
+        self.lbl_status.pack(side="left", padx=10)
+
+        # ? --- Inicializa Página Principal ---
         self.pagina_atual = ConfigPage(
-            master=self,
-            state=self.app_state,
-            on_run_click=self.executar_fisica,
+            master=self, state=self.app_state, on_run_click=self.executar_fisica
         )
         self.pagina_atual.pack(fill="both", expand=True, padx=20, pady=20)
 
-    def executar_fisica(self):
-        # 2. Puxamos os dados da variável renomeada
-        parametros = self.app_state.parameters_input()
+    # ? --- Atualização de Status Bar ---
+    def set_status(self, mensagem, cor="#858585"):
+        self.lbl_status.configure(text=f" {mensagem}", text_color=cor)
 
+    # ? --- Rotina ao Iniciar Simulação ---
+    def executar_fisica(self):
+        parametros = self.app_state.parameters_input()
+        self.set_status(
+            "Iniciando simulação... Acompanhe o console para mais informações.",
+            "#E5C07B",
+        )
         run(
             parametros=parametros,
             callback_sucesso=self.ao_terminar_com_sucesso,
@@ -58,37 +84,25 @@ class AppWindow(ctk.CTk):
         )
 
     # * ============================================
-    # * Callbacks Seguros (Thread-Safe)
+    # * Callbacks
     # * ============================================
+    # ? --- Simulação Finalizada com Sucesso ---
     def ao_terminar_com_sucesso(self, x_crit, y_crit):
-        """
-        Ponte segura: Redireciona a resposta da thread paralela para a thread principal.
-        """
         self.after(0, self._atualizar_ui_sucesso, x_crit, y_crit)
 
-    def _atualizar_ui_sucesso(self, x_crit, y_crit):
-        """Atualiza a UI após sucesso. (Executado SOMENTE pela thread principal)"""
-        # Exemplo de cor verde suave que harmoniza com temas escuros
-        self.pagina_atual.lbl_status.configure(
-            text=f"Concluído! Ponto crítico (Z/r) encontrado em {x_crit:.3f} r0.",
-            text_color="#98C379",
+    def _atualizar_ui_sucesso(self):
+        self.set_status(
+            f"Concluído com sucesso!",
+            "#98C379",
         )
         self.pagina_atual.btn_run.configure(state="normal", text="Rodar Novamente")
 
-        # TODO: Implementar aqui a lógica para abrir a aba/página de Resultados
-        # e carregar o arquivo .png gerado pelo PyTools Matplotlib.
-
+    # ? --- Simulação Finalizada com Erro ---
     def ao_dar_erro(self, mensagem_erro):
-        """
-        Ponte segura para tratamento de falhas.
-        """
         self.after(0, self._atualizar_ui_erro, mensagem_erro)
 
     def _atualizar_ui_erro(self, erro):
-        """Atualiza a UI alertando falhas de integração ou física."""
-        self.pagina_atual.lbl_status.configure(
-            text=f"Erro na simulação: {erro}", text_color="#E06C75"
-        )
+        self.set_status(f"ERRO: {erro}", "#E06C75")
         self.pagina_atual.btn_run.configure(state="normal", text="Tentar Novamente")
 
 
@@ -96,12 +110,8 @@ class AppWindow(ctk.CTk):
 # * Execução do Aplicativo
 # * ============================================
 if __name__ == "__main__":
-    # Comando de segurança OBRIGATÓRIO no Windows para Multiprocessing:
     multiprocessing.freeze_support()
-
-    # Configuração de design global
     ctk.set_appearance_mode("dark")
     ctk.set_default_color_theme("blue")
-
     app = AppWindow()
     app.mainloop()
