@@ -3,8 +3,8 @@ Módulo Principal da Interface (Entry Point)
 ===========================================
 
 Este é o arquivo executável que inicializa a aplicação ASTRAEOS.
-Ele atua como o Controlador Central, orquestrando a injeção de 
-dependências entre o Gerenciador de Estado, a Interface Visual 
+Ele atua como o Controlador Central, orquestrando a injeção de
+dependências entre o Gerenciador de Estado, a Interface Visual
 e o Motor de Execução Paralela.
 
 """
@@ -17,12 +17,10 @@ import sys
 import customtkinter as ctk
 import multiprocessing
 
-# Adiciona o diretório 'src' ao PATH do Python para permitir importações da física
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC_PATH = os.path.join(BASE_DIR, "src")
 if SRC_PATH not in sys.path:
     sys.path.append(SRC_PATH)
-
 from gui_modules.app_state import AppState
 from gui_modules.pages.config_page import ConfigPage
 from gui_modules.runner_thread import run
@@ -34,29 +32,29 @@ from gui_modules.runner_thread import run
 class AppWindow(ctk.CTk):
     def __init__(self):
         super().__init__()
-        
-        self.title("ASTRAEOS - JPO Stellar Wind Interface")
-        self.geometry("800x650")
-        self.minsize(600, 500)
-        
-        # 1. Renomeamos de self.app_state para self.app_state
+
+        self.title("ASTRAEOS")
+        self.geometry("1280x720")
+        self.minsize(1024, 768)
+        self.after(0, lambda: self.state('zoomed'))
+
         self.app_state = AppState()
-        
+
         self.pagina_atual = ConfigPage(
-            master=self, 
-            state=self.app_state,  # <-- Passamos o app_state atualizado
-            on_run_click=self.executar_fisica
+            master=self,
+            state=self.app_state,
+            on_run_click=self.executar_fisica,
         )
         self.pagina_atual.pack(fill="both", expand=True, padx=20, pady=20)
 
     def executar_fisica(self):
         # 2. Puxamos os dados da variável renomeada
         parametros = self.app_state.parameters_input()
-        
+
         run(
             parametros=parametros,
             callback_sucesso=self.ao_terminar_com_sucesso,
-            callback_erro=self.ao_dar_erro
+            callback_erro=self.ao_dar_erro,
         )
 
     # * ============================================
@@ -72,11 +70,11 @@ class AppWindow(ctk.CTk):
         """Atualiza a UI após sucesso. (Executado SOMENTE pela thread principal)"""
         # Exemplo de cor verde suave que harmoniza com temas escuros
         self.pagina_atual.lbl_status.configure(
-            text=f"Concluído! Ponto crítico (Z/r) encontrado em {x_crit:.3f} r0.", 
-            text_color="#98C379"  
+            text=f"Concluído! Ponto crítico (Z/r) encontrado em {x_crit:.3f} r0.",
+            text_color="#98C379",
         )
         self.pagina_atual.btn_run.configure(state="normal", text="Rodar Novamente")
-        
+
         # TODO: Implementar aqui a lógica para abrir a aba/página de Resultados
         # e carregar o arquivo .png gerado pelo PyTools Matplotlib.
 
@@ -89,8 +87,7 @@ class AppWindow(ctk.CTk):
     def _atualizar_ui_erro(self, erro):
         """Atualiza a UI alertando falhas de integração ou física."""
         self.pagina_atual.lbl_status.configure(
-            text=f"Erro na simulação: {erro}", 
-            text_color="#E06C75"  
+            text=f"Erro na simulação: {erro}", text_color="#E06C75"
         )
         self.pagina_atual.btn_run.configure(state="normal", text="Tentar Novamente")
 
@@ -101,10 +98,10 @@ class AppWindow(ctk.CTk):
 if __name__ == "__main__":
     # Comando de segurança OBRIGATÓRIO no Windows para Multiprocessing:
     multiprocessing.freeze_support()
-    
+
     # Configuração de design global
     ctk.set_appearance_mode("dark")
     ctk.set_default_color_theme("blue")
-    
+
     app = AppWindow()
     app.mainloop()
