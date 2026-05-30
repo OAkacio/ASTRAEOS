@@ -1,8 +1,8 @@
-from main import *
-from lib import *
-from parameters import *
-from utils import *
-from core import *
+from astraeos_core.main import *
+from astraeos_core.lib import *
+from astraeos_core.parameters import *
+from astraeos_core.utils import *
+from astraeos_core.core import *
 
 x_totRES, y_totRES, x_critRES, y_critRES, x_t, ve0RES = main(
     nome=nome,

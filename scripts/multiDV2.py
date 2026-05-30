@@ -1,6 +1,6 @@
-from main import main
-from lib import *
-from parameters import *
+from astraeos_core.main import main
+from astraeos_core.lib import *
+from astraeos_core.parameters import *
 
 
 delta = 0.001

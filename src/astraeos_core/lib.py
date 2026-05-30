@@ -14,4 +14,4 @@ from juliacall import Main as jl
 
 # ? --- Chamando Função jl ---
 
-jl.include("src/integrator.jl")
+jl.include("src/astraeos_core/integrator.jl")
