@@ -13,22 +13,24 @@ armazenando dados por conta própria.
 # * ============================================
 import customtkinter as ctk
 
+
 # * ============================================
 # * Classe da Interface de Entradas
 # * ============================================
 class ConfigPage(ctk.CTkFrame):
     def __init__(self, master, state, on_run_click):
         super().__init__(master, corner_radius=0)
+        
         # ? --- Carrega App State e Inicia Página Principal ---
         self.app_state = state
         self.on_run_click = on_run_click
 
         # ? --- Configurações de Layout ---
         self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(0, weight=0) # Título
-        self.grid_rowconfigure(1, weight=0) # Abas
-        self.grid_rowconfigure(2, weight=1) # MOLA (Empurra para cima)
-        self.grid_rowconfigure(3, weight=0) # Botão de Rodar
+        self.grid_rowconfigure(0, weight=0) 
+        self.grid_rowconfigure(1, weight=0) 
+        self.grid_rowconfigure(2, weight=1) 
+        self.grid_rowconfigure(3, weight=0) 
 
         # ? --- Título Principal ---
         self.lbl_titulo = ctk.CTkLabel(
@@ -42,10 +44,12 @@ class ConfigPage(ctk.CTkFrame):
         aba_astro = self.tabview.add("Star & Corona")
         aba_onda = self.tabview.add("Wind & Wave")
         aba_num = self.tabview.add("Numerical Setup")
+        aba_gp = self.tabview.add("Plot Preferences")
 
         self._construir_aba_astro(aba_astro)
         self._construir_aba_onda(aba_onda)
         self._construir_aba_numerico(aba_num)
+        self._construir_aba_gp(aba_gp)
 
         # ? --- Rodapé e Botão ---
         self.frame_rodape = ctk.CTkFrame(self, fg_color="transparent")
@@ -104,9 +108,6 @@ class ConfigPage(ctk.CTkFrame):
             ctk.CTkEntry(aba, textvariable=var).grid(
                 row=linha, column=1, padx=10, pady=5, sticky="w"
             )
-        ctk.CTkCheckBox(
-            aba, text="Use Constant Damping (Non-Resonant)", variable=self.app_state.cte
-        ).grid(row=6, column=0, columnspan=2, pady=15)
 
     # ? --- Parâmetros de Input (Numérico) ---
     def _construir_aba_numerico(self, aba):
@@ -127,13 +128,49 @@ class ConfigPage(ctk.CTkFrame):
             ctk.CTkEntry(aba, textvariable=var).grid(
                 row=linha, column=1, padx=10, pady=5, sticky="w"
             )
+        ctk.CTkCheckBox(
+            aba, text="Use Constant Damping (Non-Resonant)", variable=self.app_state.cte
+        ).grid(row=6, column=0, columnspan=2, pady=15)
+
+    # ? --- Parâmetros de Input (Gráfico) ---
+    def _construir_aba_gp(self, aba):
+        headers = ["Distance [r0]", "Label", "Color [Hex]", "Line Style"]
+        for col, text in enumerate(headers):
+            aba.grid_columnconfigure(col, weight=1)
+            ctk.CTkLabel(aba, text=text, font=("Consolas", 12, "bold"), text_color="#E5C07B").grid(
+                row=0, column=col, pady=(5, 5)
+            )
+        for i, ref in enumerate(self.app_state.refs):
+            row = i + 1
+            ctk.CTkEntry(aba, textvariable=ref["x"], width=65, justify="center").grid(row=row, column=0, padx=5, pady=5)
+            ctk.CTkEntry(aba, textvariable=ref["nome"], width=65, justify="center").grid(row=row, column=1, padx=5, pady=5)
+            ctk.CTkEntry(aba, textvariable=ref["cor"], width=80, justify="center").grid(row=row, column=2, padx=5, pady=5)
+            estilos = ["-", "--", "-.", ":"]
+            cb = ctk.CTkComboBox(aba, variable=ref["estilo"], values=estilos, width=70, state="readonly")
+            cb.grid(row=row, column=3, padx=5, pady=5)
+        row_offset = len(self.app_state.refs) + 1
+        ctk.CTkLabel(aba, text="Sigma Zone", font=("Consolas", 14, "bold"), text_color="#E5C07B").grid(
+            row=row_offset, column=0, columnspan=4, pady=(25, 5)
+        )
+        frame_sigma = ctk.CTkFrame(aba, fg_color="transparent")
+        frame_sigma.grid(row=row_offset+1, column=0, columnspan=4, pady=5)
+        
+        ctk.CTkLabel(frame_sigma, text="From:").grid(row=0, column=0, padx=5)
+        ctk.CTkEntry(frame_sigma, textvariable=self.app_state.sigma_ini, width=55).grid(row=0, column=1, padx=5)
+        
+        ctk.CTkLabel(frame_sigma, text="To:").grid(row=0, column=2, padx=(15,5))
+        ctk.CTkEntry(frame_sigma, textvariable=self.app_state.sigma_fim, width=55).grid(row=0, column=3, padx=5)
+        
+        ctk.CTkLabel(frame_sigma, text="Label:").grid(row=0, column=4, padx=(15,5))
+        ctk.CTkEntry(frame_sigma, textvariable=self.app_state.sigma_nome, width=50).grid(row=0, column=5, padx=5)
+        
+        ctk.CTkLabel(frame_sigma, text="Color:").grid(row=0, column=6, padx=(15,5))
+        ctk.CTkEntry(frame_sigma, textvariable=self.app_state.sigma_cor, width=75).grid(row=0, column=7, padx=5)
 
     # * ============================================
     # * Ações e Eventos
     # * ============================================
+    # ? --- Dispara Thread ---
     def iniciar_processo(self):
-        # ? --- Desabilita Botão de Simulação ---
         self.btn_run.configure(state="disabled", text="Calculating...")
-
-        # ? --- Dispara Thread ---
         self.on_run_click()

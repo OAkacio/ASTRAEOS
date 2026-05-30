@@ -37,6 +37,13 @@ def main(
     cte,
     L0,
     x_sim,
+    x_ref,
+    linestyle_ref,
+    color_ref,
+    nome_ref,
+    sigmas_ref,
+    sigmas_color_ref,
+    sigmas_nome_ref,
 ):
     # Nota: Mudei as chaves 'Versão' e 'autor' para inglês, supondo que sy.header aceite kwargs dinâmicos.
     sy.header("ASTRAEOS", Version="v0.1.0", Author="Victor M. Acacio")
@@ -171,15 +178,15 @@ def main(
         axis_fontsize=16,
         show_grid=True,
         grid_linewidth=0.4,
-        color_style=["#61AFEF"],          # Azul ciano vibrante para a curva principal
-        grid_color="#5C6370",             # Cinza sutil para a grade
+        color_style=["#61AFEF"],  # Azul ciano vibrante para a curva principal
+        grid_color="#5C6370",  # Cinza sutil para a grade
         grid_alpha=0.5,
         grid_linestyle=":",
         save_fig=True,
         file_format="png",
         filename="output",
         vlines=[x_t, *x_ref],
-        v_colors=["#C678DD", *color_ref], # Magenta para a linha de transição
+        v_colors=["#C678DD", *color_ref],  # Magenta para a linha de transição
         v_linewidth=1.5,
         v_alpha=0.8,
         v_linestyle=["--", *linestyle_ref],
@@ -187,13 +194,13 @@ def main(
         curve_names=[
             rf"Velocity Profile ; $u_\infty = {y_tot[-1] * ve0 / 1e5:0.2f}$ km/s"
         ],
-        figure_dpi=600,                   # Desempenho alto para UI em tempo real
-        fig_width=10.0,                   # Gráfico widescreen (Esticado)
-        fig_height=5.0,                   # Altura balanceada
+        figure_dpi=600,  # Desempenho alto para UI em tempo real
+        fig_width=10.0,  # Gráfico widescreen (Esticado)
+        fig_height=5.0,  # Altura balanceada
         x_lim=[1, x_sim],
         legend_box=False,
         highlight_point=[x_crit, y_crit * ve0 / 1e5],
-        highlight_color="#E06C75",        # Ponto crítico em vermelho vibrante
+        highlight_color="#E06C75",  # Ponto crítico em vermelho vibrante
         highlight_size=50,
         highlight_marker="o",
         highlight_label=r"$P_{crit}$",
@@ -205,7 +212,7 @@ def main(
         sigma_labels=sigmas_nome_ref,
         sigma_colors=sigmas_color_ref,
         sigma_alpha=0.15,
-        theme="dark"                      # Ativa o modo escuro que criamos!
+        theme="dark",  # Ativa o modo escuro que criamos!
     )
     # ? --- Geração de Gráfico de Análise ---
     gp.plot(
@@ -285,4 +292,11 @@ if __name__ == "__main__":
         cte=False,
         L0=L0,
         x_sim=x_sim,
+        x_ref=x_ref,
+        linestyle_ref=linestyle_ref,
+        color_ref=color_ref,
+        nome_ref=nome_ref,
+        sigmas_ref=sigmas_ref,
+        sigmas_color_ref=sigmas_color_ref,
+        sigmas_nome_ref=sigmas_nome_ref,
     )
