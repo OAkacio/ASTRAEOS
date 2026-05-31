@@ -48,6 +48,8 @@ class AppWindow(ctk.CTk):
         self.minsize(1024, 768)
         self.after(0, lambda: self.state("zoomed"))
 
+        self.protocol("WM_DELETE_WINDOW", self.fechar_aplicativo)
+
         try:
             self.iconbitmap(caminho_icone)
         except:
@@ -178,24 +180,24 @@ class AppWindow(ctk.CTk):
             # 2. Renderiza a figura matemática interativa no CustomTkinter
             canvas = FigureCanvasTkAgg(figura_matplotlib, master=self.painel_graficos)
             canvas.draw()
-            
+
             # 3. Adiciona a Barra de Ferramentas (Zoom, Salvar, Pan) - Estilizada para Dark Mode
             toolbar = NavigationToolbar2Tk(canvas, self.painel_graficos)
             toolbar.config(background="#1E1E1E")
-            
+
             # Aplica a cor apenas aos elementos que suportam (ignora separadores)
             for widget in toolbar.winfo_children():
                 try:
                     widget.config(background="#1E1E1E")
                     widget.config(activebackground="#2C313A")
                 except:
-                    pass # Se o widget não for um botão, apenas ignora o erro e continua
-                    
+                    pass  # Se o widget não for um botão, apenas ignora o erro e continua
+
             toolbar.update()
-            
+
             # 4. Posiciona tudo na tela
             canvas.get_tk_widget().pack(side="top", fill="both", expand=True)
-            
+
         except Exception as e:
             self.set_status(f"Erro ao renderizar gráfico interativo: {e}", "#E06C75")
 
@@ -232,6 +234,20 @@ class AppWindow(ctk.CTk):
                 state="normal", text="Update Plot"
             )
 
+    def fechar_aplicativo(self):
+        self.set_status("Shutting down ASTRAEOS and clearing memory...", "#E06C75")
+        self.update()  # Força a interface a mostrar a mensagem antes de travar
+
+        # Procura qualquer processo filho solto e atira a matar
+        processos_ativos = multiprocessing.active_children()
+        for processo in processos_ativos:
+            processo.terminate()
+            processo.join(timeout=1.0)  # Dá 1 segundo pro processo morrer com dignidade
+
+        # Destrói a janela e encerra o Python
+        self.destroy()
+        sys.exit(0)
+
     # ? --- Rotina ao Iniciar Simulação ---
     def executar_fisica(self):
         parametros_fisica = self.app_state.parameters_input()
@@ -267,7 +283,7 @@ class AppWindow(ctk.CTk):
         )
         self.pagina_atual.btn_run.configure(state="normal", text="Run Simulation")
         self.pagina_atual.btn_update_plot.configure(state="normal", text="Update Plot")
-        
+
         p = self.app_state.parameters_plot()
         figura_inicial = plot_perfil_output(
             x_ref=p["x_ref"],
@@ -280,7 +296,7 @@ class AppWindow(ctk.CTk):
             x_scale=p["x_scale"],
             y_scale=p["y_scale"],
         )
-        
+
         # Exibe o gráfico interativo
         self.exibir_grafico(figura_inicial)
 

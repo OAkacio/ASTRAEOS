@@ -70,7 +70,7 @@ def plot_perfil_output(
         highlight_size=50,
         highlight_marker="o",
         highlight_label=r"$P_{crit}$",
-        legend_fontsize=8,
+        legend_fontsize=9,
         y_lim=[None, 1500],
         block_tick=False,
         sigma_intervals=sigmas_ref,

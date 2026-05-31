@@ -59,6 +59,12 @@ def run(parametros, callback_sucesso, callback_erro, callback_log):
         p = multiprocessing.Process(
             target=motor_isolado, args=(parametros, fila_msg, fila_logs)
         )
+        
+        # --- AVISO AO SISTEMA OPERACIONAL ---
+        # Garante que este processo filho seja exterminado automaticamente 
+        # caso o processo pai (a janela do Tkinter) seja encerrado.
+        p.daemon = True 
+        
         p.start()
 
         while p.is_alive():
