@@ -7,20 +7,13 @@ paralela para manter a Interface Gráfica responsiva, roteando os logs
 do console para a exibição visual.
 """
 
-# * ============================================
-# * Importações
-# * ============================================
+import os
 import sys
 import queue
 import threading
 import multiprocessing
-from astraeos_core.main import main as simulation
 
 
-# * ============================================
-# * Classes Auxiliares
-# * ============================================
-# ? --- Redirecionador de Console ---
 class RedirecionadorPrint:
     def __init__(self, fila):
         self.fila = fila
@@ -35,22 +28,44 @@ class RedirecionadorPrint:
         return False
 
 
-# * ============================================
-# * Funções de Orquestração Paralela
-# * ============================================
-# ? --- Motor Físico Isolado ---
 def motor_isolado(parametros, fila_de_mensagens, fila_de_logs):
+    # --- CORREÇÃO DEFINITIVA DE CAMINHOS PARA O WINDOWS ---
+    # Como o Windows recria o Python do zero ("spawn"), precisamos 
+    # forçar os caminhos exatos da sua arquitetura de pastas.
+    ARQUIVO_ATUAL = os.path.abspath(__file__)          # .../src/gui_modules/runner_thread.py
+    DIR_GUI = os.path.dirname(ARQUIVO_ATUAL)           # .../src/gui_modules
+    DIR_SRC = os.path.dirname(DIR_GUI)                 # .../src
+    DIR_RAIZ = os.path.dirname(DIR_SRC)                # .../raiz_do_projeto (onde 'scripts' está)
+
+    # Inserimos a raiz e o src no TOPO da lista de prioridades do Python
+    if DIR_SRC not in sys.path:
+        sys.path.insert(0, DIR_SRC)
+    if DIR_RAIZ not in sys.path:
+        sys.path.insert(0, DIR_RAIZ)
+
     sys.stdout = RedirecionadorPrint(fila_de_logs)
     sys.stderr = RedirecionadorPrint(fila_de_logs)
 
+    # Remove a tag 'script_type' do dicionário para não dar erro na função principal
+    script_type = parametros.pop("script_type", "main")
+
     try:
+        # --- Roteamento Dinâmico de Scripts ---
+        if script_type == "multicurve":
+            from scripts.multiCURVE import main_mc as simulation
+        elif script_type == "searchdv2":
+            from scripts.searchDV2 import main_sd as simulation
+        else:
+            from astraeos_core.main import main as simulation
+
+        # Executa a função importada com os parâmetros restantes
         simulation(**parametros)
         fila_de_mensagens.put({"sucesso": True})
+        
     except Exception as e:
         fila_de_mensagens.put({"sucesso": False, "erro": str(e)})
 
 
-# ? --- Vigia de Processo (Thread) ---
 def run(parametros, callback_sucesso, callback_erro, callback_log):
     def vigia_de_processo():
         fila_msg = multiprocessing.Queue()
@@ -60,11 +75,7 @@ def run(parametros, callback_sucesso, callback_erro, callback_log):
             target=motor_isolado, args=(parametros, fila_msg, fila_logs)
         )
         
-        # --- AVISO AO SISTEMA OPERACIONAL ---
-        # Garante que este processo filho seja exterminado automaticamente 
-        # caso o processo pai (a janela do Tkinter) seja encerrado.
         p.daemon = True 
-        
         p.start()
 
         while p.is_alive():

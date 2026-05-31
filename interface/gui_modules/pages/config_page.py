@@ -385,7 +385,7 @@ class ConfigPage(ctk.CTkFrame):
         self.lbl_contagem_dv2 = ctk.CTkLabel(
             self.frame_dv2, 
             text="Estimated runs: 0", 
-            font=("Roboto", 11, "italic"), 
+            font=("Roboto", 11, "normal"), 
             text_color="#5c6269" # A cor discreta que você pediu
         )
         # Colocamos na linha de baixo (row=1), esticando por todas as colunas, alinhado à direita ("e")

@@ -30,7 +30,7 @@ caminho_icone = os.path.join(ASSETS_PATH, "icon.ico")
 from gui_modules.app_state import AppState
 from gui_modules.pages.config_page import ConfigPage
 from gui_modules.runner_thread import run
-from astraeos_core.plot_curve import plot_perfil_output
+from astraeos_core.plot_curve import plot_perfil_output, plot_multicurve
 
 
 # * ============================================
@@ -107,22 +107,10 @@ class AppWindow(ctk.CTk):
         self.console_box.grid(row=1, column=0, sticky="nsew", padx=(0, 20))
 
         self.cores_ansi = {
-            "30": "#282C34",
-            "31": "#E06C75",
-            "32": "#98C379",
-            "33": "#E5C07B",
-            "34": "#61AFEF",
-            "35": "#C678DD",
-            "36": "#56B6C2",
-            "37": "#ABB2BF",
-            "90": "#5C6370",
-            "91": "#E06C75",
-            "92": "#98C379",
-            "93": "#E5C07B",
-            "94": "#61AFEF",
-            "95": "#C678DD",
-            "96": "#56B6C2",
-            "97": "#FFFFFF",
+            "30": "#282C34", "31": "#E06C75", "32": "#98C379", "33": "#E5C07B",
+            "34": "#61AFEF", "35": "#C678DD", "36": "#56B6C2", "37": "#ABB2BF",
+            "90": "#5C6370", "91": "#E06C75", "92": "#98C379", "93": "#E5C07B",
+            "94": "#61AFEF", "95": "#C678DD", "96": "#56B6C2", "97": "#FFFFFF",
         }
         for codigo, hex_cor in self.cores_ansi.items():
             self.console_box._textbox.tag_config(f"color_{codigo}", foreground=hex_cor)
@@ -142,10 +130,8 @@ class AppWindow(ctk.CTk):
     # * ============================================
     # * Lógica Interna e Rotinas
     # * ============================================
-    # ? --- Lógica Interna do Console ---
     def escrever_console(self, texto):
         self.console_box.configure(state="normal")
-
         partes = re.split(r"(\x1b\[[0-9;]*m)", texto)
         tag_atual = None
 
@@ -166,36 +152,28 @@ class AppWindow(ctk.CTk):
         self.console_box.see("end")
         self.console_box.configure(state="disabled")
 
-    # ? --- Atualização de Status Bar ---
     def set_status(self, mensagem, cor="#858585"):
         self.lbl_status.configure(text=f" {mensagem}", text_color=cor)
 
-    # ? --- Configuração de Gráficos (MODO INTERATIVO) ---
     def exibir_grafico(self, figura_matplotlib):
         try:
-            # 1. Limpa o painel atual (remove o texto "Waiting..." ou o gráfico antigo)
             for widget in self.painel_graficos.winfo_children():
                 widget.destroy()
 
-            # 2. Renderiza a figura matemática interativa no CustomTkinter
             canvas = FigureCanvasTkAgg(figura_matplotlib, master=self.painel_graficos)
             canvas.draw()
 
-            # 3. Adiciona a Barra de Ferramentas (Zoom, Salvar, Pan) - Estilizada para Dark Mode
             toolbar = NavigationToolbar2Tk(canvas, self.painel_graficos)
             toolbar.config(background="#1E1E1E")
 
-            # Aplica a cor apenas aos elementos que suportam (ignora separadores)
             for widget in toolbar.winfo_children():
                 try:
                     widget.config(background="#1E1E1E")
                     widget.config(activebackground="#2C313A")
                 except:
-                    pass  # Se o widget não for um botão, apenas ignora o erro e continua
+                    pass
 
             toolbar.update()
-
-            # 4. Posiciona tudo na tela
             canvas.get_tk_widget().pack(side="top", fill="both", expand=True)
 
         except Exception as e:
@@ -205,46 +183,43 @@ class AppWindow(ctk.CTk):
         try:
             self.set_status("Updating plot styling...", "#61AFEF")
 
-            # 1. Pega os novos parâmetros visuais da interface
             p = self.app_state.parameters_plot()
+            i = self.app_state.parameters_input()
+            m = self.app_state.parameters_more_options()
 
-            # 2. Roda a função com TODOS os argumentos necessários
-            minha_figura = plot_perfil_output(
-                x_ref=p["x_ref"],
-                linestyle_ref=p["linestyle_ref"],
-                color_ref=p["color_ref"],
-                nome_ref=p["nome_ref"],
-                sigmas_ref=p["sigmas_ref"],
-                sigmas_color_ref=p["sigmas_color_ref"],
-                sigmas_nome_ref=p["sigmas_nome_ref"],
-                x_scale=p["x_scale"],
-                y_scale=p["y_scale"],
-            )
+            if m["multicurve"]:
+                minha_figura = plot_multicurve(
+                    x_ref=p["x_ref"], linestyle_ref=p["linestyle_ref"],
+                    color_ref=p["color_ref"], nome_ref=p["nome_ref"],
+                    sigmas_ref=p["sigmas_ref"], sigmas_color_ref=p["sigmas_color_ref"],
+                    sigmas_nome_ref=p["sigmas_nome_ref"], x_scale=p["x_scale"], y_scale=p["y_scale"],
+                )
+            else:
+                minha_figura = plot_perfil_output(
+                    x_ref=p["x_ref"], linestyle_ref=p["linestyle_ref"],
+                    color_ref=p["color_ref"], nome_ref=p["nome_ref"],
+                    sigmas_ref=p["sigmas_ref"], sigmas_color_ref=p["sigmas_color_ref"],
+                    sigmas_nome_ref=p["sigmas_nome_ref"], x_scale=p["x_scale"],
+                    y_scale=p["y_scale"], cte=i["cte"],
+                )
 
-            # 3. Atualiza a imagem interativa na tela
             self.exibir_grafico(minha_figura)
             self.set_status("Plot updated successfully!", "#98C379")
 
         except Exception as e:
             self.set_status(f"Error updating plot: {e}", "#E06C75")
-
         finally:
-            # Destrava o botão novamente
-            self.pagina_atual.btn_update_plot.configure(
-                state="normal", text="Update Plot"
-            )
+            self.pagina_atual.btn_update_plot.configure(state="normal", text="Update Plot")
 
     def fechar_aplicativo(self):
         self.set_status("Shutting down ASTRAEOS and clearing memory...", "#E06C75")
-        self.update()  # Força a interface a mostrar a mensagem antes de travar
+        self.update() 
 
-        # Procura qualquer processo filho solto e atira a matar
         processos_ativos = multiprocessing.active_children()
         for processo in processos_ativos:
             processo.terminate()
-            processo.join(timeout=1.0)  # Dá 1 segundo pro processo morrer com dignidade
+            processo.join(timeout=1.0) 
 
-        # Destrói a janela e encerra o Python
         self.destroy()
         sys.exit(0)
 
@@ -252,14 +227,32 @@ class AppWindow(ctk.CTk):
     def executar_fisica(self):
         parametros_fisica = self.app_state.parameters_input()
         parametros_plot = self.app_state.parameters_plot()
+        parametros_more = self.app_state.parameters_more_options()
+
         parametros_completos = {**parametros_fisica, **parametros_plot}
-        self.set_status(
-            "Starting simulation... Check the console for more details.",
-            "#E5C07B",
-        )
+
+        if parametros_more["multicurve"]:
+            parametros_completos["script_type"] = "multicurve"
+            msg_status = "Starting Multicurve Analysis... Check the console."
+        elif parametros_more["searchdv2"]:
+            parametros_completos["script_type"] = "searchdv2"
+            msg_status = "Starting DeltaV0² Optimization Search... Check the console."
+            try:
+                parametros_completos["min_dv2"] = float(self.app_state.ldv2.get())
+                parametros_completos["max_dv2"] = float(self.app_state.hdv2.get())
+                parametros_completos["step_dv2"] = float(self.app_state.stepdv2.get())
+            except ValueError:
+                self.set_status("Erro: Os limites e o step do Search DV2 devem ser números!", "#E06C75")
+                self.pagina_atual.btn_run.configure(state="normal", text="Run Simulation")
+                return 
+        else:
+            parametros_completos["script_type"] = "main"
+            msg_status = "Starting standard simulation... Check the console."
+
+        self.set_status(msg_status, "#E5C07B")
         self.console_box.configure(state="normal")
         self.console_box.delete("0.0", "end")
-        self.console_box.insert("end", "--- Initiating Execution ---\n")
+        self.console_box.insert("end", f"--- Initiating Execution [{parametros_completos['script_type'].upper()}] ---\n")
         self.console_box.configure(state="disabled")
 
         run(
@@ -272,37 +265,38 @@ class AppWindow(ctk.CTk):
     # * ============================================
     # * Callbacks
     # * ============================================
-    # ? --- Simulação Finalizada com Sucesso ---
     def ao_terminar_com_sucesso(self):
         self.after(0, self._atualizar_ui_sucesso)
 
     def _atualizar_ui_sucesso(self):
-        self.set_status(
-            f"Task completed successfully!",
-            "#98C379",
-        )
+        self.set_status("Task completed successfully!", "#98C379")
         self.pagina_atual.btn_run.configure(state="normal", text="Run Simulation")
         self.pagina_atual.btn_update_plot.configure(state="normal", text="Update Plot")
 
         p = self.app_state.parameters_plot()
         i = self.app_state.parameters_input()
-        figura_inicial = plot_perfil_output(
-            x_ref=p["x_ref"],
-            linestyle_ref=p["linestyle_ref"],
-            color_ref=p["color_ref"],
-            nome_ref=p["nome_ref"],
-            sigmas_ref=p["sigmas_ref"],
-            sigmas_color_ref=p["sigmas_color_ref"],
-            sigmas_nome_ref=p["sigmas_nome_ref"],
-            x_scale=p["x_scale"],
-            y_scale=p["y_scale"],
-            cte=i["cte"],
-        )
+        m = self.app_state.parameters_more_options()
 
-        # Exibe o gráfico interativo
-        self.exibir_grafico(figura_inicial)
+        try:
+            if m["multicurve"]:
+                figura_inicial = plot_multicurve(
+                    x_ref=p["x_ref"], linestyle_ref=p["linestyle_ref"], color_ref=p["color_ref"],
+                    nome_ref=p["nome_ref"], sigmas_ref=p["sigmas_ref"], sigmas_color_ref=p["sigmas_color_ref"],
+                    sigmas_nome_ref=p["sigmas_nome_ref"], x_scale=p["x_scale"], y_scale=p["y_scale"],
+                )
+            else:
+                figura_inicial = plot_perfil_output(
+                    x_ref=p["x_ref"], linestyle_ref=p["linestyle_ref"], color_ref=p["color_ref"],
+                    nome_ref=p["nome_ref"], sigmas_ref=p["sigmas_ref"], sigmas_color_ref=p["sigmas_color_ref"],
+                    sigmas_nome_ref=p["sigmas_nome_ref"], x_scale=p["x_scale"], y_scale=p["y_scale"], cte=i["cte"],
+                )
+            self.exibir_grafico(figura_inicial)
+            
+        except FileNotFoundError:
+            self.set_status("Erro: O Multicurve exige que você rode o padrão com 'Constante' ON e OFF antes!", "#E06C75")
+        except Exception as e:
+            self.set_status(f"Erro ao montar gráfico final: {e}", "#E06C75")
 
-    # ? --- Simulação Finalizada com Erro ---
     def ao_dar_erro(self, mensagem_erro):
         self.after(0, self._atualizar_ui_erro, mensagem_erro)
 
@@ -310,14 +304,31 @@ class AppWindow(ctk.CTk):
         self.set_status(f"Execution error | {erro}", "#E06C75")
         self.pagina_atual.btn_run.configure(state="normal", text="Run Simulation")
 
-    # ? --- Recebimento de Log ---
+    # ? --- Lógica do Gráfico em Tempo Real ---
     def ao_receber_log(self, texto_bruto):
-        self.after(0, lambda: self.escrever_console(texto_bruto))
+        # AQUI ESTAVA FALTANDO! Intercepta o sinal do searchDV2.py
+        if "___UPDATE_PLOT___" in texto_bruto:
+            self.after(0, self._atualizar_grafico_parcial)
+        else:
+            self.after(0, lambda: self.escrever_console(texto_bruto))
 
+    def _atualizar_grafico_parcial(self):
+        """Atualiza a tela a cada passo do Search DV2 sem travar a UI."""
+        try:
+            p = self.app_state.parameters_plot()
+            i = self.app_state.parameters_input()
+            
+            figura_parcial = plot_perfil_output(
+                x_ref=p["x_ref"], linestyle_ref=p["linestyle_ref"],
+                color_ref=p["color_ref"], nome_ref=p["nome_ref"],
+                sigmas_ref=p["sigmas_ref"], sigmas_color_ref=p["sigmas_color_ref"],
+                sigmas_nome_ref=p["sigmas_nome_ref"], x_scale=p["x_scale"],
+                y_scale=p["y_scale"], cte=i["cte"],
+            )
+            self.exibir_grafico(figura_parcial)
+        except Exception:
+            pass # Ignora se o arquivo estiver bloqueado temporariamente pela Thread
 
-# * ============================================
-# * Execução do Aplicativo
-# * ============================================
 if __name__ == "__main__":
     multiprocessing.freeze_support()
     ctk.set_appearance_mode("dark")

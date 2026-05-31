@@ -81,6 +81,7 @@ def main_sd(
                 x_scale=x_scale,
                 y_scale=y_scale,
             )
+            print("___UPDATE_PLOT___")
         except:
             sy.ok(f"Falha na tentativa {i}!", False)
         idv2 += step_dv2
