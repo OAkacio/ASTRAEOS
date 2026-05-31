@@ -31,7 +31,7 @@ def plot_perfil_output(
     idx_crit_den = dados["idx_crit_den"].item()
 
     # 2. Chama APENAS a geração do gráfico de Output com os novos parâmetros visuais
-    gp.plot(
+    fig = gp.plot(
         title=nome,
         x_data=[x_tot],
         y_data=[list(np.array(y_tot) * ve0 / 1e5)],
@@ -80,6 +80,7 @@ def plot_perfil_output(
         sigma_alpha=0.15,
         theme="dark",  # Ativa o modo escuro que criamos!
     )
+    return fig
 
 
 def plot_perfil_main(
@@ -115,7 +116,7 @@ def plot_perfil_main(
     idx_crit_den = dados["idx_crit_den"].item()
 
     # 2. Chama APENAS a geração do gráfico de Output com os novos parâmetros visuais
-    gp.plot(
+    fig = gp.plot(
         x_data=[x_tot],
         y_data=[list(np.array(y_tot) * ve0 / 1e5)],
         show_plot=False,
@@ -160,6 +161,7 @@ def plot_perfil_main(
         sigma_colors=sigmas_color_ref,
         sigma_alpha=0.2,
     )
+    return fig
 
 
 def plot_curve_analis(tamanho_pulo, recuo_pulo, L0, deltav0, S_divergencia):
@@ -178,7 +180,7 @@ def plot_curve_analis(tamanho_pulo, recuo_pulo, L0, deltav0, S_divergencia):
     idx_crit_num = dados["idx_crit_num"].item()
     idx_crit_den = dados["idx_crit_den"].item()
 
-    gp.plot(
+    fig = gp.plot(
         x_data=[x_tot] * 4,
         y_data=[
             den_alpha_array[:, 0],
@@ -229,3 +231,4 @@ def plot_curve_analis(tamanho_pulo, recuo_pulo, L0, deltav0, S_divergencia):
         legend_box=False,
         legend_fontsize=10,
     )
+    return fig
