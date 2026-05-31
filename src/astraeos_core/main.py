@@ -1,4 +1,3 @@
-#
 # * ============================================
 # * Importações
 # * ============================================
@@ -49,11 +48,10 @@ def main(
     x_scale,
     y_scale,
 ):
-    # Nota: Mudei as chaves 'Versão' e 'autor' para inglês, supondo que sy.header aceite kwargs dinâmicos.
-    sy.header("ASTRAEOS", Version="v0.1.0", Author="Victor M. Acacio")
+    sy.header("ASTRAEOS", Version="v0.1.0", Author="Victor M. Acacio", flush=True)
 
     # ? --- Apresentação dos Parâmetros ---
-    sy.status("Displaying input parameters...")
+    sy.status("Displaying input parameters...", flush=True)
     ve0, cs, vA0, vT, x_t, r0, M = calc_param(
         nome,
         Mstar,
@@ -100,10 +98,12 @@ def main(
         ("L0", L0, "r0"),
         ("x_t", x_t, "r0"),
         ("cs", cs, "cm/s"),
+        flush=True,
     )
 
     # ? --- Busca por Velocidade Inicial ---
-    sy.status("Initiating search for initial velocity...")
+    sy.status("Initiating search for initial velocity...", flush=True)
+    time.sleep(1)
     u0, x_crit, y_crit, r_crit, x_append, y_append, vetor = jl.busca_u0(
         vT,
         [B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S_divergencia, 0.0, phi0],
@@ -117,11 +117,12 @@ def main(
         ("Critical Point Distance", x_crit, "r0"),
         ("Velocity at Critical Point", y_crit, "ve0"),
         ("Function Value at Critical Point", r_crit, "adm"),
+        flush=True,
     )
 
     # ? --- Integração de Curva ---
-    sy.status("Initiating velocity profile integration...")
-
+    sy.status("Initiating velocity profile integration...", flush=True)
+    time.sleep(1)
     x0n, y0, x_int, y_int, x_ext, y_ext, num_alpha_list, den_alpha_list = (
         jl.integra_perfil(
             u0,
@@ -163,6 +164,7 @@ def main(
         ("Terminal Velocity", y_tot[-1] * ve0 / 1e5, "km/s"),
         ("Terminal Velocity", y_tot[-1], "ve0"),
         ("Transition Point Distance", x_t, "r0"),
+        flush=True,
     )
 
     # ? --- Geração de Gráfico Principal ---
@@ -204,7 +206,7 @@ def main(
         S_divergencia,
     )
 
-    sy.fim("EXECUTION COMPLETED")
+    sy.fim("EXECUTION COMPLETED", flush=True)
 
     return (
         x_tot,
