@@ -25,9 +25,12 @@ def plot_perfil_output(
     x_t = dados["x_t"].item()
     ve0 = dados["ve0"].item()
     x_sim = dados["x_sim"].item()
-    nome = str(dados["nome"].item())
-    num_alpha_array = dados["num_alpha_array"].item()
-    den_alpha_array = dados["den_alpha_array"].item()
+    
+    # CORREÇÃO: Arrays e Strings não usam .item()
+    nome = str(dados["nome"])
+    num_alpha_array = dados["num_alpha_array"]
+    den_alpha_array = dados["den_alpha_array"]
+    
     idx_crit_num = dados["idx_crit_num"].item()
     idx_crit_den = dados["idx_crit_den"].item()
 
@@ -70,7 +73,7 @@ def plot_perfil_output(
         highlight_color="#E06C75",  # Ponto crítico em vermelho vibrante
         highlight_size=50,
         highlight_marker="o",
-        highlight_label=r"$P_{crit}",
+        highlight_label=r"$P_{crit}$",
         legend_fontsize=9,
         y_lim=[None, 1500],
         block_tick=False,
@@ -110,9 +113,12 @@ def plot_perfil_main(
     x_t = dados["x_t"].item()
     ve0 = dados["ve0"].item()
     x_sim = dados["x_sim"].item()
-    nome = str(dados["nome"].item())
-    num_alpha_array = dados["num_alpha_array"].item()
-    den_alpha_array = dados["den_alpha_array"].item()
+    
+    # CORREÇÃO: Arrays e Strings não usam .item()
+    nome = str(dados["nome"])
+    num_alpha_array = dados["num_alpha_array"]
+    den_alpha_array = dados["den_alpha_array"]
+    
     idx_crit_num = dados["idx_crit_num"].item()
     idx_crit_den = dados["idx_crit_den"].item()
 
@@ -175,9 +181,12 @@ def plot_curve_analis(tamanho_pulo, recuo_pulo, L0, deltav0, S_divergencia, cte)
     x_t = dados["x_t"].item()
     ve0 = dados["ve0"].item()
     x_sim = dados["x_sim"].item()
-    nome = str(dados["nome"].item())
-    num_alpha_array = dados["num_alpha_array"].item()
-    den_alpha_array = dados["den_alpha_array"].item()
+    
+    # CORREÇÃO: Arrays e Strings não usam .item()
+    nome = str(dados["nome"])
+    num_alpha_array = dados["num_alpha_array"]
+    den_alpha_array = dados["den_alpha_array"]
+    
     idx_crit_num = dados["idx_crit_num"].item()
     idx_crit_den = dados["idx_crit_den"].item()
 
@@ -247,8 +256,8 @@ def plot_multicurve(
     y_scale,
 ):
     # 1. Carrega os dados salvos da última simulação
-    tdados = np.load(f"data/curve_True.npz")
-    fdados = np.load(f"data/curve_False.npz")
+    tdados = np.load("data/curve_True.npz")
+    fdados = np.load("data/curve_False.npz")
 
     tx_tot = tdados["x_tot"]
     ty_tot = tdados["y_tot"]
@@ -263,7 +272,7 @@ def plot_multicurve(
     x_t = tdados["x_t"].item()
     ve0 = tdados["ve0"].item()
     x_sim = tdados["x_sim"].item()
-    nome = str(tdados["nome"].item())
+    nome = str(tdados["nome"])
 
     fig = gp.plot(
         title=nome,
@@ -303,9 +312,10 @@ def plot_multicurve(
         fig_height=5.0,  # Altura balanceada
         x_lim=[1, x_sim],
         legend_box=False,
+        # CORREÇÃO AQUI TAMBÉM: Listas estritas para o Matplotlib processar múltiplos pontos
         highlight_point=[
-            (tx_crit, ty_crit * ve0 / 1e5),
-            (fx_crit, fy_crit * ve0 / 1e5),
+            [tx_crit, ty_crit * ve0 / 1e5],
+            [fx_crit, fy_crit * ve0 / 1e5],
         ],
         highlight_color=["#E06C75", "#E0A06C"],  # Ponto crítico em vermelho vibrante
         highlight_size=50,
