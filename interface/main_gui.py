@@ -18,6 +18,7 @@ import customtkinter as ctk
 import multiprocessing
 import re
 from PIL import Image
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC_PATH = os.path.join(BASE_DIR, "src")
@@ -167,50 +168,36 @@ class AppWindow(ctk.CTk):
     def set_status(self, mensagem, cor="#858585"):
         self.lbl_status.configure(text=f" {mensagem}", text_color=cor)
 
-    # ? --- Configuração de Gráficos ---
-    def exibir_grafico(self, nome_arquivo="output.png"):
-        caminho_imagem = os.path.join(BASE_DIR, "figures", nome_arquivo)
-
-        if not os.path.exists(caminho_imagem):
-            self.set_status(
-                f"Erro: Arquivo {nome_arquivo} não encontrado na pasta figures.",
-                "#E06C75",
-            )
-            return
-
+    # ? --- Configuração de Gráficos (MODO INTERATIVO) ---
+    def exibir_grafico(self, figura_matplotlib):
         try:
-            img_pil = Image.open(caminho_imagem)
-            largura_orig, altura_orig = img_pil.size
+            # 1. Limpa o painel atual (remove o texto "Waiting..." ou o gráfico antigo)
+            for widget in self.painel_graficos.winfo_children():
+                widget.destroy()
 
-            largura_painel = self.painel_graficos.winfo_width() - 20
-            altura_painel = self.painel_graficos.winfo_height() - 20
-
-            if largura_painel < 10:
-                largura_painel = 800
-            if altura_painel < 10:
-                altura_painel = 400
-
-            razao_imagem = largura_orig / altura_orig
-            razao_painel = largura_painel / altura_painel
-
-            if razao_painel > razao_imagem:
-                nova_altura = altura_painel
-                nova_largura = int(nova_altura * razao_imagem)
-            else:
-                nova_largura = largura_painel
-                nova_altura = int(nova_largura / razao_imagem)
-
-            img_ctk = ctk.CTkImage(
-                light_image=img_pil,
-                dark_image=img_pil,
-                size=(nova_largura, nova_altura),
-            )
-
-            self.lbl_grafico_vazio.configure(text="", image=img_ctk)
-            self.lbl_grafico_vazio.image = img_ctk
-
+            # 2. Renderiza a figura matemática interativa no CustomTkinter
+            canvas = FigureCanvasTkAgg(figura_matplotlib, master=self.painel_graficos)
+            canvas.draw()
+            
+            # 3. Adiciona a Barra de Ferramentas (Zoom, Salvar, Pan) - Estilizada para Dark Mode
+            toolbar = NavigationToolbar2Tk(canvas, self.painel_graficos)
+            toolbar.config(background="#1E1E1E")
+            
+            # Aplica a cor apenas aos elementos que suportam (ignora separadores)
+            for widget in toolbar.winfo_children():
+                try:
+                    widget.config(background="#1E1E1E")
+                    widget.config(activebackground="#2C313A")
+                except:
+                    pass # Se o widget não for um botão, apenas ignora o erro e continua
+                    
+            toolbar.update()
+            
+            # 4. Posiciona tudo na tela
+            canvas.get_tk_widget().pack(side="top", fill="both", expand=True)
+            
         except Exception as e:
-            self.set_status(f"Erro ao renderizar imagem: {e}", "#E06C75")
+            self.set_status(f"Erro ao renderizar gráfico interativo: {e}", "#E06C75")
 
     def atualizar_somente_grafico(self):
         try:
@@ -219,8 +206,8 @@ class AppWindow(ctk.CTk):
             # 1. Pega os novos parâmetros visuais da interface
             p = self.app_state.parameters_plot()
 
-            # 2. Roda a função de plotagem (ela vai ler o data/curve.npz sozinha!)
-            plot_perfil_output(
+            # 2. Roda a função com TODOS os argumentos necessários
+            minha_figura = plot_perfil_output(
                 x_ref=p["x_ref"],
                 linestyle_ref=p["linestyle_ref"],
                 color_ref=p["color_ref"],
@@ -232,8 +219,8 @@ class AppWindow(ctk.CTk):
                 y_scale=p["y_scale"],
             )
 
-            # 3. Atualiza a imagem na tela
-            self.exibir_grafico(nome_arquivo="output.png")
+            # 3. Atualiza a imagem interativa na tela
+            self.exibir_grafico(minha_figura)
             self.set_status("Plot updated successfully!", "#98C379")
 
         except Exception as e:
@@ -280,7 +267,22 @@ class AppWindow(ctk.CTk):
         )
         self.pagina_atual.btn_run.configure(state="normal", text="Run Simulation")
         self.pagina_atual.btn_update_plot.configure(state="normal", text="Update Plot")
-        self.exibir_grafico(nome_arquivo="output.png")
+        
+        p = self.app_state.parameters_plot()
+        figura_inicial = plot_perfil_output(
+            x_ref=p["x_ref"],
+            linestyle_ref=p["linestyle_ref"],
+            color_ref=p["color_ref"],
+            nome_ref=p["nome_ref"],
+            sigmas_ref=p["sigmas_ref"],
+            sigmas_color_ref=p["sigmas_color_ref"],
+            sigmas_nome_ref=p["sigmas_nome_ref"],
+            x_scale=p["x_scale"],
+            y_scale=p["y_scale"],
+        )
+        
+        # Exibe o gráfico interativo
+        self.exibir_grafico(figura_inicial)
 
     # ? --- Simulação Finalizada com Erro ---
     def ao_dar_erro(self, mensagem_erro):
