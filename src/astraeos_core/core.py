@@ -12,21 +12,44 @@ except:
     from parameters import *
 
 # * ============================================
-# * Conversões de Unidades
-# * ============================================
-r0 = Rstar * rsun  # Raio inicial [cm]
-M = Mstar * Msun  # Massa da estrela [g]
-
-# * ============================================
 # * Grandezas derivadas
 # * ============================================
-def calc_param(dv2,S):
+def calc_param(
+        nome,
+        Mstar,
+        Rstar,
+        Teff,
+        T,
+        mu,
+        rho0,
+        B0,
+        phi0,
+        u0_step,
+        u0_ini,
+        h_rk,
+        deltav0,
+        S_divergencia,
+        recuo_pulo,
+        tamanho_pulo,
+        cte,
+        L0,
+        x_sim,
+        x_ref,
+        linestyle_ref,
+        color_ref,
+        nome_ref,
+        sigmas_ref,
+        sigmas_color_ref,
+        sigmas_nome_ref,
+    ):
+    r0 = Rstar * rsun  # Raio inicial [cm]
+    M = Mstar * Msun  # Massa da estrela [g]
     ve0 = math.sqrt(2.0 * G * M / r0)  # Velocidade de escape na Superfície [cm/s]
     cs = math.sqrt(kb * T / (mu * mp))  # Velocidade do som [cm/s]
     vA0 = (B0 / math.sqrt(4.0 * math.pi * rho0)) / ve0  # Velocidade de Alfvén [ve0]
     vT = cs / ve0  # Velocidade Térmica [ve0]
-    x_t = 10.0 ** (1.0 / (S - 2.0))  # Raio de transição [r0]
-    return ve0, cs, vA0, vT, x_t
+    x_t = 10.0 ** (1.0 / (S_divergencia - 2.0))  # Raio de transição [r0]
+    return ve0, cs, vA0, vT, x_t, r0, M
 
 
 # * ============================================

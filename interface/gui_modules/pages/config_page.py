@@ -18,12 +18,13 @@ import customtkinter as ctk
 # * Classe da Interface de Entradas
 # * ============================================
 class ConfigPage(ctk.CTkFrame):
-    def __init__(self, master, state, on_run_click):
+    def __init__(self, master, state, on_run_click, on_update_click):
         super().__init__(master, corner_radius=0)
         
         # ? --- Carrega App State e Inicia Página Principal ---
         self.app_state = state
         self.on_run_click = on_run_click
+        self.on_update_click = on_update_click
 
         # ? --- Configurações de Layout ---
         self.grid_columnconfigure(0, weight=1)
@@ -108,6 +109,9 @@ class ConfigPage(ctk.CTkFrame):
             ctk.CTkEntry(aba, textvariable=var).grid(
                 row=linha, column=1, padx=10, pady=5, sticky="w"
             )
+        ctk.CTkCheckBox(
+            aba, text="Use Constant Damping (Non-Resonant)", variable=self.app_state.cte
+        ).grid(row=6, column=0, columnspan=2, pady=15)
 
     # ? --- Parâmetros de Input (Numérico) ---
     def _construir_aba_numerico(self, aba):
@@ -128,9 +132,6 @@ class ConfigPage(ctk.CTkFrame):
             ctk.CTkEntry(aba, textvariable=var).grid(
                 row=linha, column=1, padx=10, pady=5, sticky="w"
             )
-        ctk.CTkCheckBox(
-            aba, text="Use Constant Damping (Non-Resonant)", variable=self.app_state.cte
-        ).grid(row=6, column=0, columnspan=2, pady=15)
 
     # ? --- Parâmetros de Input (Gráfico) ---
     def _construir_aba_gp(self, aba):
@@ -167,6 +168,50 @@ class ConfigPage(ctk.CTkFrame):
         ctk.CTkLabel(frame_sigma, text="Color:").grid(row=0, column=6, padx=(15,5))
         ctk.CTkEntry(frame_sigma, textvariable=self.app_state.sigma_cor, width=75).grid(row=0, column=7, padx=5)
 
+        row_offset += 2 # Pula duas linhas abaixo da Sigma Zone
+        ctk.CTkLabel(aba, text="Axis Scales", font=("Consolas", 14, "bold"), text_color="#E5C07B").grid(
+            row=row_offset, column=0, columnspan=4, pady=(25, 5)
+        )
+
+        # Cria uma caixinha invisível para centralizar os controles
+        frame_axis = ctk.CTkFrame(aba, fg_color="transparent")
+        frame_axis.grid(row=row_offset+1, column=0, columnspan=4, pady=5)
+        
+        estilos_escala = ["log", "linear"]
+        
+        # Controle do Eixo X
+        ctk.CTkLabel(frame_axis, text="X Axis Scale:").grid(row=0, column=0, padx=5)
+        cb_x = ctk.CTkComboBox(
+            frame_axis, 
+            variable=self.app_state.axis["X Axis"], # Puxa direto do dicionário!
+            values=estilos_escala, 
+            width=100, 
+            state="readonly" # Impede o usuário de digitar bobagem
+        )
+        cb_x.grid(row=0, column=1, padx=5)
+        
+        # Controle do Eixo Y
+        ctk.CTkLabel(frame_axis, text="Y Axis Scale:").grid(row=0, column=2, padx=(30, 5))
+        cb_y = ctk.CTkComboBox(
+            frame_axis, 
+            variable=self.app_state.axis["Y Axis"], # Puxa direto do dicionário!
+            values=estilos_escala, 
+            width=100, 
+            state="readonly"
+        )
+        cb_y.grid(row=0, column=3, padx=5)
+
+        row_offset += 2
+        self.btn_update_plot = ctk.CTkButton(
+            aba, 
+            text="Update Plot (Fast)", 
+            command=self.iniciar_replot,
+            fg_color="#5C7174", 
+            state="disabled" # Inicia bloqueado até a primeira simulação rodar
+        )
+        self.btn_update_plot.grid(row=row_offset, column=0, columnspan=4, pady=(20, 10))
+
+
     # * ============================================
     # * Ações e Eventos
     # * ============================================
@@ -174,3 +219,6 @@ class ConfigPage(ctk.CTkFrame):
     def iniciar_processo(self):
         self.btn_run.configure(state="disabled", text="Calculating...")
         self.on_run_click()
+    def iniciar_replot(self):
+        self.btn_update_plot.configure(state="disabled", text="Plotting...")
+        self.on_update_click()

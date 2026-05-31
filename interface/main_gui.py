@@ -29,6 +29,7 @@ caminho_icone = os.path.join(ASSETS_PATH, "icon.ico")
 from gui_modules.app_state import AppState
 from gui_modules.pages.config_page import ConfigPage
 from gui_modules.runner_thread import run
+from astraeos_core.plot_curve import plot_perfil_output
 
 
 # * ============================================
@@ -131,6 +132,7 @@ class AppWindow(ctk.CTk):
             master=self.main_container,
             state=self.app_state,
             on_run_click=self.executar_fisica,
+            on_update_click=self.atualizar_somente_grafico,
         )
         self.pagina_atual.grid(row=0, column=1, rowspan=2, sticky="nsew")
 
@@ -209,6 +211,36 @@ class AppWindow(ctk.CTk):
 
         except Exception as e:
             self.set_status(f"Erro ao renderizar imagem: {e}", "#E06C75")
+    def atualizar_somente_grafico(self):
+        try:
+            self.set_status("Updating plot styling...", "#61AFEF")
+            
+            # 1. Pega os novos parâmetros visuais da interface
+            p = self.app_state.parameters_plot()
+            
+            # 2. Roda a função de plotagem (ela vai ler o data/curve.npz sozinha!)
+            plot_perfil_output(
+                x_ref=p["x_ref"],
+                linestyle_ref=p["linestyle_ref"],
+                color_ref=p["color_ref"],
+                nome_ref=p["nome_ref"],
+                sigmas_ref=p["sigmas_ref"],
+                sigmas_color_ref=p["sigmas_color_ref"],
+                sigmas_nome_ref=p["sigmas_nome_ref"],
+                x_scale=p["x_scale"],
+                y_scale=p["y_scale"],
+            )
+            
+            # 3. Atualiza a imagem na tela
+            self.exibir_grafico(nome_arquivo="output.png")
+            self.set_status("Plot updated successfully!", "#98C379")
+            
+        except Exception as e:
+            self.set_status(f"Error updating plot: {e}", "#E06C75")
+            
+        finally:
+            # Destrava o botão novamente
+            self.pagina_atual.btn_update_plot.configure(state="normal", text="Update Plot (Fast)")
 
     # ? --- Rotina ao Iniciar Simulação ---
     def executar_fisica(self):
@@ -244,6 +276,7 @@ class AppWindow(ctk.CTk):
             "#98C379",
         )
         self.pagina_atual.btn_run.configure(state="normal", text="Run Simulation")
+        self.pagina_atual.btn_update_plot.configure(state="normal", text="Update Plot (Fast)")
         self.exibir_grafico(nome_arquivo="output.png")
 
     # ? --- Simulação Finalizada com Erro ---

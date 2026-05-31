@@ -66,11 +66,14 @@ class AppState:
                 "estilo": ctk.StringVar(value=":"),
             },
         ]
-
         self.sigma_ini = ctk.StringVar(value="39.7")
         self.sigma_fim = ctk.StringVar(value="84.7")
         self.sigma_nome = ctk.StringVar(value="ZH")
         self.sigma_cor = ctk.StringVar(value="#8FFF81")
+        self.axis={
+                "X Axis": ctk.StringVar(value="log"),
+                "Y Axis": ctk.StringVar(value="log"),
+            }
 
     # ? --- Exportação de Parâmetros de Entrada ---
     def parameters_input(self):
@@ -143,4 +146,6 @@ class AppState:
             "sigmas_ref": sigmas_ref,
             "sigmas_color_ref": sigmas_color_ref,
             "sigmas_nome_ref": sigmas_nome_ref,
+            "x_scale": self.axis["X Axis"].get(),
+            "y_scale": self.axis["Y Axis"].get(),
         }
