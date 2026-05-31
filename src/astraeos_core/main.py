@@ -7,7 +7,7 @@ try:
     from .utils import *
     from .core import *
     from .plot_curve import *
-except:
+except ImportError:
     from lib import *
     from parameters import *
     from utils import *
@@ -16,7 +16,7 @@ except:
 
 
 # * ============================================
-# * Início
+# * Rotina Principal de Simulação
 # * ============================================
 def main(
     nome,
@@ -48,15 +48,15 @@ def main(
     x_scale,
     y_scale,
     show_progress=True,
-    **kwargs,  # <-- NOVO: Controle de barra e absorção de erros
+    **kwargs,
 ):
+    # ? --- Inicialização e Parâmetros ---
     if show_progress:
         print("___PROGRESS___|0.05", flush=True)
 
     sy.header("ASTRAEOS", Version="v0.1.0", Author="Victor M. Acacio", flush=True)
-
-    # ? --- Apresentação dos Parâmetros ---
     sy.status("Displaying input parameters...", flush=True)
+
     ve0, cs, vA0, vT, x_t, r0, M = calc_param(
         nome,
         Mstar,
@@ -85,6 +85,7 @@ def main(
         sigmas_color_ref,
         sigmas_nome_ref,
     )
+
     sy.param(
         ("Name", nome, ""),
         ("Mass", Mstar, "Msun"),
@@ -109,6 +110,7 @@ def main(
     if show_progress:
         print("___PROGRESS___|0.2", flush=True)
 
+    # ? --- Callbacks de Progresso ---
     def cb_u0(pct):
         print(f"___U0_PROGRESS___|{pct}", flush=True)
 
@@ -118,16 +120,16 @@ def main(
     # ? --- Busca por Velocidade Inicial ---
     sy.status("Initiating search for initial velocity...", flush=True)
     time.sleep(1)
-    
-    # 2. ENTREGAMOS O MENSAGEIRO 'cb_u0' AO JULIA
+
     u0, x_crit, y_crit, r_crit, x_append, y_append, vetor = jl.busca_u0(
         vT,
         [B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S_divergencia, 0.0, phi0],
         u0_step,
         u0_ini,
         cte,
-        cb_u0  # <--- AQUI
+        cb_u0,
     )
+
     sy.param(
         ("Initial Velocity", u0 * ve0 / 1e5, "km/s"),
         ("Dimensionless Initial Velocity", u0, "ve0"),
@@ -137,11 +139,10 @@ def main(
         flush=True,
     )
 
-    # ? --- Integração de Curva ---
+    # ? --- Integração do Perfil de Velocidade ---
     sy.status("Initiating velocity profile integration...", flush=True)
     time.sleep(1)
-    
-    # 3. ENTREGAMOS O MENSAGEIRO 'cb_int' AO JULIA
+
     x0n, y0, x_int, y_int, x_ext, y_ext, num_alpha_list, den_alpha_list = (
         jl.integra_perfil(
             u0,
@@ -156,13 +157,15 @@ def main(
             h_rk,
             cte,
             x_sim,
-            cb_int  # <--- AQUI
+            cb_int,
         )
     )
 
+    # ? --- Processamento e Salvamento de Dados ---
     x_tot, y_tot, num_alpha_array, den_alpha_array, idx_crit_num, idx_crit_den = (
         zerosND(x_int, y_int, x_ext, y_ext, num_alpha_list, den_alpha_list)
     )
+
     os.makedirs("data", exist_ok=True)
     np.savez(
         f"data/curve_{cte}.npz",
@@ -208,6 +211,7 @@ def main(
         S_divergencia,
         cte,
     )
+
     plot_perfil_output(
         x_ref,
         linestyle_ref,
@@ -220,6 +224,7 @@ def main(
         y_scale,
         cte,
     )
+
     plot_curve_analis(tamanho_pulo, recuo_pulo, L0, deltav0, S_divergencia, cte)
 
     if show_progress:
@@ -243,6 +248,9 @@ def main(
     )
 
 
+# * ============================================
+# * Execução em Linha de Comando
+# * ============================================
 if __name__ == "__main__":
     main(
         nome=nome_,

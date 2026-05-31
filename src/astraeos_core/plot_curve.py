@@ -1,9 +1,15 @@
+# * ============================================
+# * Importações
+# * ============================================
 try:
     from .lib import *
-except:
+except ImportError:
     from lib import *
 
 
+# * ============================================
+# * Geração de Gráficos de Saída e Principais
+# * ============================================
 def plot_perfil_output(
     x_ref,
     linestyle_ref,
@@ -16,7 +22,7 @@ def plot_perfil_output(
     y_scale,
     cte,
 ):
-    # 1. Carrega os dados salvos da última simulação
+    # ? --- Carregamento de Dados ---
     dados = np.load(f"data/curve_{cte}.npz")
     x_tot = dados["x_tot"]
     y_tot = dados["y_tot"]
@@ -25,16 +31,9 @@ def plot_perfil_output(
     x_t = dados["x_t"].item()
     ve0 = dados["ve0"].item()
     x_sim = dados["x_sim"].item()
-    
-    # CORREÇÃO: Arrays e Strings não usam .item()
     nome = str(dados["nome"])
-    num_alpha_array = dados["num_alpha_array"]
-    den_alpha_array = dados["den_alpha_array"]
-    
-    idx_crit_num = dados["idx_crit_num"].item()
-    idx_crit_den = dados["idx_crit_den"].item()
 
-    # 2. Chama APENAS a geração do gráfico de Output com os novos parâmetros visuais
+    # ? --- Renderização do Gráfico Limpo ---
     fig = gp.plot(
         title=nome,
         x_data=[x_tot],
@@ -48,15 +47,15 @@ def plot_perfil_output(
         axis_fontsize=16,
         show_grid=True,
         grid_linewidth=0.4,
-        color_style=["#61AFEF"],  # Azul ciano vibrante para a curva principal
-        grid_color="#5C6370",  # Cinza sutil para a grade
+        color_style=["#61AFEF"],
+        grid_color="#5C6370",
         grid_alpha=0.5,
         grid_linestyle=":",
         save_fig=True,
         file_format="png",
         filename="output",
         vlines=[x_t, *x_ref],
-        v_colors=["#C678DD", *color_ref],  # Magenta para a linha de transição
+        v_colors=["#C678DD", *color_ref],
         v_linewidth=1.5,
         v_alpha=0.8,
         v_linestyle=["--", *linestyle_ref],
@@ -64,13 +63,13 @@ def plot_perfil_output(
         curve_names=[
             rf"Velocity Profile ; $u_\infty = {y_tot[-1] * ve0 / 1e5:0.2f}$ km/s"
         ],
-        figure_dpi=100,  # Desempenho alto para UI em tempo real
-        fig_width=10.0,  # Gráfico widescreen (Esticado)
-        fig_height=5.0,  # Altura balanceada
+        figure_dpi=100,
+        fig_width=10.0,
+        fig_height=5.0,
         x_lim=[1, x_sim],
         legend_box=False,
         highlight_point=[x_crit, y_crit * ve0 / 1e5],
-        highlight_color="#E06C75",  # Ponto crítico em vermelho vibrante
+        highlight_color="#E06C75",
         highlight_size=50,
         highlight_marker="o",
         highlight_label=r"$P_{crit}$",
@@ -82,7 +81,7 @@ def plot_perfil_output(
         sigma_labels=sigmas_nome_ref,
         sigma_colors=sigmas_color_ref,
         sigma_alpha=0.15,
-        theme="dark",  # Ativa o modo escuro que criamos!
+        theme="dark",
     )
     return fig
 
@@ -104,7 +103,7 @@ def plot_perfil_main(
     S_divergencia,
     cte,
 ):
-    # 1. Carrega os dados salvos da última simulação
+    # ? --- Carregamento de Dados ---
     dados = np.load(f"data/curve_{cte}.npz")
     x_tot = dados["x_tot"]
     y_tot = dados["y_tot"]
@@ -113,16 +112,9 @@ def plot_perfil_main(
     x_t = dados["x_t"].item()
     ve0 = dados["ve0"].item()
     x_sim = dados["x_sim"].item()
-    
-    # CORREÇÃO: Arrays e Strings não usam .item()
     nome = str(dados["nome"])
-    num_alpha_array = dados["num_alpha_array"]
-    den_alpha_array = dados["den_alpha_array"]
-    
-    idx_crit_num = dados["idx_crit_num"].item()
-    idx_crit_den = dados["idx_crit_den"].item()
 
-    # 2. Chama APENAS a geração do gráfico de Output com os novos parâmetros visuais
+    # ? --- Renderização do Gráfico Principal ---
     fig = gp.plot(
         x_data=[x_tot],
         y_data=[list(np.array(y_tot) * ve0 / 1e5)],
@@ -171,25 +163,22 @@ def plot_perfil_main(
     return fig
 
 
+# * ============================================
+# * Geração de Gráficos de Análise e Comparação
+# * ============================================
 def plot_curve_analis(tamanho_pulo, recuo_pulo, L0, deltav0, S_divergencia, cte):
-    # 1. Carrega os dados salvos da última simulação
+    # ? --- Carregamento de Dados ---
     dados = np.load(f"data/curve_{cte}.npz")
     x_tot = dados["x_tot"]
     y_tot = dados["y_tot"]
     x_crit = dados["x_crit"].item()
-    y_crit = dados["y_crit"].item()
-    x_t = dados["x_t"].item()
     ve0 = dados["ve0"].item()
-    x_sim = dados["x_sim"].item()
-    
-    # CORREÇÃO: Arrays e Strings não usam .item()
-    nome = str(dados["nome"])
     num_alpha_array = dados["num_alpha_array"]
     den_alpha_array = dados["den_alpha_array"]
-    
     idx_crit_num = dados["idx_crit_num"].item()
     idx_crit_den = dados["idx_crit_den"].item()
 
+    # ? --- Renderização do Gráfico de Termos da Equação ---
     fig = gp.plot(
         x_data=[x_tot] * 4,
         y_data=[
@@ -255,7 +244,7 @@ def plot_multicurve(
     x_scale,
     y_scale,
 ):
-    # 1. Carrega os dados salvos da última simulação
+    # ? --- Carregamento de Dados Múltiplos ---
     tdados = np.load("data/curve_True.npz")
     fdados = np.load("data/curve_False.npz")
 
@@ -274,6 +263,7 @@ def plot_multicurve(
     x_sim = tdados["x_sim"].item()
     nome = str(tdados["nome"])
 
+    # ? --- Renderização do Gráfico Comparativo ---
     fig = gp.plot(
         title=nome,
         x_data=[tx_tot, fx_tot],
@@ -287,18 +277,15 @@ def plot_multicurve(
         axis_fontsize=16,
         show_grid=True,
         grid_linewidth=0.4,
-        color_style=[
-            "#61AFEF",
-            "#61EF97",
-        ],  # Azul ciano vibrante para a curva principal
-        grid_color="#5C6370",  # Cinza sutil para a grade
+        color_style=["#61AFEF", "#61EF97"],
+        grid_color="#5C6370",
         grid_alpha=0.5,
         grid_linestyle=":",
         save_fig=True,
         file_format="png",
         filename="output",
         vlines=[x_t, *x_ref],
-        v_colors=["#C678DD", *color_ref],  # Magenta para a linha de transição
+        v_colors=["#C678DD", *color_ref],
         v_linewidth=1.5,
         v_alpha=0.8,
         v_linestyle=["--", *linestyle_ref],
@@ -307,17 +294,16 @@ def plot_multicurve(
             rf"Constant Damping ; $u_\infty = {ty_tot[-1] * ve0 / 1e5:0.2f}$ km/s",
             rf"Resonant Damping ; $u_\infty = {fy_tot[-1] * ve0 / 1e5:0.2f}$ km/s",
         ],
-        figure_dpi=100,  # Desempenho alto para UI em tempo real
-        fig_width=10.0,  # Gráfico widescreen (Esticado)
-        fig_height=5.0,  # Altura balanceada
+        figure_dpi=100,
+        fig_width=10.0,
+        fig_height=5.0,
         x_lim=[1, x_sim],
         legend_box=False,
-        # CORREÇÃO AQUI TAMBÉM: Listas estritas para o Matplotlib processar múltiplos pontos
         highlight_point=[
             [tx_crit, ty_crit * ve0 / 1e5],
             [fx_crit, fy_crit * ve0 / 1e5],
         ],
-        highlight_color=["#E06C75", "#E0A06C"],  # Ponto crítico em vermelho vibrante
+        highlight_color=["#E06C75", "#E0A06C"],
         highlight_size=50,
         highlight_marker=["o", "s"],
         highlight_label=[r"$P_{crit}^{cte}$", r"$P_{crit}^{res}$"],
@@ -329,6 +315,6 @@ def plot_multicurve(
         sigma_labels=sigmas_nome_ref,
         sigma_colors=sigmas_color_ref,
         sigma_alpha=0.15,
-        theme="dark",  # Ativa o modo escuro que criamos!
+        theme="dark",
     )
     return fig

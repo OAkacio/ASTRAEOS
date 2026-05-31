@@ -1,3 +1,6 @@
+# * ============================================
+# * Importações e Configuração de Caminhos
+# * ============================================
 import os
 import sys
 import numpy as np
@@ -13,6 +16,9 @@ from astraeos_core.plot_curve import *
 from astraeos_core.lib import *
 
 
+# * ============================================
+# * Rotina de Otimização e Busca de DeltaV0²
+# * ============================================
 def main_sd(
     nome,
     Mstar,
@@ -47,6 +53,7 @@ def main_sd(
     step_dv2,
     **kwargs,
 ):
+    # ? --- Inicialização de Varredura ---
     search = [min_dv2, max_dv2]
     idv2 = search[0]
     i = 1
@@ -56,9 +63,9 @@ def main_sd(
     else:
         total_runs = 1
 
+    # ? --- Loop de Execução e Integração ---
     while idv2 <= search[1]:
         try:
-            # Emissão segura do sinal de progresso forçando a quebra de linha
             progresso_atual = (i - 1) / total_runs
             print(f"___PROGRESS___|{progresso_atual}", flush=True)
 
@@ -91,10 +98,9 @@ def main_sd(
                 sigmas_nome_ref=sigmas_nome_ref,
                 x_scale=x_scale,
                 y_scale=y_scale,
-                show_progress=False,  # Silencia o main para ele não mexer na barra
+                show_progress=False,
             )
 
-            # Avisa a GUI para renderizar o frame do gráfico em tempo real
             print("___UPDATE_PLOT___", flush=True)
 
         except Exception as e:
@@ -108,6 +114,9 @@ def main_sd(
     return None
 
 
+# * ============================================
+# * Execução em Linha de Comando
+# * ============================================
 if __name__ == "__main__":
     main_sd(
         nome=nome_,

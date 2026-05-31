@@ -1,22 +1,11 @@
-"""
-Módulo Principal da Interface (Entry Point)
-===========================================
-
-Este é o arquivo executável que inicializa a aplicação ASTRAEOS.
-Ele atua como o Controlador Central, orquestrando a injeção de
-dependências entre o Gerenciador de Estado, a Interface Visual
-e o Motor de Execução Paralela.
-
-"""
-
 # * ============================================
 # * Importações e Configuração de Caminhos
 # * ============================================
 import os
 import sys
-import customtkinter as ctk
-import multiprocessing
 import re
+import multiprocessing
+import customtkinter as ctk
 from PIL import Image
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 
@@ -34,56 +23,74 @@ from astraeos_core.plot_curve import plot_perfil_output, plot_multicurve
 
 
 # * ============================================
-# * Controlador Principal
+# * Controlador Principal (AppWindow)
 # * ============================================
 class AppWindow(ctk.CTk):
     def __init__(self):
         super().__init__()
 
-        # ? --- Identificação ---
+        # ? --- Identificação e Configuração de Janela ---
         self.title("ASTRAEOS v0.1.0")
-
-        # ? --- Configurações de Janela ---
         self.geometry("1280x720")
         self.minsize(1024, 768)
         self.after(0, lambda: self.state("zoomed"))
-
         self.protocol("WM_DELETE_WINDOW", self.fechar_aplicativo)
 
         try:
             self.iconbitmap(caminho_icone)
-        except:
+        except Exception:
             pass
 
         self.app_state = AppState()
         self.skip_next_newline = False
 
-        ## ? --- Barra de Status ---
-        self.status_bar = ctk.CTkFrame(self, height=30, corner_radius=0, fg_color="#1E1E1E")
+        # ? --- Barra de Status e Barras de Progresso ---
+        self.status_bar = ctk.CTkFrame(
+            self, height=30, corner_radius=0, fg_color="#1E1E1E"
+        )
         self.status_bar.pack(side="bottom", fill="x")
         self.status_bar.pack_propagate(False)
-        self.lbl_status = ctk.CTkLabel(self.status_bar, text="Welcome!", text_color="#E5C07B", font=("Consolas", 12))
+
+        self.lbl_status = ctk.CTkLabel(
+            self.status_bar,
+            text="Welcome!",
+            text_color="#E5C07B",
+            font=("Consolas", 12),
+        )
         self.lbl_status.pack(side="left", padx=10)
 
-        # <-- NOVO: O BLOCO DAS BARRAS -->
-        # Barra principal (Iterações globais)
-        self.progressbar = ctk.CTkProgressBar(self.status_bar, width=200, height=10, progress_color="#61AFEF", fg_color="#282C34")
+        self.progressbar = ctk.CTkProgressBar(
+            self.status_bar,
+            width=200,
+            height=10,
+            progress_color="#61AFEF",
+            fg_color="#282C34",
+        )
         self.progressbar.set(0.0)
 
-        # Container invisível para empilhar as barras fininhas
         self.micro_bars_frame = ctk.CTkFrame(self.status_bar, fg_color="transparent")
-        
-        # Barra superior: Busca de u0 (Azul escuro)
-        self.u0_progressbar = ctk.CTkProgressBar(self.micro_bars_frame, width=120, height=4, progress_color="#1F618D", fg_color="#282C34")
+
+        self.u0_progressbar = ctk.CTkProgressBar(
+            self.micro_bars_frame,
+            width=120,
+            height=4,
+            progress_color="#1F618D",
+            fg_color="#282C34",
+        )
         self.u0_progressbar.pack(side="top", pady=(0, 2))
         self.u0_progressbar.set(0.0)
 
-        # Barra inferior: Integração (Dourado)
-        self.int_progressbar = ctk.CTkProgressBar(self.micro_bars_frame, width=120, height=4, progress_color="#E5C07B", fg_color="#282C34")
+        self.int_progressbar = ctk.CTkProgressBar(
+            self.micro_bars_frame,
+            width=120,
+            height=4,
+            progress_color="#E5C07B",
+            fg_color="#282C34",
+        )
         self.int_progressbar.pack(side="bottom")
         self.int_progressbar.set(0.0)
 
-        # ? --- Layout Principal (Grid Dinâmico) ---
+        # ? --- Layout Principal e Painéis ---
         self.main_container = ctk.CTkFrame(
             self, fg_color="transparent", corner_radius=2
         )
@@ -93,7 +100,6 @@ class AppWindow(ctk.CTk):
         self.main_container.grid_columnconfigure(0, weight=7, uniform="colunas")
         self.main_container.grid_columnconfigure(1, weight=3, uniform="colunas")
 
-        # ? --- Painel Esquerdo Superior: Área do Gráfico ---
         self.painel_graficos = ctk.CTkFrame(self.main_container, corner_radius=2)
         self.painel_graficos.grid(
             row=0, column=0, sticky="nsew", padx=(0, 20), pady=(0, 10)
@@ -107,7 +113,7 @@ class AppWindow(ctk.CTk):
         )
         self.lbl_grafico_vazio.place(relx=0.5, rely=0.5, anchor="center")
 
-        # ? --- Painel Esquerdo Inferior: Console Integrado ---
+        # ? --- Console Integrado ---
         self.console_box = ctk.CTkTextbox(
             self.main_container,
             font=ctk.CTkFont(family="Consolas", size=16),
@@ -119,10 +125,22 @@ class AppWindow(ctk.CTk):
         self.console_box.grid(row=1, column=0, sticky="nsew", padx=(0, 20))
 
         self.cores_ansi = {
-            "30": "#282C34", "31": "#E06C75", "32": "#98C379", "33": "#E5C07B",
-            "34": "#61AFEF", "35": "#C678DD", "36": "#56B6C2", "37": "#ABB2BF",
-            "90": "#5C6370", "91": "#E06C75", "92": "#98C379", "93": "#E5C07B",
-            "94": "#61AFEF", "95": "#C678DD", "96": "#56B6C2", "97": "#FFFFFF",
+            "30": "#282C34",
+            "31": "#E06C75",
+            "32": "#98C379",
+            "33": "#E5C07B",
+            "34": "#61AFEF",
+            "35": "#C678DD",
+            "36": "#56B6C2",
+            "37": "#ABB2BF",
+            "90": "#5C6370",
+            "91": "#E06C75",
+            "92": "#98C379",
+            "93": "#E5C07B",
+            "94": "#61AFEF",
+            "95": "#C678DD",
+            "96": "#56B6C2",
+            "97": "#FFFFFF",
         }
         for codigo, hex_cor in self.cores_ansi.items():
             self.console_box._textbox.tag_config(f"color_{codigo}", foreground=hex_cor)
@@ -130,7 +148,7 @@ class AppWindow(ctk.CTk):
         self.console_box.insert("0.0", "ASTRAEOS Console log initialized...\n")
         self.console_box.configure(state="disabled")
 
-        # ? --- Painel Direito: Página de Configuração ---
+        # ? --- Página de Configuração de Parâmetros ---
         self.pagina_atual = ConfigPage(
             master=self.main_container,
             state=self.app_state,
@@ -141,8 +159,9 @@ class AppWindow(ctk.CTk):
         self.pagina_atual.grid(row=0, column=1, rowspan=2, sticky="nsew")
 
     # * ============================================
-    # * Lógica Interna e Rotinas
+    # * Rotinas de Interface Visual
     # * ============================================
+    # ? --- Gestão do Console e Status ---
     def escrever_console(self, texto):
         self.console_box.configure(state="normal")
         partes = re.split(r"(\x1b\[[0-9;]*m)", texto)
@@ -168,22 +187,7 @@ class AppWindow(ctk.CTk):
     def set_status(self, mensagem, cor="#858585"):
         self.lbl_status.configure(text=f" {mensagem}", text_color=cor)
 
-    def abortar_execucao(self):
-        self.set_status("Sending abort signal...", "#E06C75")
-        self.escrever_console("\n\x1b[31m[!] ABORT SIGNAL INITIATED BY USER...\x1b[0m\n")
-        self.progressbar.pack_forget()
-
-        processos_ativos = multiprocessing.active_children()
-        for processo in processos_ativos:
-            processo.terminate()
-            processo.join(timeout=1.0)
-            
-        self.pagina_atual.btn_run.configure(state="normal", text="Run Simulation")
-        self.pagina_atual.btn_abort.configure(state="disabled", text="Abort")
-        self.set_status("Simulation aborted successfully.", "#E06C75")
-        self.progressbar.pack_forget()
-        self.micro_bars_frame.pack_forget() # Oculta as barrinhas
-
+    # ? --- Renderização de Gráficos ---
     def exibir_grafico(self, figura_matplotlib):
         try:
             for widget in self.painel_graficos.winfo_children():
@@ -199,7 +203,7 @@ class AppWindow(ctk.CTk):
                 try:
                     widget.config(background="#1E1E1E")
                     widget.config(activebackground="#2C313A")
-                except:
+                except Exception:
                     pass
 
             toolbar.update()
@@ -218,18 +222,28 @@ class AppWindow(ctk.CTk):
 
             if m["multicurve"]:
                 minha_figura = plot_multicurve(
-                    x_ref=p["x_ref"], linestyle_ref=p["linestyle_ref"],
-                    color_ref=p["color_ref"], nome_ref=p["nome_ref"],
-                    sigmas_ref=p["sigmas_ref"], sigmas_color_ref=p["sigmas_color_ref"],
-                    sigmas_nome_ref=p["sigmas_nome_ref"], x_scale=p["x_scale"], y_scale=p["y_scale"],
+                    x_ref=p["x_ref"],
+                    linestyle_ref=p["linestyle_ref"],
+                    color_ref=p["color_ref"],
+                    nome_ref=p["nome_ref"],
+                    sigmas_ref=p["sigmas_ref"],
+                    sigmas_color_ref=p["sigmas_color_ref"],
+                    sigmas_nome_ref=p["sigmas_nome_ref"],
+                    x_scale=p["x_scale"],
+                    y_scale=p["y_scale"],
                 )
             else:
                 minha_figura = plot_perfil_output(
-                    x_ref=p["x_ref"], linestyle_ref=p["linestyle_ref"],
-                    color_ref=p["color_ref"], nome_ref=p["nome_ref"],
-                    sigmas_ref=p["sigmas_ref"], sigmas_color_ref=p["sigmas_color_ref"],
-                    sigmas_nome_ref=p["sigmas_nome_ref"], x_scale=p["x_scale"],
-                    y_scale=p["y_scale"], cte=i["cte"],
+                    x_ref=p["x_ref"],
+                    linestyle_ref=p["linestyle_ref"],
+                    color_ref=p["color_ref"],
+                    nome_ref=p["nome_ref"],
+                    sigmas_ref=p["sigmas_ref"],
+                    sigmas_color_ref=p["sigmas_color_ref"],
+                    sigmas_nome_ref=p["sigmas_nome_ref"],
+                    x_scale=p["x_scale"],
+                    y_scale=p["y_scale"],
+                    cte=i["cte"],
                 )
 
             self.exibir_grafico(minha_figura)
@@ -238,21 +252,39 @@ class AppWindow(ctk.CTk):
         except Exception as e:
             self.set_status(f"Error updating plot: {e}", "#E06C75")
         finally:
-            self.pagina_atual.btn_update_plot.configure(state="normal", text="Update Plot")
+            self.pagina_atual.btn_update_plot.configure(
+                state="normal", text="Update Plot"
+            )
 
-    def fechar_aplicativo(self):
-        self.set_status("Shutting down ASTRAEOS and clearing memory...", "#E06C75")
-        self.update() 
+    def _atualizar_grafico_parcial(self):
+        try:
+            p = self.app_state.parameters_plot()
+            i = self.app_state.parameters_input()
 
-        processos_ativos = multiprocessing.active_children()
-        for processo in processos_ativos:
-            processo.terminate()
-            processo.join(timeout=1.0) 
+            figura_parcial = plot_perfil_output(
+                x_ref=p["x_ref"],
+                linestyle_ref=p["linestyle_ref"],
+                color_ref=p["color_ref"],
+                nome_ref=p["nome_ref"],
+                sigmas_ref=p["sigmas_ref"],
+                sigmas_color_ref=p["sigmas_color_ref"],
+                sigmas_nome_ref=p["sigmas_nome_ref"],
+                x_scale=p["x_scale"],
+                y_scale=p["y_scale"],
+                cte=i["cte"],
+            )
+            self.exibir_grafico(figura_parcial)
+        except Exception:
+            pass
 
-        self.destroy()
-        sys.exit(0)
+    def _forcar_animacao_barra(self, widget_barra, valor):
+        widget_barra.set(valor)
+        widget_barra.update_idletasks()
 
-    # ? --- Rotina ao Iniciar Simulação ---
+    # * ============================================
+    # * Controle de Execução
+    # * ============================================
+    # ? --- Iniciar Simulação ---
     def executar_fisica(self):
         parametros_fisica = self.app_state.parameters_input()
         parametros_plot = self.app_state.parameters_plot()
@@ -271,9 +303,14 @@ class AppWindow(ctk.CTk):
                 parametros_completos["max_dv2"] = float(self.app_state.hdv2.get())
                 parametros_completos["step_dv2"] = float(self.app_state.stepdv2.get())
             except ValueError:
-                self.set_status("Erro: Os limites e o step do Search DV2 devem ser números!", "#E06C75")
-                self.pagina_atual.btn_run.configure(state="normal", text="Run Simulation")
-                return 
+                self.set_status(
+                    "Erro: Os limites e o step do Search DV2 devem ser números!",
+                    "#E06C75",
+                )
+                self.pagina_atual.btn_run.configure(
+                    state="normal", text="Run Simulation"
+                )
+                return
         else:
             parametros_completos["script_type"] = "main"
             msg_status = "Starting standard simulation... Check the console."
@@ -281,13 +318,15 @@ class AppWindow(ctk.CTk):
         self.set_status(msg_status, "#E5C07B")
         self.console_box.configure(state="normal")
         self.console_box.delete("0.0", "end")
-        self.console_box.insert("end", f"--- Initiating Execution [{parametros_completos['script_type'].upper()}] ---\n")
+        self.console_box.insert(
+            "end",
+            f"--- Initiating Execution [{parametros_completos['script_type'].upper()}] ---\n",
+        )
         self.console_box.configure(state="disabled")
+
         self.pagina_atual.btn_abort.configure(state="normal", text="Abort")
-        
         self.progressbar.pack(side="right", padx=(10, 20))
-        self.micro_bars_frame.pack(side="right") # Mostra o bloco duplo
-        
+        self.micro_bars_frame.pack(side="right")
         self.progressbar.set(0.0)
         self.u0_progressbar.set(0.0)
         self.int_progressbar.set(0.0)
@@ -299,20 +338,51 @@ class AppWindow(ctk.CTk):
             callback_log=self.ao_receber_log,
         )
 
+    # ? --- Abortar e Encerrar ---
+    def abortar_execucao(self):
+        self.set_status("Sending abort signal...", "#E06C75")
+        self.escrever_console(
+            "\n\x1b[31m[!] ABORT SIGNAL INITIATED BY USER...\x1b[0m\n"
+        )
+
+        processos_ativos = multiprocessing.active_children()
+        for processo in processos_ativos:
+            processo.terminate()
+            processo.join(timeout=1.0)
+
+        self.pagina_atual.btn_run.configure(state="normal", text="Run Simulation")
+        self.pagina_atual.btn_abort.configure(state="disabled", text="Abort")
+        self.set_status("Simulation aborted successfully.", "#E06C75")
+
+        self.progressbar.pack_forget()
+        self.micro_bars_frame.pack_forget()
+
+    def fechar_aplicativo(self):
+        self.set_status("Shutting down ASTRAEOS and clearing memory...", "#E06C75")
+        self.update()
+
+        processos_ativos = multiprocessing.active_children()
+        for processo in processos_ativos:
+            processo.terminate()
+            processo.join(timeout=1.0)
+
+        self.destroy()
+        sys.exit(0)
+
     # * ============================================
-    # * Callbacks
+    # * Callbacks e Sinais em Tempo Real
     # * ============================================
+    # ? --- Conclusão e Falhas ---
     def ao_terminar_com_sucesso(self):
         self.after(0, self._atualizar_ui_sucesso)
 
     def _atualizar_ui_sucesso(self):
-        self.progressbar.pack_forget()
         self.set_status("Task completed successfully!", "#98C379")
         self.pagina_atual.btn_run.configure(state="normal", text="Run Simulation")
         self.pagina_atual.btn_update_plot.configure(state="normal", text="Update Plot")
         self.pagina_atual.btn_abort.configure(state="disabled", text="Abort")
         self.progressbar.pack_forget()
-        self.micro_bars_frame.pack_forget() # Oculta as barrinhas
+        self.micro_bars_frame.pack_forget()
 
         p = self.app_state.parameters_plot()
         i = self.app_state.parameters_input()
@@ -321,20 +391,36 @@ class AppWindow(ctk.CTk):
         try:
             if m["multicurve"]:
                 figura_inicial = plot_multicurve(
-                    x_ref=p["x_ref"], linestyle_ref=p["linestyle_ref"], color_ref=p["color_ref"],
-                    nome_ref=p["nome_ref"], sigmas_ref=p["sigmas_ref"], sigmas_color_ref=p["sigmas_color_ref"],
-                    sigmas_nome_ref=p["sigmas_nome_ref"], x_scale=p["x_scale"], y_scale=p["y_scale"],
+                    x_ref=p["x_ref"],
+                    linestyle_ref=p["linestyle_ref"],
+                    color_ref=p["color_ref"],
+                    nome_ref=p["nome_ref"],
+                    sigmas_ref=p["sigmas_ref"],
+                    sigmas_color_ref=p["sigmas_color_ref"],
+                    sigmas_nome_ref=p["sigmas_nome_ref"],
+                    x_scale=p["x_scale"],
+                    y_scale=p["y_scale"],
                 )
             else:
                 figura_inicial = plot_perfil_output(
-                    x_ref=p["x_ref"], linestyle_ref=p["linestyle_ref"], color_ref=p["color_ref"],
-                    nome_ref=p["nome_ref"], sigmas_ref=p["sigmas_ref"], sigmas_color_ref=p["sigmas_color_ref"],
-                    sigmas_nome_ref=p["sigmas_nome_ref"], x_scale=p["x_scale"], y_scale=p["y_scale"], cte=i["cte"],
+                    x_ref=p["x_ref"],
+                    linestyle_ref=p["linestyle_ref"],
+                    color_ref=p["color_ref"],
+                    nome_ref=p["nome_ref"],
+                    sigmas_ref=p["sigmas_ref"],
+                    sigmas_color_ref=p["sigmas_color_ref"],
+                    sigmas_nome_ref=p["sigmas_nome_ref"],
+                    x_scale=p["x_scale"],
+                    y_scale=p["y_scale"],
+                    cte=i["cte"],
                 )
             self.exibir_grafico(figura_inicial)
-            
+
         except FileNotFoundError:
-            self.set_status("Erro: O Multicurve exige que você rode o padrão com 'Constante' ON e OFF antes!", "#E06C75")
+            self.set_status(
+                "Erro: O Multicurve exige que você rode o padrão com 'Constante' ON e OFF antes!",
+                "#E06C75",
+            )
         except Exception as e:
             self.set_status(f"Erro ao montar gráfico final: {e}", "#E06C75")
 
@@ -342,82 +428,73 @@ class AppWindow(ctk.CTk):
         self.after(0, self._atualizar_ui_erro, mensagem_erro)
 
     def _atualizar_ui_erro(self, erro):
-        self.progressbar.pack_forget()
         self.set_status(f"Execution error | {erro}", "#E06C75")
         self.pagina_atual.btn_run.configure(state="normal", text="Run Simulation")
         self.pagina_atual.btn_abort.configure(state="disabled", text="Abort")
         self.progressbar.pack_forget()
-        self.micro_bars_frame.pack_forget() # Oculta as barrinhas
+        self.micro_bars_frame.pack_forget()
 
-    # ? --- Lógica do Gráfico em Tempo Real e Progresso ---
+    # ? --- Stream de Logs e Progressão ---
     def ao_receber_log(self, texto_bruto):
-        # 1. Filtro do "Enter Fantasma" gerado pelo print(flush=True) do Python
         if self.skip_next_newline and texto_bruto in ("\n", "\r\n"):
             self.skip_next_newline = False
-            return # Aborta silenciosamente (não imprime o espaço em branco)
-            
-        self.skip_next_newline = False # Reseta a bandeira para textos normais da física
-        
-        # 2. Roteamento de Sinais
+            return
+
+        self.skip_next_newline = False
+
         if "___UPDATE_PLOT___" in texto_bruto:
             self.skip_next_newline = True
             self.after(0, self._atualizar_grafico_parcial)
-            
+
         elif "___PROGRESS___|" in texto_bruto:
             self.skip_next_newline = True
             matches = re.findall(r"___PROGRESS___\|([0-9.]+)", texto_bruto)
             if matches:
-                try: 
-                    self.after(0, self._forcar_animacao_barra, self.progressbar, float(matches[-1]))
-                except ValueError: pass
-                
+                try:
+                    self.after(
+                        0,
+                        self._forcar_animacao_barra,
+                        self.progressbar,
+                        float(matches[-1]),
+                    )
+                except ValueError:
+                    pass
+
         elif "___U0_PROGRESS___|" in texto_bruto:
             self.skip_next_newline = True
             matches = re.findall(r"___U0_PROGRESS___\|([0-9.]+)", texto_bruto)
             if matches:
-                try: 
-                    self.after(0, self._forcar_animacao_barra, self.u0_progressbar, float(matches[-1]))
-                except ValueError: pass
-                
+                try:
+                    self.after(
+                        0,
+                        self._forcar_animacao_barra,
+                        self.u0_progressbar,
+                        float(matches[-1]),
+                    )
+                except ValueError:
+                    pass
+
         elif "___INT_PROGRESS___|" in texto_bruto:
             self.skip_next_newline = True
             matches = re.findall(r"___INT_PROGRESS___\|([0-9.]+)", texto_bruto)
             if matches:
-                try: 
-                    self.after(0, self._forcar_animacao_barra, self.int_progressbar, float(matches[-1]))
-                except ValueError: pass
-                
+                try:
+                    self.after(
+                        0,
+                        self._forcar_animacao_barra,
+                        self.int_progressbar,
+                        float(matches[-1]),
+                    )
+                except ValueError:
+                    pass
+
         else:
-            # Envia para a tela preta com segurança
             self.after(0, self.escrever_console, texto_bruto)
 
-    def _forcar_animacao_barra(self, widget_barra, valor):
-        """Atualiza a barra de progresso específica e força o Tkinter a renderizar na hora."""
-        widget_barra.set(valor)
-        widget_barra.update_idletasks()
 
-    def _forcar_animacao_barra(self, widget_barra, valor):
-        """Atualiza a barra de progresso específica e força o Tkinter a renderizar na hora."""
-        widget_barra.set(valor)
-        widget_barra.update_idletasks()
-
-    def _atualizar_grafico_parcial(self):
-        """Atualiza a tela a cada passo do Search DV2 sem travar a UI."""
-        try:
-            p = self.app_state.parameters_plot()
-            i = self.app_state.parameters_input()
-            
-            figura_parcial = plot_perfil_output(
-                x_ref=p["x_ref"], linestyle_ref=p["linestyle_ref"],
-                color_ref=p["color_ref"], nome_ref=p["nome_ref"],
-                sigmas_ref=p["sigmas_ref"], sigmas_color_ref=p["sigmas_color_ref"],
-                sigmas_nome_ref=p["sigmas_nome_ref"], x_scale=p["x_scale"],
-                y_scale=p["y_scale"], cte=i["cte"],
-            )
-            self.exibir_grafico(figura_parcial)
-        except Exception:
-            pass
-
+# * ============================================
+# * Inicialização do Aplicativo
+# * ============================================
 if __name__ == "__main__":
     multiprocessing.freeze_support()
     ctk.set_appearance_mode("dark")

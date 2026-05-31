@@ -2,82 +2,25 @@
 # * Importação de Pacotes
 # * ============================================
 using QuadGK
-using ProgressMeter
-using Printf
 
 # * ============================================
-# * Definição de Funções
+# * Equações Físicas do Vento Estelar (MHD)
 # * ============================================
-# ? --- Amoretecimento Constante ---
+# ? --- Amortecimento Constante ---
 function integral_subsonica(x, vA0, Ma0, y, alpha, S, L0)
     Ma = Ma0 * sqrt(y / alpha) * (x^(S / 2.0))
     vA = vA0 * (x^(-S / 2.0)) * sqrt(y / alpha)
     L = L0 * ((vA / vA0)^2) * (x^(-S / 2.0)) * (1.0 + Ma)
     return 1.0 / L0
 end
+
 function integral_supersonica(x, x_t, vA0, Ma0, y, alpha, S, L0)
     Ma = Ma0 * sqrt(y / alpha) * (x_t^(S / 2.0)) * (x / x_t)
     vA = vA0 * (x_t^(-S / 2.0)) * (x_t / x) * sqrt(y / alpha)
     L = L0 * ((vA / vA0)^2) * (x_t^(-S / 2.0)) * (x_t / x) * (1.0 + Ma)
     return 1.0 / L0
 end
-function derivada_velocidade_vento(x, y, vetor)
-    B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S, alpha, phi0 = vetor
-    x_t = 10.0^(1.0 / (S - 2.0))
-    Ma0 = alpha / vA0
-    if x <= x_t
-        Z = S
-        Ma = Ma0 * sqrt(y / alpha) * (x^(S / 2.0))
-        vA = vA0 * (x^(-S / 2.0)) * sqrt(y / alpha)
-        L = L0
-        res = quadgk(t -> integral_subsonica(t, vA0, Ma0, y, alpha, S, L0), 1.0, x)[1]
-        deltav1 = deltav0 * (y / alpha) * (x^S) * (Ma0 / Ma) * ((1.0 + Ma0) / (1.0 + Ma))^2
-        deltav = deltav1 * exp(-res)
-    else
-        Z = 2.0
-        Ma = Ma0 * sqrt(y / alpha) * (x_t^(S / 2.0)) * (x / x_t)
-        vA = vA0 * (x_t^(-S / 2.0)) * (x_t / x) * sqrt(y / alpha)
-        L = L0
-        res_int1 = quadgk(t -> integral_subsonica(t, vA0, Ma0, y, alpha, S, L0), 1.0, x_t)[1]
-        res_int2 = quadgk(t -> integral_supersonica(t, x_t, vA0, Ma0, y, alpha, S, L0), x_t, x)[1]
-        res = res_int1 + res_int2
-        deltav1 = deltav0 * (y / alpha) * (x_t^S) * ((x / x_t)^2) * (Ma0 / Ma) * ((1.0 + Ma0) / (1.0 + Ma))^2
-        deltav = deltav1 * exp(-res)
-    end
-    razao_MA = (1.0 + 3.0 * Ma) / (1.0 + Ma)
-    numerador = (Z * y / x) * (vT^2 + razao_MA * deltav / 4.0 + (x / (2.0 * Z)) * deltav / L - 1.0 / (2.0 * Z * x))
-    denominador = y^2 - vT^2 - (1.0 / 4.0) * razao_MA * deltav
 
-    return numerador / denominador
-end
-function analisa_singularidade_vento(x, y, vetor)
-    B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S, alpha, phi0 = vetor
-    x_t = 10.0^(1.0 / (S - 2.0))
-    Ma0 = alpha / vA0
-    if x <= x_t
-        Z = S
-        Ma = Ma0 * sqrt(y / alpha) * (x^(S / 2.0))
-        vA = vA0 * (x^(-S / 2.0)) * sqrt(y / alpha)
-        L = L0
-        res = quadgk(t -> integral_subsonica(t, vA0, Ma0, y, alpha, S, L0), 1.0, x)[1]
-        deltav1 = deltav0 * (y / alpha) * (x^S) * (Ma0 / Ma) * ((1.0 + Ma0) / (1.0 + Ma))^2
-        deltav = deltav1 * exp(-res)
-    else
-        Z = 2.0
-        Ma = Ma0 * sqrt(y / alpha) * (x_t^(S / 2.0)) * (x / x_t)
-        vA = vA0 * (x_t^(-S / 2.0)) * (x_t / x) * sqrt(y / alpha)
-        L = L0
-        res_int1 = quadgk(t -> integral_subsonica(t, vA0, Ma0, y, alpha, S, L0), 1.0, x_t)[1]
-        res_int2 = quadgk(t -> integral_supersonica(t, x_t, vA0, Ma0, y, alpha, S, L0), x_t, x)[1]
-        res = res_int1 + res_int2
-        deltav1 = deltav0 * (y / alpha) * (x_t^S) * ((x / x_t)^2) * (Ma0 / Ma) * ((1.0 + Ma0) / (1.0 + Ma))^2
-        deltav = deltav1 * exp(-res)
-    end
-    razao_MA = (1.0 + 3.0 * Ma) / (1.0 + Ma)
-    numerador = (Z * y / x) * (vT^2 + razao_MA * deltav / 4.0 + (x / (2.0 * Z)) * deltav / L - 1.0 / (2.0 * Z * x))
-    denominador = y^2 - vT^2 - (1.0 / 4.0) * razao_MA * deltav
-    return (numerador / denominador, numerador, denominador, x, y)
-end
 # ? --- Amortecimento Ressonante ---
 function integral_subsonicaRES(x, vA0, Ma0, y, alpha, S, L0)
     Ma = Ma0 * sqrt(y / alpha) * (x^(S / 2.0))
@@ -85,45 +28,55 @@ function integral_subsonicaRES(x, vA0, Ma0, y, alpha, S, L0)
     L = L0 * ((vA / vA0)^2) * (x^(-S / 2.0)) * (1.0 + Ma)
     return 1.0 / L
 end
+
 function integral_supersonicaRES(x, x_t, vA0, Ma0, y, alpha, S, L0)
     Ma = Ma0 * sqrt(y / alpha) * (x_t^(S / 2.0)) * (x / x_t)
     vA = vA0 * (x_t^(-S / 2.0)) * (x_t / x) * sqrt(y / alpha)
     L = L0 * ((vA / vA0)^2) * (x_t^(-S / 2.0)) * (x_t / x) * (1.0 + Ma)
     return 1.0 / L
 end
-function derivada_velocidade_ventoRES(x, y, vetor)
+
+# * ============================================
+# * Equação de Momento e Ponto Crítico
+# * ============================================
+# ? --- Derivadas da Velocidade do Vento ---
+function derivada_velocidade_vento(x, y, vetor)
     B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S, alpha, phi0 = vetor
     x_t = 10.0^(1.0 / (S - 2.0))
     Ma0 = alpha / vA0
+
     if x <= x_t
         Z = S
         Ma = Ma0 * sqrt(y / alpha) * (x^(S / 2.0))
         vA = vA0 * (x^(-S / 2.0)) * sqrt(y / alpha)
-        L = L0 * ((vA / vA0)^2) * (x^(-S / 2.0)) * (1.0 + Ma)
-        res = quadgk(t -> integral_subsonicaRES(t, vA0, Ma0, y, alpha, S, L0), 1.0, x)[1]
+        L = L0
+        res = quadgk(t -> integral_subsonica(t, vA0, Ma0, y, alpha, S, L0), 1.0, x)[1]
         deltav1 = deltav0 * (y / alpha) * (x^S) * (Ma0 / Ma) * ((1.0 + Ma0) / (1.0 + Ma))^2
         deltav = deltav1 * exp(-res)
     else
         Z = 2.0
         Ma = Ma0 * sqrt(y / alpha) * (x_t^(S / 2.0)) * (x / x_t)
         vA = vA0 * (x_t^(-S / 2.0)) * (x_t / x) * sqrt(y / alpha)
-        L = L0 * ((vA / vA0)^2) * (x_t^(-S / 2.0)) * (x_t / x) * (1.0 + Ma)
-        res_int1 = quadgk(t -> integral_subsonicaRES(t, vA0, Ma0, y, alpha, S, L0), 1.0, x_t)[1]
-        res_int2 = quadgk(t -> integral_supersonicaRES(t, x_t, vA0, Ma0, y, alpha, S, L0), x_t, x)[1]
+        L = L0
+        res_int1 = quadgk(t -> integral_subsonica(t, vA0, Ma0, y, alpha, S, L0), 1.0, x_t)[1]
+        res_int2 = quadgk(t -> integral_supersonica(t, x_t, vA0, Ma0, y, alpha, S, L0), x_t, x)[1]
         res = res_int1 + res_int2
         deltav1 = deltav0 * (y / alpha) * (x_t^S) * ((x / x_t)^2) * (Ma0 / Ma) * ((1.0 + Ma0) / (1.0 + Ma))^2
         deltav = deltav1 * exp(-res)
     end
+
     razao_MA = (1.0 + 3.0 * Ma) / (1.0 + Ma)
     numerador = (Z * y / x) * (vT^2 + razao_MA * deltav / 4.0 + (x / (2.0 * Z)) * deltav / L - 1.0 / (2.0 * Z * x))
     denominador = y^2 - vT^2 - (1.0 / 4.0) * razao_MA * deltav
 
     return numerador / denominador
 end
-function analisa_singularidade_ventoRES(x, y, vetor)
+
+function derivada_velocidade_ventoRES(x, y, vetor)
     B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S, alpha, phi0 = vetor
     x_t = 10.0^(1.0 / (S - 2.0))
     Ma0 = alpha / vA0
+
     if x <= x_t
         Z = S
         Ma = Ma0 * sqrt(y / alpha) * (x^(S / 2.0))
@@ -143,13 +96,83 @@ function analisa_singularidade_ventoRES(x, y, vetor)
         deltav1 = deltav0 * (y / alpha) * (x_t^S) * ((x / x_t)^2) * (Ma0 / Ma) * ((1.0 + Ma0) / (1.0 + Ma))^2
         deltav = deltav1 * exp(-res)
     end
+
     razao_MA = (1.0 + 3.0 * Ma) / (1.0 + Ma)
     numerador = (Z * y / x) * (vT^2 + razao_MA * deltav / 4.0 + (x / (2.0 * Z)) * deltav / L - 1.0 / (2.0 * Z * x))
     denominador = y^2 - vT^2 - (1.0 / 4.0) * razao_MA * deltav
+
+    return numerador / denominador
+end
+
+# ? --- Topologia do Ponto Crítico ---
+function analisa_singularidade_vento(x, y, vetor)
+    B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S, alpha, phi0 = vetor
+    x_t = 10.0^(1.0 / (S - 2.0))
+    Ma0 = alpha / vA0
+
+    if x <= x_t
+        Z = S
+        Ma = Ma0 * sqrt(y / alpha) * (x^(S / 2.0))
+        vA = vA0 * (x^(-S / 2.0)) * sqrt(y / alpha)
+        L = L0
+        res = quadgk(t -> integral_subsonica(t, vA0, Ma0, y, alpha, S, L0), 1.0, x)[1]
+        deltav1 = deltav0 * (y / alpha) * (x^S) * (Ma0 / Ma) * ((1.0 + Ma0) / (1.0 + Ma))^2
+        deltav = deltav1 * exp(-res)
+    else
+        Z = 2.0
+        Ma = Ma0 * sqrt(y / alpha) * (x_t^(S / 2.0)) * (x / x_t)
+        vA = vA0 * (x_t^(-S / 2.0)) * (x_t / x) * sqrt(y / alpha)
+        L = L0
+        res_int1 = quadgk(t -> integral_subsonica(t, vA0, Ma0, y, alpha, S, L0), 1.0, x_t)[1]
+        res_int2 = quadgk(t -> integral_supersonica(t, x_t, vA0, Ma0, y, alpha, S, L0), x_t, x)[1]
+        res = res_int1 + res_int2
+        deltav1 = deltav0 * (y / alpha) * (x_t^S) * ((x / x_t)^2) * (Ma0 / Ma) * ((1.0 + Ma0) / (1.0 + Ma))^2
+        deltav = deltav1 * exp(-res)
+    end
+
+    razao_MA = (1.0 + 3.0 * Ma) / (1.0 + Ma)
+    numerador = (Z * y / x) * (vT^2 + razao_MA * deltav / 4.0 + (x / (2.0 * Z)) * deltav / L - 1.0 / (2.0 * Z * x))
+    denominador = y^2 - vT^2 - (1.0 / 4.0) * razao_MA * deltav
+
     return (numerador / denominador, numerador, denominador, x, y)
 end
 
-# ? --- Método Numérico ---
+function analisa_singularidade_ventoRES(x, y, vetor)
+    B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S, alpha, phi0 = vetor
+    x_t = 10.0^(1.0 / (S - 2.0))
+    Ma0 = alpha / vA0
+
+    if x <= x_t
+        Z = S
+        Ma = Ma0 * sqrt(y / alpha) * (x^(S / 2.0))
+        vA = vA0 * (x^(-S / 2.0)) * sqrt(y / alpha)
+        L = L0 * ((vA / vA0)^2) * (x^(-S / 2.0)) * (1.0 + Ma)
+        res = quadgk(t -> integral_subsonicaRES(t, vA0, Ma0, y, alpha, S, L0), 1.0, x)[1]
+        deltav1 = deltav0 * (y / alpha) * (x^S) * (Ma0 / Ma) * ((1.0 + Ma0) / (1.0 + Ma))^2
+        deltav = deltav1 * exp(-res)
+    else
+        Z = 2.0
+        Ma = Ma0 * sqrt(y / alpha) * (x_t^(S / 2.0)) * (x / x_t)
+        vA = vA0 * (x_t^(-S / 2.0)) * (x_t / x) * sqrt(y / alpha)
+        L = L0 * ((vA / vA0)^2) * (x_t^(-S / 2.0)) * (x_t / x) * (1.0 + Ma)
+        res_int1 = quadgk(t -> integral_subsonicaRES(t, vA0, Ma0, y, alpha, S, L0), 1.0, x_t)[1]
+        res_int2 = quadgk(t -> integral_supersonicaRES(t, x_t, vA0, Ma0, y, alpha, S, L0), x_t, x)[1]
+        res = res_int1 + res_int2
+        deltav1 = deltav0 * (y / alpha) * (x_t^S) * ((x / x_t)^2) * (Ma0 / Ma) * ((1.0 + Ma0) / (1.0 + Ma))^2
+        deltav = deltav1 * exp(-res)
+    end
+
+    razao_MA = (1.0 + 3.0 * Ma) / (1.0 + Ma)
+    numerador = (Z * y / x) * (vT^2 + razao_MA * deltav / 4.0 + (x / (2.0 * Z)) * deltav / L - 1.0 / (2.0 * Z * x))
+    denominador = y^2 - vT^2 - (1.0 / 4.0) * razao_MA * deltav
+
+    return (numerador / denominador, numerador, denominador, x, y)
+end
+
+# * ============================================
+# * Integração Numérica e Rotinas Principais
+# * ============================================
+# ? --- RK4 Integrator ---
 function runge_kutta_MHD(func, x0_old, x, y0_old, h, vetor)
     x0 = x0_old
     y0 = y0_old
@@ -164,29 +187,33 @@ function runge_kutta_MHD(func, x0_old, x, y0_old, h, vetor)
     return [x0, y0]
 end
 
-function busca_u0(vT, vetor_base, u0_step, u0_ini, cte, py_cb) # <-- NOVO ARGUMENTO
+# ? --- Rotina de Busca da Velocidade Inicial ---
+function busca_u0(vT, vetor_base, u0_step, u0_ini, cte, py_cb)
     func_derivada = cte ? derivada_velocidade_vento : derivada_velocidade_ventoRES
     func_analise = cte ? analisa_singularidade_vento : analisa_singularidade_ventoRES
 
     B0, rho0, _, vA0, L0, r0, ve0, deltav0, S, _, phi0 = vetor_base
     x_vals = 1.0:1e-5:3.9999
     alpha_vals = u0_ini:u0_step:(vT-1e-4)
+
     d = 1
     x_crit, y_crit, r_crit = 0.0, 0.0, 0.0
     u0_final = 0.0
     x_append_final, y_append_final, vetor_final = Float64[], Float64[], Float64[]
-    
+
     total_passos = length(alpha_vals)
     contador = 0
     last_pct = -1
-    
+
     for a in alpha_vals
-        if d == 0 break end
-        
+        if d == 0
+            break
+        end
+
         contador += 1
         current_pct = floor(Int, (contador / total_passos) * 100)
         if current_pct > last_pct
-            py_cb(current_pct / 100.0) # <-- O JULIA MANDA O PYTHON IMPRIMIR!
+            py_cb(current_pct / 100.0)
             last_pct = current_pct
         end
 
@@ -194,18 +221,23 @@ function busca_u0(vT, vetor_base, u0_step, u0_ini, cte, py_cb) # <-- NOVO ARGUME
         u0_aux = u0
         temp_x_append, temp_y_append = Float64[], Float64[]
         vetor = Float64[B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S, u0, phi0]
-        
+
         for i in 1:(length(x_vals)-1)
             x0_loop, x_atual = x_vals[i], x_vals[i+1]
             rk = runge_kutta_MHD(func_derivada, x0_loop, x_atual, u0_aux, 1e-5, vetor)
             x_i, y_i = rk[1], rk[2]
             u0_aux = y_i
+
             r = func_analise(x_i, y_i, vetor)
-            
+
             if r[2] < 0 && r[3] < 0
-                if d == 0 && (r[1] < 1.0 - 1e-2 || r[1] > 1.0 + 1e-2) break end
+                if d == 0 && (r[1] < 1.0 - 1e-2 || r[1] > 1.0 + 1e-2)
+                    break
+                end
+
                 push!(temp_x_append, x_i)
                 push!(temp_y_append, y_i)
+
                 if 1.0 - 1e-2 < r[1] < 1.0 + 1e-2
                     d = 0
                     x_crit, y_crit, r_crit = x_i, y_i, r[1]
@@ -216,16 +248,19 @@ function busca_u0(vT, vetor_base, u0_step, u0_ini, cte, py_cb) # <-- NOVO ARGUME
                     break
                 end
             else
-                if r[1] < 0 break end
+                if r[1] < 0
+                    break
+                end
             end
         end
     end
-    py_cb(1.0) # Enche a barrinha ao máximo
+
+    py_cb(1.0)
     return u0_final, x_crit, y_crit, r_crit, x_append_final, y_append_final, vetor_final
 end
 
-
-function integra_perfil(u0_final, x_crit, y_crit, vetor_final, x_append_final, y_append_final, x_t, passos_recuo, h_step, h_rk, cte, x_sim, py_cb) # <-- NOVO ARGUMENTO
+# ? --- Rotina de Integração Espacial ---
+function integra_perfil(u0_final, x_crit, y_crit, vetor_final, x_append_final, y_append_final, x_t, passos_recuo, h_step, h_rk, cte, x_sim, py_cb)
     func_derivada = cte ? derivada_velocidade_vento : derivada_velocidade_ventoRES
     func_analise = cte ? analisa_singularidade_vento : analisa_singularidade_ventoRES
 
@@ -234,19 +269,20 @@ function integra_perfil(u0_final, x_crit, y_crit, vetor_final, x_append_final, y
     x_int = vcat([1.0], x_sub)
     y_int = vcat([u0_final], y_sub)
     x0_old, y0_old = x_sub[end], y_sub[end]
-    
+
     k1 = func_derivada(x0_old, y0_old, vetor_final)
     k2 = func_derivada(x0_old + h_step / 2.0, y0_old + (h_step / 2.0) * k1, vetor_final)
     k3 = func_derivada(x0_old + h_step / 2.0, y0_old + (h_step / 2.0) * k2, vetor_final)
     k4 = func_derivada(x0_old + h_step, y0_old + h_step * k3, vetor_final)
-    
+
     y0 = y0_old + (h_step / 6.0) * (k1 + 2.0 * k2 + 2.0 * k3 + k4)
     x0n = x0_old + h_step
+
     x_e = vcat(collect(x0n:h_step:(x_t-0.02)), collect((x_t+0.01):0.1:x_sim))
-    
+
     u0_aux = y0
     x_ext_append, y_ext_append = Float64[], Float64[]
-    
+
     total_ext = length(x_e) - 1
     contador_ext = 0
     last_pct = -1
@@ -254,33 +290,36 @@ function integra_perfil(u0_final, x_crit, y_crit, vetor_final, x_append_final, y
     for i in 1:total_ext
         contador_ext += 1
         current_pct = floor(Int, (contador_ext / total_ext) * 100)
-        
+
         if current_pct > last_pct
-            py_cb(current_pct / 100.0) # <-- O JULIA MANDA O PYTHON IMPRIMIR!
+            py_cb(current_pct / 100.0)
             last_pct = current_pct
         end
 
         x_atual, x0_loop = x_e[i+1], x_e[i]
         rk = runge_kutta_MHD(func_derivada, x0_loop, x_atual, u0_aux, h_rk, vetor_final)
         x_i, y_i = rk[1], rk[2]
+
         push!(x_ext_append, x_i)
         push!(y_ext_append, y_i)
         u0_aux = y_i
     end
-    
+
     py_cb(1.0)
 
     x_ext = vcat([x0n], x_ext_append)
     y_ext = vcat([y0], y_ext_append)
     x_total = vcat(x_int, x_ext)
     y_total = vcat(y_int, y_ext)
-    
+
     alpha_final = vetor_final[10]
     num_alpha_list, den_alpha_list = Vector{Float64}[], Vector{Float64}[]
+
     for i in 1:length(x_total)
         r = func_analise(x_total[i], y_total[i], vetor_final)
         push!(num_alpha_list, [r[2], alpha_final])
         push!(den_alpha_list, [r[3], alpha_final])
     end
+
     return x0n, y0, x_int, y_int, x_ext, y_ext, num_alpha_list, den_alpha_list
 end

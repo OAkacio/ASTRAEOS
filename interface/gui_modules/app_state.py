@@ -1,12 +1,3 @@
-"""
-Módulo de Gerenciamento de Estado (AppState)
-===========================================
-
-Este módulo atua como a Single Source of Truth para a interface gráfica
-do ASTRAEOS. Ele isola os dados físicos e numéricos dos widgets, garantindo
-segurança e fácil integração com o Core.
-"""
-
 # * ============================================
 # * Importações
 # * ============================================
@@ -14,11 +5,11 @@ import customtkinter as ctk
 
 
 # * ============================================
-# * Banco de Dados Gerais
+# * Gerenciador de Estado (AppState)
 # * ============================================
 class AppState:
     def __init__(self):
-        # ? --- Inicialização de Variáveis ---
+        # ? --- Variáveis Astrofísicas e Numéricas ---
         self.nome = ctk.StringVar(value="TRAPPIST 1a")
         self.Mstar = ctk.StringVar(value="0.0898")
         self.Rstar = ctk.StringVar(value="0.1192")
@@ -38,6 +29,8 @@ class AppState:
         self.recuo_pulo = ctk.StringVar(value="484")
         self.tamanho_pulo = ctk.StringVar(value="0.1")
         self.cte = ctk.BooleanVar(value=False)
+
+        # ? --- Variáveis de Referência e Gráficos ---
         self.refs = [
             {
                 "x": ctk.StringVar(value="37.0"),
@@ -72,6 +65,8 @@ class AppState:
             "X Axis": ctk.StringVar(value="log"),
             "Y Axis": ctk.StringVar(value="log"),
         }
+
+        # ? --- Variáveis de Scripts Avançados ---
         self.multicurve = ctk.BooleanVar(value=False)
         self.searchdv2 = ctk.BooleanVar(value=False)
         self.ldv2 = ctk.StringVar(value="0.001")
@@ -79,19 +74,12 @@ class AppState:
         self.stepdv2 = ctk.StringVar(value="0.001")
 
     # * ============================================
-    # * Funções com Definição de Cofres
+    # * Exportação de Dados (Cofres)
     # * ============================================
-
-    # ? --- Exportação de Parâmetros de Entrada ---
+    # ? --- Parâmetros de Entrada ---
     def parameters_input(self):
         """
         Gera o dicionário de parâmetros físicos e numéricos atuais da interface.
-
-        Returns:
-            dict: Dicionário contendo os parâmetros estelares (Mstar em M_sun,
-                Teff em K...), propriedades do vento (B0, rho0...), controle numérico de
-                passagem pelo ponto crítico (recuo_pulo, tamanho_pulo...) e controles
-                numéricos do Runge-Kutta (h_rk, x_sim...).
         """
         return {
             "nome": self.nome.get(),
@@ -115,14 +103,10 @@ class AppState:
             "x_sim": float(self.x_sim.get()),
         }
 
-    # ? --- Exportação de Configurações de Plot ---
+    # ? --- Parâmetros de Plotagem ---
     def parameters_plot(self):
         """
         Gera o dicionário de configurações de geração de gráfico atuais da interface.
-
-        Returns:
-            dict: Dicionário contendo as configurações de personalização (nome_ref,
-                color_ref...)
         """
         x_ref, nome_ref, color_ref, linestyle_ref = [], [], [], []
 
@@ -157,8 +141,11 @@ class AppState:
             "y_scale": self.axis["Y Axis"].get(),
         }
 
-    # ? --- More Options de Plot ---
+    # ? --- Opções Avançadas ---
     def parameters_more_options(self):
+        """
+        Gera o dicionário de controle dos scripts avançados.
+        """
         return {
             "multicurve": self.multicurve.get(),
             "searchdv2": self.searchdv2.get(),
