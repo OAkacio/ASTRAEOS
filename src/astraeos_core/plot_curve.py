@@ -25,8 +25,8 @@ def plot_perfil_output(
     ve0 = dados["ve0"]
     x_sim = dados["x_sim"]
     nome = str(dados["nome"])
-    num_alpha_array = (dados["num_alpha_array"])
-    den_alpha_array = (dados["den_alpha_array"])
+    num_alpha_array = dados["num_alpha_array"]
+    den_alpha_array = dados["den_alpha_array"]
     idx_crit_num = dados["idx_crit_num"].item()
     idx_crit_den = dados["idx_crit_den"].item()
 
@@ -109,8 +109,8 @@ def plot_perfil_main(
     ve0 = dados["ve0"]
     x_sim = dados["x_sim"]
     nome = str(dados["nome"])
-    num_alpha_array = (dados["num_alpha_array"])
-    den_alpha_array = (dados["den_alpha_array"])
+    num_alpha_array = dados["num_alpha_array"]
+    den_alpha_array = dados["den_alpha_array"]
     idx_crit_num = dados["idx_crit_num"].item()
     idx_crit_den = dados["idx_crit_den"].item()
 
@@ -173,8 +173,8 @@ def plot_curve_analis(tamanho_pulo, recuo_pulo, L0, deltav0, S_divergencia):
     ve0 = dados["ve0"]
     x_sim = dados["x_sim"]
     nome = str(dados["nome"])
-    num_alpha_array = (dados["num_alpha_array"])
-    den_alpha_array = (dados["den_alpha_array"])
+    num_alpha_array = dados["num_alpha_array"]
+    den_alpha_array = dados["den_alpha_array"]
     idx_crit_num = dados["idx_crit_num"].item()
     idx_crit_den = dados["idx_crit_den"].item()
 

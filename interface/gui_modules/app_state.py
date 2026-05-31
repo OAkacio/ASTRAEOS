@@ -70,10 +70,10 @@ class AppState:
         self.sigma_fim = ctk.StringVar(value="84.7")
         self.sigma_nome = ctk.StringVar(value="ZH")
         self.sigma_cor = ctk.StringVar(value="#8FFF81")
-        self.axis={
-                "X Axis": ctk.StringVar(value="log"),
-                "Y Axis": ctk.StringVar(value="log"),
-            }
+        self.axis = {
+            "X Axis": ctk.StringVar(value="log"),
+            "Y Axis": ctk.StringVar(value="log"),
+        }
 
     # ? --- Exportação de Parâmetros de Entrada ---
     def parameters_input(self):
