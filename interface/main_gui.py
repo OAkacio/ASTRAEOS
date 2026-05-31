@@ -56,20 +56,32 @@ class AppWindow(ctk.CTk):
             pass
 
         self.app_state = AppState()
+        self.skip_next_newline = False
 
-        # ? --- Barra de Status ---
-        self.status_bar = ctk.CTkFrame(
-            self, height=30, corner_radius=0, fg_color="#1E1E1E"
-        )
+        ## ? --- Barra de Status ---
+        self.status_bar = ctk.CTkFrame(self, height=30, corner_radius=0, fg_color="#1E1E1E")
         self.status_bar.pack(side="bottom", fill="x")
         self.status_bar.pack_propagate(False)
-        self.lbl_status = ctk.CTkLabel(
-            self.status_bar,
-            text="Welcome!",
-            text_color="#E5C07B",
-            font=("Consolas", 12),
-        )
+        self.lbl_status = ctk.CTkLabel(self.status_bar, text="Welcome!", text_color="#E5C07B", font=("Consolas", 12))
         self.lbl_status.pack(side="left", padx=10)
+
+        # <-- NOVO: O BLOCO DAS BARRAS -->
+        # Barra principal (Iterações globais)
+        self.progressbar = ctk.CTkProgressBar(self.status_bar, width=200, height=10, progress_color="#61AFEF", fg_color="#282C34")
+        self.progressbar.set(0.0)
+
+        # Container invisível para empilhar as barras fininhas
+        self.micro_bars_frame = ctk.CTkFrame(self.status_bar, fg_color="transparent")
+        
+        # Barra superior: Busca de u0 (Azul escuro)
+        self.u0_progressbar = ctk.CTkProgressBar(self.micro_bars_frame, width=120, height=4, progress_color="#1F618D", fg_color="#282C34")
+        self.u0_progressbar.pack(side="top", pady=(0, 2))
+        self.u0_progressbar.set(0.0)
+
+        # Barra inferior: Integração (Dourado)
+        self.int_progressbar = ctk.CTkProgressBar(self.micro_bars_frame, width=120, height=4, progress_color="#E5C07B", fg_color="#282C34")
+        self.int_progressbar.pack(side="bottom")
+        self.int_progressbar.set(0.0)
 
         # ? --- Layout Principal (Grid Dinâmico) ---
         self.main_container = ctk.CTkFrame(
@@ -159,17 +171,18 @@ class AppWindow(ctk.CTk):
     def abortar_execucao(self):
         self.set_status("Sending abort signal...", "#E06C75")
         self.escrever_console("\n\x1b[31m[!] ABORT SIGNAL INITIATED BY USER...\x1b[0m\n")
+        self.progressbar.pack_forget()
 
-        # Procura os processos paralelos ativos e mata-os imediatamente
         processos_ativos = multiprocessing.active_children()
         for processo in processos_ativos:
             processo.terminate()
             processo.join(timeout=1.0)
             
-        # Reseta os botões da UI manualmente
         self.pagina_atual.btn_run.configure(state="normal", text="Run Simulation")
         self.pagina_atual.btn_abort.configure(state="disabled", text="Abort")
         self.set_status("Simulation aborted successfully.", "#E06C75")
+        self.progressbar.pack_forget()
+        self.micro_bars_frame.pack_forget() # Oculta as barrinhas
 
     def exibir_grafico(self, figura_matplotlib):
         try:
@@ -271,6 +284,13 @@ class AppWindow(ctk.CTk):
         self.console_box.insert("end", f"--- Initiating Execution [{parametros_completos['script_type'].upper()}] ---\n")
         self.console_box.configure(state="disabled")
         self.pagina_atual.btn_abort.configure(state="normal", text="Abort")
+        
+        self.progressbar.pack(side="right", padx=(10, 20))
+        self.micro_bars_frame.pack(side="right") # Mostra o bloco duplo
+        
+        self.progressbar.set(0.0)
+        self.u0_progressbar.set(0.0)
+        self.int_progressbar.set(0.0)
 
         run(
             parametros=parametros_completos,
@@ -286,10 +306,13 @@ class AppWindow(ctk.CTk):
         self.after(0, self._atualizar_ui_sucesso)
 
     def _atualizar_ui_sucesso(self):
+        self.progressbar.pack_forget()
         self.set_status("Task completed successfully!", "#98C379")
         self.pagina_atual.btn_run.configure(state="normal", text="Run Simulation")
         self.pagina_atual.btn_update_plot.configure(state="normal", text="Update Plot")
         self.pagina_atual.btn_abort.configure(state="disabled", text="Abort")
+        self.progressbar.pack_forget()
+        self.micro_bars_frame.pack_forget() # Oculta as barrinhas
 
         p = self.app_state.parameters_plot()
         i = self.app_state.parameters_input()
@@ -319,17 +342,64 @@ class AppWindow(ctk.CTk):
         self.after(0, self._atualizar_ui_erro, mensagem_erro)
 
     def _atualizar_ui_erro(self, erro):
+        self.progressbar.pack_forget()
         self.set_status(f"Execution error | {erro}", "#E06C75")
         self.pagina_atual.btn_run.configure(state="normal", text="Run Simulation")
         self.pagina_atual.btn_abort.configure(state="disabled", text="Abort")
+        self.progressbar.pack_forget()
+        self.micro_bars_frame.pack_forget() # Oculta as barrinhas
 
-    # ? --- Lógica do Gráfico em Tempo Real ---
+    # ? --- Lógica do Gráfico em Tempo Real e Progresso ---
     def ao_receber_log(self, texto_bruto):
-        # AQUI ESTAVA FALTANDO! Intercepta o sinal do searchDV2.py
+        # 1. Filtro do "Enter Fantasma" gerado pelo print(flush=True) do Python
+        if self.skip_next_newline and texto_bruto in ("\n", "\r\n"):
+            self.skip_next_newline = False
+            return # Aborta silenciosamente (não imprime o espaço em branco)
+            
+        self.skip_next_newline = False # Reseta a bandeira para textos normais da física
+        
+        # 2. Roteamento de Sinais
         if "___UPDATE_PLOT___" in texto_bruto:
+            self.skip_next_newline = True
             self.after(0, self._atualizar_grafico_parcial)
+            
+        elif "___PROGRESS___|" in texto_bruto:
+            self.skip_next_newline = True
+            matches = re.findall(r"___PROGRESS___\|([0-9.]+)", texto_bruto)
+            if matches:
+                try: 
+                    self.after(0, self._forcar_animacao_barra, self.progressbar, float(matches[-1]))
+                except ValueError: pass
+                
+        elif "___U0_PROGRESS___|" in texto_bruto:
+            self.skip_next_newline = True
+            matches = re.findall(r"___U0_PROGRESS___\|([0-9.]+)", texto_bruto)
+            if matches:
+                try: 
+                    self.after(0, self._forcar_animacao_barra, self.u0_progressbar, float(matches[-1]))
+                except ValueError: pass
+                
+        elif "___INT_PROGRESS___|" in texto_bruto:
+            self.skip_next_newline = True
+            matches = re.findall(r"___INT_PROGRESS___\|([0-9.]+)", texto_bruto)
+            if matches:
+                try: 
+                    self.after(0, self._forcar_animacao_barra, self.int_progressbar, float(matches[-1]))
+                except ValueError: pass
+                
         else:
-            self.after(0, lambda: self.escrever_console(texto_bruto))
+            # Envia para a tela preta com segurança
+            self.after(0, self.escrever_console, texto_bruto)
+
+    def _forcar_animacao_barra(self, widget_barra, valor):
+        """Atualiza a barra de progresso específica e força o Tkinter a renderizar na hora."""
+        widget_barra.set(valor)
+        widget_barra.update_idletasks()
+
+    def _forcar_animacao_barra(self, widget_barra, valor):
+        """Atualiza a barra de progresso específica e força o Tkinter a renderizar na hora."""
+        widget_barra.set(valor)
+        widget_barra.update_idletasks()
 
     def _atualizar_grafico_parcial(self):
         """Atualiza a tela a cada passo do Search DV2 sem travar a UI."""
@@ -346,7 +416,7 @@ class AppWindow(ctk.CTk):
             )
             self.exibir_grafico(figura_parcial)
         except Exception:
-            pass # Ignora se o arquivo estiver bloqueado temporariamente pela Thread
+            pass
 
 if __name__ == "__main__":
     multiprocessing.freeze_support()

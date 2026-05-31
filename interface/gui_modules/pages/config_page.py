@@ -118,8 +118,8 @@ class ConfigPage(ctk.CTkFrame):
             self.frame_rodape,
             text="Abort",
             command=self.abortar_processo,
-            fg_color="#E06C75",
-            hover_color="#BE5046",
+            fg_color="#75353A",
+            hover_color="#77312A",
             font=("Consolas", 14, "bold"),
             height=30,
             state="disabled"

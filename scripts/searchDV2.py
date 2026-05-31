@@ -45,13 +45,23 @@ def main_sd(
     min_dv2,
     max_dv2,
     step_dv2,
+    **kwargs,
 ):
     search = [min_dv2, max_dv2]
     idv2 = search[0]
     i = 1
 
-    while idv2 < search[1]:
+    if step_dv2 > 0:
+        total_runs = int(round((search[1] - search[0]) / step_dv2, 5)) + 1
+    else:
+        total_runs = 1
+
+    while idv2 <= search[1]:
         try:
+            # Emissão segura do sinal de progresso forçando a quebra de linha
+            progresso_atual = (i - 1) / total_runs
+            print(f"___PROGRESS___|{progresso_atual}", flush=True)
+
             x_tot, y_tot, x_crit, y_crit, x_t, ve0, *_ = main(
                 nome=nome,
                 Mstar=Mstar,
@@ -81,12 +91,19 @@ def main_sd(
                 sigmas_nome_ref=sigmas_nome_ref,
                 x_scale=x_scale,
                 y_scale=y_scale,
+                show_progress=False,  # Silencia o main para ele não mexer na barra
             )
-            print("___UPDATE_PLOT___")
-        except:
-            sy.ok(f"Falha na tentativa {i}!", False)
+
+            # Avisa a GUI para renderizar o frame do gráfico em tempo real
+            print("___UPDATE_PLOT___", flush=True)
+
+        except Exception as e:
+            sy.ok(f"Falha na tentativa {i}! Erro: {e}", False)
+
         idv2 += step_dv2
         i += 1
+
+    print("___PROGRESS___|1.0", flush=True)
     sy.fim("SEARCH COMPLETED", flush=True)
     return None
 
