@@ -60,7 +60,7 @@ def plot_perfil_output(
         curve_names=[
             rf"Velocity Profile ; $u_\infty = {y_tot[-1] * ve0 / 1e5:0.2f}$ km/s"
         ],
-        figure_dpi=600,  # Desempenho alto para UI em tempo real
+        figure_dpi=100,  # Desempenho alto para UI em tempo real
         fig_width=10.0,  # Gráfico widescreen (Esticado)
         fig_height=5.0,  # Altura balanceada
         x_lim=[1, x_sim],
