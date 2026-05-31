@@ -10,6 +10,7 @@ if SRC_PATH not in sys.path:
 from astraeos_core.main import main
 from astraeos_core.parameters import *
 from astraeos_core.plot_curve import *
+from astraeos_core.lib import *
 
 
 def main_sd(
@@ -47,7 +48,7 @@ def main_sd(
 ):
     search = [min_dv2, max_dv2]
     idv2 = search[0]
-    i=1
+    i = 1
 
     while idv2 < search[1]:
         try:
@@ -86,6 +87,7 @@ def main_sd(
             sy.ok(f"Falha na tentativa {i}!", False)
         idv2 += step_dv2
         i += 1
+    sy.fim("SEARCH COMPLETED", flush=True)
     return None
 
 

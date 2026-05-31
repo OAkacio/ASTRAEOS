@@ -208,7 +208,7 @@ def main(
         cte,
     )
 
-    sy.fim("EXECUTION COMPLETED", flush=True)
+    sy.fim("SIMULATION COMPLETED", flush=True)
 
     return (
         x_tot,
