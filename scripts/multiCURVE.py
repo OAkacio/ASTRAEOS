@@ -1,103 +1,110 @@
 import os
 import sys
+import numpy as np
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC_PATH = os.path.join(BASE_DIR, "src")
 if SRC_PATH not in sys.path:
     sys.path.append(SRC_PATH)
 
-from astraeos_core.main import *
-from astraeos_core.lib import *
+from astraeos_core.main import main
 from astraeos_core.parameters import *
-from astraeos_core.utils import *
-from astraeos_core.core import *
+from astraeos_core.plot_curve import *
 
-x_totRES, y_totRES, x_critRES, y_critRES, x_t, ve0RES = main(
-    nome=nome,
-    Mstar=Mstar,
-    Rstar=Rstar,
-    Teff=Teff,
-    T=T,
-    mu=mu,
-    rho0=rho0,
-    B0=B0,
-    phi0=phi0,
-    u0_step=u0_step,
-    u0_ini=u0_ini,
-    h_rk=h_rk,
-    deltav0=0.04,
-    S_divergencia=4.5,
-    recuo_pulo=recuo_pulo,
-    tamanho_pulo=tamanho_pulo,
-    cte=False,
-    L0=0.3,
-)
-x_totCTE, y_totCTE, x_critCTE, y_critCTE, x_t, ve0CTE = main(
-    nome=nome,
-    Mstar=Mstar,
-    Rstar=Rstar,
-    Teff=Teff,
-    T=T,
-    mu=mu,
-    rho0=rho0,
-    B0=B0,
-    phi0=phi0,
-    u0_step=u0_step,
-    u0_ini=u0_ini,
-    h_rk=h_rk,
-    deltav0=0.035,
-    S_divergencia=5.3,
-    recuo_pulo=recuo_pulo,
-    tamanho_pulo=tamanho_pulo,
-    cte=False,
-    L0=0.3,
-)
+def main_sub(
+    nome,
+    Mstar,
+    Rstar,
+    Teff,
+    T,
+    mu,
+    rho0,
+    B0,
+    phi0,
+    u0_step,
+    u0_ini,
+    h_rk,
+    deltav0,
+    S_divergencia,
+    recuo_pulo,
+    tamanho_pulo,
+    cte,
+    L0,
+    x_sim,
+    x_ref,
+    linestyle_ref,
+    color_ref,
+    nome_ref,
+    sigmas_ref,
+    sigmas_color_ref,
+    sigmas_nome_ref,
+    x_scale,
+    y_scale,
+):
+    x_totRES, y_totRES, x_critRES, y_critRES, x_t, ve0RES, *_ = main(
+        nome=nome, Mstar=Mstar, Rstar=Rstar, Teff=Teff, T=T,
+        mu=mu, rho0=rho0, B0=B0, phi0=phi0,
+        u0_step=u0_step, u0_ini=u0_ini, h_rk=h_rk,
+        deltav0=deltav0, S_divergencia=S_divergencia,
+        recuo_pulo=recuo_pulo, tamanho_pulo=tamanho_pulo,
+        cte=False, L0=L0, x_sim=x_sim,
+        x_ref=x_ref, linestyle_ref=linestyle_ref, color_ref=color_ref,
+        nome_ref=nome_ref, sigmas_ref=sigmas_ref, sigmas_color_ref=sigmas_color_ref,
+        sigmas_nome_ref=sigmas_nome_ref, x_scale=x_scale, y_scale=y_scale
+    )
 
-gp.plot(
-    x_data=[x_totRES, x_totCTE],
-    y_data=[
-        list(np.array(y_totRES) * ve0RES / 1e5),
-        list(np.array(y_totCTE) * ve0CTE / 1e5),
-    ],
-    show_plot=False,
-    x_label=r"$r/r_{0}$",
-    y_label=r"$u$ (km/s)",
-    x_scale="log",
-    y_scale="log",
-    linewidth=[2.0, 2.5],
-    linestyle=["-", "-"],
-    axis_fontsize=16,
-    show_grid=True,
-    grid_linewidth=0.5,
-    color_style=["#1f77b4", "#6E537C"],
-    grid_color="#E6E6E6",
-    grid_alpha=0.5,
-    grid_linestyle=":",
-    save_fig=True,
-    file_format="png",
-    filename=f"superp_perfil_dv_{round(deltav0,7)}",
-    vlines=[x_t],
-    v_colors=["#CC79A7"],
-    v_linewidth=1.5,
-    v_alpha=0.5,
-    v_linestyle="--",
-    v_labels=[r"$r_{tr}$"],
-    curve_names=[
-        rf"Perfil $S=4.5$ ; $u_\infty = {y_totRES[-1] * ve0RES / 1e5:0.1f}$ km/s",
-        rf"Perfil $S=5.3$ ; $u_\infty = {y_totCTE[-1] * ve0CTE / 1e5:0.1f}$ km/s",
-    ],
-    figure_dpi=600,
-    x_lim=[1, 300],
-    y_lim=[0.05, 500],
-    legend_box=False,
-    highlight_point=[
-        (x_critRES, y_critRES * ve0RES / 1e5),
-        (x_critCTE, y_critCTE * ve0CTE / 1e5),
-    ],
-    highlight_color=["#D55E00", "#55EE4F"],
-    highlight_size=40,
-    highlight_marker="o",
-    highlight_label=[r"$P_{crit}$  $S=4.5$", r"$P_{crit}$  $S=5.3$"],
-    legend_fontsize=12,
-    tick_direction="in",
-)
+    x_totCTE, y_totCTE, x_critCTE, y_critCTE, x_t, ve0CTE, *_ = main(
+        nome=nome, Mstar=Mstar, Rstar=Rstar, Teff=Teff, T=T,
+        mu=mu, rho0=rho0, B0=B0, phi0=phi0,
+        u0_step=u0_step, u0_ini=u0_ini, h_rk=h_rk,
+        deltav0=deltav0, S_divergencia=S_divergencia,
+        recuo_pulo=recuo_pulo, tamanho_pulo=tamanho_pulo,
+        cte=True, L0=L0, x_sim=x_sim,
+        x_ref=x_ref, linestyle_ref=linestyle_ref, color_ref=color_ref,
+        nome_ref=nome_ref, sigmas_ref=sigmas_ref, sigmas_color_ref=sigmas_color_ref,
+        sigmas_nome_ref=sigmas_nome_ref, x_scale=x_scale, y_scale=y_scale
+    )
+
+    plot_multicurve(
+    x_ref,
+    linestyle_ref,
+    color_ref,
+    nome_ref,
+    sigmas_ref,
+    sigmas_color_ref,
+    sigmas_nome_ref,
+    x_scale,
+    y_scale,
+    )
+
+if __name__ == "__main__":
+    main_sub(
+        nome=nome_,
+        Mstar=Mstar_,
+        Rstar=Rstar_,
+        Teff=Teff_,
+        T=T_,
+        mu=mu_,
+        rho0=rho0_,
+        B0=B0_,
+        phi0=phi0_,
+        u0_step=u0_step_,
+        u0_ini=u0_ini_,
+        h_rk=h_rk_,
+        deltav0=deltav0_,
+        S_divergencia=S_divergencia_,
+        recuo_pulo=recuo_pulo_,
+        tamanho_pulo=tamanho_pulo_,
+        cte=cte_,
+        L0=L0_,
+        x_sim=x_sim_,
+        x_ref=x_ref_,
+        linestyle_ref=linestyle_ref_,
+        color_ref=color_ref_,
+        nome_ref=nome_ref_,
+        sigmas_ref=sigmas_ref_,
+        sigmas_color_ref=sigmas_color_ref_,
+        sigmas_nome_ref=sigmas_nome_ref_,
+        x_scale=x_scale_,
+        y_scale=y_scale_,
+    )

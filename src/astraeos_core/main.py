@@ -145,7 +145,7 @@ def main(
     )
     os.makedirs("data", exist_ok=True)
     np.savez(
-        "data/curve.npz",
+        f"data/curve_{cte}.npz",
         x_tot=x_tot,
         y_tot=y_tot,
         x_crit=x_crit,
@@ -196,6 +196,7 @@ def main(
         sigmas_nome_ref,
         x_scale,
         y_scale,
+        cte,
     )
     # ? --- Geração de Gráfico de Análise ---
     plot_curve_analis(
@@ -204,6 +205,7 @@ def main(
         L0,
         deltav0,
         S_divergencia,
+        cte,
     )
 
     sy.fim("EXECUTION COMPLETED", flush=True)
@@ -242,7 +244,7 @@ if __name__ == "__main__":
         S_divergencia=S_divergencia_,
         recuo_pulo=recuo_pulo_,
         tamanho_pulo=tamanho_pulo_,
-        cte=False,
+        cte=cte_,
         L0=L0_,
         x_sim=x_sim_,
         x_ref=x_ref_,

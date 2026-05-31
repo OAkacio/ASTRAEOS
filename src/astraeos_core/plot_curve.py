@@ -14,19 +14,20 @@ def plot_perfil_output(
     sigmas_nome_ref,
     x_scale,
     y_scale,
+    cte,
 ):
     # 1. Carrega os dados salvos da última simulação
-    dados = np.load("data/curve.npz")
+    dados = np.load(f"data/curve_{cte}.npz")
     x_tot = dados["x_tot"]
     y_tot = dados["y_tot"]
-    x_crit = dados["x_crit"]
-    y_crit = dados["y_crit"]
-    x_t = dados["x_t"]
-    ve0 = dados["ve0"]
-    x_sim = dados["x_sim"]
-    nome = str(dados["nome"])
-    num_alpha_array = dados["num_alpha_array"]
-    den_alpha_array = dados["den_alpha_array"]
+    x_crit = dados["x_crit"].item()
+    y_crit = dados["y_crit"].item()
+    x_t = dados["x_t"].item()
+    ve0 = dados["ve0"].item()
+    x_sim = dados["x_sim"].item()
+    nome = str(dados["nome"].item())
+    num_alpha_array = dados["num_alpha_array"].item()
+    den_alpha_array = dados["den_alpha_array"].item()
     idx_crit_num = dados["idx_crit_num"].item()
     idx_crit_den = dados["idx_crit_den"].item()
 
@@ -69,7 +70,7 @@ def plot_perfil_output(
         highlight_color="#E06C75",  # Ponto crítico em vermelho vibrante
         highlight_size=50,
         highlight_marker="o",
-        highlight_label=r"$P_{crit}$",
+        highlight_label=r"$P_{crit}",
         legend_fontsize=9,
         y_lim=[None, 1500],
         block_tick=False,
@@ -101,17 +102,17 @@ def plot_perfil_main(
     cte,
 ):
     # 1. Carrega os dados salvos da última simulação
-    dados = np.load("data/curve.npz")
+    dados = np.load(f"data/curve_{cte}.npz")
     x_tot = dados["x_tot"]
     y_tot = dados["y_tot"]
-    x_crit = dados["x_crit"]
-    y_crit = dados["y_crit"]
-    x_t = dados["x_t"]
-    ve0 = dados["ve0"]
-    x_sim = dados["x_sim"]
-    nome = str(dados["nome"])
-    num_alpha_array = dados["num_alpha_array"]
-    den_alpha_array = dados["den_alpha_array"]
+    x_crit = dados["x_crit"].item()
+    y_crit = dados["y_crit"].item()
+    x_t = dados["x_t"].item()
+    ve0 = dados["ve0"].item()
+    x_sim = dados["x_sim"].item()
+    nome = str(dados["nome"].item())
+    num_alpha_array = dados["num_alpha_array"].item()
+    den_alpha_array = dados["den_alpha_array"].item()
     idx_crit_num = dados["idx_crit_num"].item()
     idx_crit_den = dados["idx_crit_den"].item()
 
@@ -164,19 +165,19 @@ def plot_perfil_main(
     return fig
 
 
-def plot_curve_analis(tamanho_pulo, recuo_pulo, L0, deltav0, S_divergencia):
+def plot_curve_analis(tamanho_pulo, recuo_pulo, L0, deltav0, S_divergencia, cte):
     # 1. Carrega os dados salvos da última simulação
-    dados = np.load("data/curve.npz")
+    dados = np.load(f"data/curve_{cte}.npz")
     x_tot = dados["x_tot"]
     y_tot = dados["y_tot"]
-    x_crit = dados["x_crit"]
-    y_crit = dados["y_crit"]
-    x_t = dados["x_t"]
-    ve0 = dados["ve0"]
-    x_sim = dados["x_sim"]
-    nome = str(dados["nome"])
-    num_alpha_array = dados["num_alpha_array"]
-    den_alpha_array = dados["den_alpha_array"]
+    x_crit = dados["x_crit"].item()
+    y_crit = dados["y_crit"].item()
+    x_t = dados["x_t"].item()
+    ve0 = dados["ve0"].item()
+    x_sim = dados["x_sim"].item()
+    nome = str(dados["nome"].item())
+    num_alpha_array = dados["num_alpha_array"].item()
+    den_alpha_array = dados["den_alpha_array"].item()
     idx_crit_num = dados["idx_crit_num"].item()
     idx_crit_den = dados["idx_crit_den"].item()
 
@@ -230,5 +231,94 @@ def plot_curve_analis(tamanho_pulo, recuo_pulo, L0, deltav0, S_divergencia):
         x_lim=[x_crit - 0.1, x_crit + 0.2],
         legend_box=False,
         legend_fontsize=10,
+    )
+    return fig
+
+
+def plot_multicurve(
+    x_ref,
+    linestyle_ref,
+    color_ref,
+    nome_ref,
+    sigmas_ref,
+    sigmas_color_ref,
+    sigmas_nome_ref,
+    x_scale,
+    y_scale,
+):
+    # 1. Carrega os dados salvos da última simulação
+    tdados = np.load(f"data/curve_True.npz")
+    fdados = np.load(f"data/curve_False.npz")
+
+    tx_tot = tdados["x_tot"]
+    ty_tot = tdados["y_tot"]
+    tx_crit = tdados["x_crit"].item()
+    ty_crit = tdados["y_crit"].item()
+
+    fx_tot = fdados["x_tot"]
+    fy_tot = fdados["y_tot"]
+    fx_crit = fdados["x_crit"].item()
+    fy_crit = fdados["y_crit"].item()
+
+    x_t = tdados["x_t"].item()
+    ve0 = tdados["ve0"].item()
+    x_sim = tdados["x_sim"].item()
+    nome = str(tdados["nome"].item())
+
+    fig = gp.plot(
+        title=nome,
+        x_data=[tx_tot, fx_tot],
+        y_data=[list(np.array(ty_tot) * ve0 / 1e5), list(np.array(fy_tot) * ve0 / 1e5)],
+        show_plot=False,
+        x_label=r"$r/r_{0}$",
+        y_label=r"$u$ (km/s)",
+        x_scale=x_scale,
+        y_scale=y_scale,
+        linewidth=2.5,
+        axis_fontsize=16,
+        show_grid=True,
+        grid_linewidth=0.4,
+        color_style=[
+            "#61AFEF",
+            "#61EF97",
+        ],  # Azul ciano vibrante para a curva principal
+        grid_color="#5C6370",  # Cinza sutil para a grade
+        grid_alpha=0.5,
+        grid_linestyle=":",
+        save_fig=True,
+        file_format="png",
+        filename="output",
+        vlines=[x_t, *x_ref],
+        v_colors=["#C678DD", *color_ref],  # Magenta para a linha de transição
+        v_linewidth=1.5,
+        v_alpha=0.8,
+        v_linestyle=["--", *linestyle_ref],
+        v_labels=[rf"$r_t$ ; ${x_t}$ $r_0$", *nome_ref],
+        curve_names=[
+            rf"Constant Damping ; $u_\infty = {ty_tot[-1] * ve0 / 1e5:0.2f}$ km/s",
+            rf"Resonant Damping ; $u_\infty = {fy_tot[-1] * ve0 / 1e5:0.2f}$ km/s",
+        ],
+        figure_dpi=100,  # Desempenho alto para UI em tempo real
+        fig_width=10.0,  # Gráfico widescreen (Esticado)
+        fig_height=5.0,  # Altura balanceada
+        x_lim=[1, x_sim],
+        legend_box=False,
+        highlight_point=[
+            (tx_crit, ty_crit * ve0 / 1e5),
+            (fx_crit, fy_crit * ve0 / 1e5),
+        ],
+        highlight_color=["#E06C75", "#E0A06C"],  # Ponto crítico em vermelho vibrante
+        highlight_size=50,
+        highlight_marker=["o", "s"],
+        highlight_label=[r"$P_{crit}^{cte}$", r"$P_{crit}^{res}$"],
+        legend_fontsize=9,
+        y_lim=[None, 1500],
+        block_tick=False,
+        sigma_intervals=sigmas_ref,
+        sigma_linestyle="",
+        sigma_labels=sigmas_nome_ref,
+        sigma_colors=sigmas_color_ref,
+        sigma_alpha=0.15,
+        theme="dark",  # Ativa o modo escuro que criamos!
     )
     return fig

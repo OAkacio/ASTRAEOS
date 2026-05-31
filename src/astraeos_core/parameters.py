@@ -21,6 +21,7 @@ S_divergencia_ = 2.5  # Fator de expansão [adm] #? Livre
 phi0_ = 5e7  # Fluxo inicial de ondas Alfvén [erg /cm²/s] #? Livre
 L0_ = 1  # Comprimento de amortecimento [unidades de r0] #? Livre
 deltav0_ = 0.12851  # Amplitude de onda inicial [ve0²] #? Livre
+cte_ = False  # Usar ou não amortecimento constante
 
 # ? --- Ajustes de Integração | Alteração pode Ocasionar em Instabilidade ---
 u0_step_ = 5e-4  # Passo de busca pela velocidade inicial [ve0]
@@ -32,8 +33,8 @@ tamanho_pulo_ = 0.1  # Tamanho do pulo [Rstar]
 h_rk_ = 5e-4  # Passo de integração [Rstar]
 
 # ? --- Referências e Personalização ---
-x_scale_="log"
-y_scale_="log"
+x_scale_ = "log"
+y_scale_ = "log"
 
 x_ref_ = 37.0, 49.0, 63.0, 77.0  # Distância de referência [Rstar]
 linestyle_ref_ = ":", ":", ":", ":"  # Estilo da linha de referência

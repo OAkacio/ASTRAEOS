@@ -285,6 +285,7 @@ class AppWindow(ctk.CTk):
         self.pagina_atual.btn_update_plot.configure(state="normal", text="Update Plot")
 
         p = self.app_state.parameters_plot()
+        i = self.app_state.parameters_input()
         figura_inicial = plot_perfil_output(
             x_ref=p["x_ref"],
             linestyle_ref=p["linestyle_ref"],
@@ -295,6 +296,7 @@ class AppWindow(ctk.CTk):
             sigmas_nome_ref=p["sigmas_nome_ref"],
             x_scale=p["x_scale"],
             y_scale=p["y_scale"],
+            cte=i["cte"],
         )
 
         # Exibe o gráfico interativo
