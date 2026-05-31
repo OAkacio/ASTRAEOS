@@ -211,13 +211,14 @@ class AppWindow(ctk.CTk):
 
         except Exception as e:
             self.set_status(f"Erro ao renderizar imagem: {e}", "#E06C75")
+
     def atualizar_somente_grafico(self):
         try:
             self.set_status("Updating plot styling...", "#61AFEF")
-            
+
             # 1. Pega os novos parâmetros visuais da interface
             p = self.app_state.parameters_plot()
-            
+
             # 2. Roda a função de plotagem (ela vai ler o data/curve.npz sozinha!)
             plot_perfil_output(
                 x_ref=p["x_ref"],
@@ -230,17 +231,19 @@ class AppWindow(ctk.CTk):
                 x_scale=p["x_scale"],
                 y_scale=p["y_scale"],
             )
-            
+
             # 3. Atualiza a imagem na tela
             self.exibir_grafico(nome_arquivo="output.png")
             self.set_status("Plot updated successfully!", "#98C379")
-            
+
         except Exception as e:
             self.set_status(f"Error updating plot: {e}", "#E06C75")
-            
+
         finally:
             # Destrava o botão novamente
-            self.pagina_atual.btn_update_plot.configure(state="normal", text="Update Plot (Fast)")
+            self.pagina_atual.btn_update_plot.configure(
+                state="normal", text="Update Plot"
+            )
 
     # ? --- Rotina ao Iniciar Simulação ---
     def executar_fisica(self):
@@ -276,7 +279,7 @@ class AppWindow(ctk.CTk):
             "#98C379",
         )
         self.pagina_atual.btn_run.configure(state="normal", text="Run Simulation")
-        self.pagina_atual.btn_update_plot.configure(state="normal", text="Update Plot (Fast)")
+        self.pagina_atual.btn_update_plot.configure(state="normal", text="Update Plot")
         self.exibir_grafico(nome_arquivo="output.png")
 
     # ? --- Simulação Finalizada com Erro ---

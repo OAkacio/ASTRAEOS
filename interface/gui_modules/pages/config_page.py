@@ -20,7 +20,7 @@ import customtkinter as ctk
 class ConfigPage(ctk.CTkFrame):
     def __init__(self, master, state, on_run_click, on_update_click):
         super().__init__(master, corner_radius=0)
-        
+
         # ? --- Carrega App State e Inicia Página Principal ---
         self.app_state = state
         self.on_run_click = on_run_click
@@ -28,10 +28,10 @@ class ConfigPage(ctk.CTkFrame):
 
         # ? --- Configurações de Layout ---
         self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(0, weight=0) 
-        self.grid_rowconfigure(1, weight=0) 
-        self.grid_rowconfigure(2, weight=1) 
-        self.grid_rowconfigure(3, weight=0) 
+        self.grid_rowconfigure(0, weight=0)
+        self.grid_rowconfigure(1, weight=0)
+        self.grid_rowconfigure(2, weight=1)
+        self.grid_rowconfigure(3, weight=0)
 
         # ? --- Título Principal ---
         self.lbl_titulo = ctk.CTkLabel(
@@ -138,79 +138,96 @@ class ConfigPage(ctk.CTkFrame):
         headers = ["Distance [r0]", "Label", "Color [Hex]", "Line Style"]
         for col, text in enumerate(headers):
             aba.grid_columnconfigure(col, weight=1)
-            ctk.CTkLabel(aba, text=text, font=("Consolas", 12, "bold"), text_color="#E5C07B").grid(
-                row=0, column=col, pady=(5, 5)
-            )
+            ctk.CTkLabel(
+                aba, text=text, font=("Consolas", 12, "bold"), text_color="#E5C07B"
+            ).grid(row=0, column=col, pady=(5, 5))
         for i, ref in enumerate(self.app_state.refs):
             row = i + 1
-            ctk.CTkEntry(aba, textvariable=ref["x"], width=65, justify="center").grid(row=row, column=0, padx=5, pady=5)
-            ctk.CTkEntry(aba, textvariable=ref["nome"], width=65, justify="center").grid(row=row, column=1, padx=5, pady=5)
-            ctk.CTkEntry(aba, textvariable=ref["cor"], width=80, justify="center").grid(row=row, column=2, padx=5, pady=5)
+            ctk.CTkEntry(aba, textvariable=ref["x"], width=65, justify="center").grid(
+                row=row, column=0, padx=5, pady=5
+            )
+            ctk.CTkEntry(
+                aba, textvariable=ref["nome"], width=65, justify="center"
+            ).grid(row=row, column=1, padx=5, pady=5)
+            ctk.CTkEntry(aba, textvariable=ref["cor"], width=80, justify="center").grid(
+                row=row, column=2, padx=5, pady=5
+            )
             estilos = ["-", "--", "-.", ":"]
-            cb = ctk.CTkComboBox(aba, variable=ref["estilo"], values=estilos, width=70, state="readonly")
+            cb = ctk.CTkComboBox(
+                aba, variable=ref["estilo"], values=estilos, width=70, state="readonly"
+            )
             cb.grid(row=row, column=3, padx=5, pady=5)
         row_offset = len(self.app_state.refs) + 1
-        ctk.CTkLabel(aba, text="Sigma Zone", font=("Consolas", 14, "bold"), text_color="#E5C07B").grid(
-            row=row_offset, column=0, columnspan=4, pady=(25, 5)
-        )
+        ctk.CTkLabel(
+            aba, text="Sigma Zone", font=("Consolas", 14, "bold"), text_color="#E5C07B"
+        ).grid(row=row_offset, column=0, columnspan=4, pady=(25, 5))
         frame_sigma = ctk.CTkFrame(aba, fg_color="transparent")
-        frame_sigma.grid(row=row_offset+1, column=0, columnspan=4, pady=5)
-        
-        ctk.CTkLabel(frame_sigma, text="From:").grid(row=0, column=0, padx=5)
-        ctk.CTkEntry(frame_sigma, textvariable=self.app_state.sigma_ini, width=55).grid(row=0, column=1, padx=5)
-        
-        ctk.CTkLabel(frame_sigma, text="To:").grid(row=0, column=2, padx=(15,5))
-        ctk.CTkEntry(frame_sigma, textvariable=self.app_state.sigma_fim, width=55).grid(row=0, column=3, padx=5)
-        
-        ctk.CTkLabel(frame_sigma, text="Label:").grid(row=0, column=4, padx=(15,5))
-        ctk.CTkEntry(frame_sigma, textvariable=self.app_state.sigma_nome, width=50).grid(row=0, column=5, padx=5)
-        
-        ctk.CTkLabel(frame_sigma, text="Color:").grid(row=0, column=6, padx=(15,5))
-        ctk.CTkEntry(frame_sigma, textvariable=self.app_state.sigma_cor, width=75).grid(row=0, column=7, padx=5)
+        frame_sigma.grid(row=row_offset + 1, column=0, columnspan=4, pady=5)
 
-        row_offset += 2 # Pula duas linhas abaixo da Sigma Zone
-        ctk.CTkLabel(aba, text="Axis Scales", font=("Consolas", 14, "bold"), text_color="#E5C07B").grid(
-            row=row_offset, column=0, columnspan=4, pady=(25, 5)
+        ctk.CTkLabel(frame_sigma, text="From:").grid(row=0, column=0, padx=5)
+        ctk.CTkEntry(frame_sigma, textvariable=self.app_state.sigma_ini, width=55).grid(
+            row=0, column=1, padx=5
         )
+
+        ctk.CTkLabel(frame_sigma, text="To:").grid(row=0, column=2, padx=(15, 5))
+        ctk.CTkEntry(frame_sigma, textvariable=self.app_state.sigma_fim, width=55).grid(
+            row=0, column=3, padx=5
+        )
+
+        ctk.CTkLabel(frame_sigma, text="Label:").grid(row=0, column=4, padx=(15, 5))
+        ctk.CTkEntry(
+            frame_sigma, textvariable=self.app_state.sigma_nome, width=50
+        ).grid(row=0, column=5, padx=5)
+
+        ctk.CTkLabel(frame_sigma, text="Color:").grid(row=0, column=6, padx=(15, 5))
+        ctk.CTkEntry(frame_sigma, textvariable=self.app_state.sigma_cor, width=75).grid(
+            row=0, column=7, padx=5
+        )
+
+        row_offset += 2  # Pula duas linhas abaixo da Sigma Zone
+        ctk.CTkLabel(
+            aba, text="Axis Scales", font=("Consolas", 14, "bold"), text_color="#E5C07B"
+        ).grid(row=row_offset, column=0, columnspan=4, pady=(25, 5))
 
         # Cria uma caixinha invisível para centralizar os controles
         frame_axis = ctk.CTkFrame(aba, fg_color="transparent")
-        frame_axis.grid(row=row_offset+1, column=0, columnspan=4, pady=5)
-        
+        frame_axis.grid(row=row_offset + 1, column=0, columnspan=4, pady=5)
+
         estilos_escala = ["log", "linear"]
-        
+
         # Controle do Eixo X
         ctk.CTkLabel(frame_axis, text="X Axis Scale:").grid(row=0, column=0, padx=5)
         cb_x = ctk.CTkComboBox(
-            frame_axis, 
-            variable=self.app_state.axis["X Axis"], # Puxa direto do dicionário!
-            values=estilos_escala, 
-            width=100, 
-            state="readonly" # Impede o usuário de digitar bobagem
+            frame_axis,
+            variable=self.app_state.axis["X Axis"],  # Puxa direto do dicionário!
+            values=estilos_escala,
+            width=100,
+            state="readonly",  # Impede o usuário de digitar bobagem
         )
         cb_x.grid(row=0, column=1, padx=5)
-        
+
         # Controle do Eixo Y
-        ctk.CTkLabel(frame_axis, text="Y Axis Scale:").grid(row=0, column=2, padx=(30, 5))
+        ctk.CTkLabel(frame_axis, text="Y Axis Scale:").grid(
+            row=0, column=2, padx=(30, 5)
+        )
         cb_y = ctk.CTkComboBox(
-            frame_axis, 
-            variable=self.app_state.axis["Y Axis"], # Puxa direto do dicionário!
-            values=estilos_escala, 
-            width=100, 
-            state="readonly"
+            frame_axis,
+            variable=self.app_state.axis["Y Axis"],  # Puxa direto do dicionário!
+            values=estilos_escala,
+            width=100,
+            state="readonly",
         )
         cb_y.grid(row=0, column=3, padx=5)
 
         row_offset += 2
         self.btn_update_plot = ctk.CTkButton(
-            aba, 
-            text="Update Plot (Fast)", 
+            aba,
+            text="Update Plot",
             command=self.iniciar_replot,
-            fg_color="#5C7174", 
-            state="disabled" # Inicia bloqueado até a primeira simulação rodar
+            fg_color="#5C7174",
+            state="disabled",  # Inicia bloqueado até a primeira simulação rodar
         )
         self.btn_update_plot.grid(row=row_offset, column=0, columnspan=4, pady=(20, 10))
-
 
     # * ============================================
     # * Ações e Eventos
@@ -219,6 +236,7 @@ class ConfigPage(ctk.CTkFrame):
     def iniciar_processo(self):
         self.btn_run.configure(state="disabled", text="Calculating...")
         self.on_run_click()
+
     def iniciar_replot(self):
         self.btn_update_plot.configure(state="disabled", text="Plotting...")
         self.on_update_click()
