@@ -133,7 +133,7 @@ def plot_perfil_main(
         grid_linestyle="-",
         save_fig=True,
         file_format="png",
-        filename=f"{cte}_perfil_t{round(tamanho_pulo,3)}_rec{round(recuo_pulo,3)}_s{round(S_divergencia)}_L0{round(L0, 3)}_deltav0{round(deltav0,7)}",
+        filename="clean_output",
         vlines=[x_t, *x_ref],
         v_colors=["#CC79A7", *color_ref],
         v_linewidth=1.5,
@@ -217,7 +217,7 @@ def plot_curve_analis(tamanho_pulo, recuo_pulo, L0, deltav0, S_divergencia):
         h_alpha=[0.8],
         save_fig=True,
         file_format="png",
-        filename=f"perfil_t{round(tamanho_pulo)}_rec{round(recuo_pulo,3)}_s{round(S_divergencia)}_L0{round(L0)}_deltav0{round(deltav0,6)}_ANALISE",
+        filename="analis_output",
         curve_names=[
             r"Denominator ($D$)",
             r"Numerator ($N$)",
