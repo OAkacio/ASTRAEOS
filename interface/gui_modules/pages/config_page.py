@@ -61,13 +61,14 @@ class ToolTip:
 # * Classe da Interface de Entradas
 # * ============================================
 class ConfigPage(ctk.CTkFrame):
-    def __init__(self, master, state, on_run_click, on_update_click):
+    def __init__(self, master, state, on_run_click, on_update_click, on_abort_click):
         super().__init__(master, corner_radius=0)
 
         # ? --- Carrega App State e Inicia Página Principal ---
         self.app_state = state
         self.on_run_click = on_run_click
         self.on_update_click = on_update_click
+        self.on_abort_click = on_abort_click
 
         # ? --- Configurações de Layout ---
         self.grid_columnconfigure(0, weight=1)
@@ -101,6 +102,7 @@ class ConfigPage(ctk.CTkFrame):
         self.frame_rodape = ctk.CTkFrame(self, fg_color="transparent")
         self.frame_rodape.grid(row=3, column=0, padx=20, pady=(10, 20), sticky="ew")
         self.frame_rodape.grid_columnconfigure(0, weight=1)
+        self.frame_rodape.grid_columnconfigure(1, weight=1)
 
         self.btn_run = ctk.CTkButton(
             self.frame_rodape,
@@ -111,6 +113,18 @@ class ConfigPage(ctk.CTkFrame):
             height=30,
         )
         self.btn_run.grid(row=0, column=0, sticky="ew")
+
+        self.btn_abort = ctk.CTkButton(
+            self.frame_rodape,
+            text="Abort",
+            command=self.abortar_processo,
+            fg_color="#E06C75",
+            hover_color="#BE5046",
+            font=("Consolas", 14, "bold"),
+            height=30,
+            state="disabled"
+        )
+        self.btn_abort.grid(row=0, column=1, sticky="ew", padx=(5, 0))
 
     # * ============================================
     # * Construtores de Abas Internas
@@ -316,7 +330,6 @@ class ConfigPage(ctk.CTkFrame):
         self.btn_update_plot.grid(row=row_offset, column=0, columnspan=4, pady=(20, 10))
 
     # ? --- Parâmetros de Input (More Options) ---
-    # ? --- Parâmetros de Input (More Options) ---
     def _construir_aba_more(self, aba):
         aba.grid_columnconfigure(0, weight=1)
         
@@ -456,6 +469,9 @@ class ConfigPage(ctk.CTkFrame):
         except ValueError:
             # Caso o campo esteja vazio ou tenha uma letra, mostra o traço para não quebrar a UI
             self.lbl_contagem_dv2.configure(text="Estimated runs: --")
+    def abortar_processo(self):
+        self.btn_abort.configure(state="disabled", text="Aborting...")
+        self.on_abort_click()
 
     # * ============================================
     # * Ações e Eventos

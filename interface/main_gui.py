@@ -124,6 +124,7 @@ class AppWindow(ctk.CTk):
             state=self.app_state,
             on_run_click=self.executar_fisica,
             on_update_click=self.atualizar_somente_grafico,
+            on_abort_click=self.abortar_execucao,
         )
         self.pagina_atual.grid(row=0, column=1, rowspan=2, sticky="nsew")
 
@@ -154,6 +155,21 @@ class AppWindow(ctk.CTk):
 
     def set_status(self, mensagem, cor="#858585"):
         self.lbl_status.configure(text=f" {mensagem}", text_color=cor)
+
+    def abortar_execucao(self):
+        self.set_status("Sending abort signal...", "#E06C75")
+        self.escrever_console("\n\x1b[31m[!] ABORT SIGNAL INITIATED BY USER...\x1b[0m\n")
+
+        # Procura os processos paralelos ativos e mata-os imediatamente
+        processos_ativos = multiprocessing.active_children()
+        for processo in processos_ativos:
+            processo.terminate()
+            processo.join(timeout=1.0)
+            
+        # Reseta os botões da UI manualmente
+        self.pagina_atual.btn_run.configure(state="normal", text="Run Simulation")
+        self.pagina_atual.btn_abort.configure(state="disabled", text="Abort")
+        self.set_status("Simulation aborted successfully.", "#E06C75")
 
     def exibir_grafico(self, figura_matplotlib):
         try:
@@ -254,6 +270,7 @@ class AppWindow(ctk.CTk):
         self.console_box.delete("0.0", "end")
         self.console_box.insert("end", f"--- Initiating Execution [{parametros_completos['script_type'].upper()}] ---\n")
         self.console_box.configure(state="disabled")
+        self.pagina_atual.btn_abort.configure(state="normal", text="Abort")
 
         run(
             parametros=parametros_completos,
@@ -272,6 +289,7 @@ class AppWindow(ctk.CTk):
         self.set_status("Task completed successfully!", "#98C379")
         self.pagina_atual.btn_run.configure(state="normal", text="Run Simulation")
         self.pagina_atual.btn_update_plot.configure(state="normal", text="Update Plot")
+        self.pagina_atual.btn_abort.configure(state="disabled", text="Abort")
 
         p = self.app_state.parameters_plot()
         i = self.app_state.parameters_input()
@@ -303,6 +321,7 @@ class AppWindow(ctk.CTk):
     def _atualizar_ui_erro(self, erro):
         self.set_status(f"Execution error | {erro}", "#E06C75")
         self.pagina_atual.btn_run.configure(state="normal", text="Run Simulation")
+        self.pagina_atual.btn_abort.configure(state="disabled", text="Abort")
 
     # ? --- Lógica do Gráfico em Tempo Real ---
     def ao_receber_log(self, texto_bruto):
