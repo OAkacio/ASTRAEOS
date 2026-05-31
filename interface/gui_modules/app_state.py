@@ -14,7 +14,7 @@ import customtkinter as ctk
 
 
 # * ============================================
-# * Gerenciador de Estado
+# * Banco de Dados Gerais
 # * ============================================
 class AppState:
     def __init__(self):
@@ -38,8 +38,6 @@ class AppState:
         self.recuo_pulo = ctk.StringVar(value="484")
         self.tamanho_pulo = ctk.StringVar(value="0.1")
         self.cte = ctk.BooleanVar(value=False)
-
-        # ? --- Configurações de Plotagem ---
         self.refs = [
             {
                 "x": ctk.StringVar(value="37.0"),
@@ -74,6 +72,15 @@ class AppState:
             "X Axis": ctk.StringVar(value="log"),
             "Y Axis": ctk.StringVar(value="log"),
         }
+        self.multicurve = ctk.BooleanVar(value=False)
+        self.searchdv2 = ctk.BooleanVar(value=False)
+        self.ldv2 = ctk.StringVar(value="0.001")
+        self.hdv2 = ctk.StringVar(value="0.010")
+        self.stepdv2 = ctk.StringVar(value="0.001")
+
+    # * ============================================
+    # * Funções com Definição de Cofres
+    # * ============================================
 
     # ? --- Exportação de Parâmetros de Entrada ---
     def parameters_input(self):
@@ -148,4 +155,14 @@ class AppState:
             "sigmas_nome_ref": sigmas_nome_ref,
             "x_scale": self.axis["X Axis"].get(),
             "y_scale": self.axis["Y Axis"].get(),
+        }
+
+    # ? --- More Options de Plot ---
+    def parameters_more_options(self):
+        return {
+            "multicurve": self.multicurve.get(),
+            "searchdv2": self.searchdv2.get(),
+            "ldv2": self.ldv2.get(),
+            "hdv2": self.hdv2.get(),
+            "stepdv2": self.stepdv2.get(),
         }

@@ -12,6 +12,49 @@ armazenando dados por conta própria.
 # * Importações
 # * ============================================
 import customtkinter as ctk
+import tkinter as tk
+
+# * ============================================
+# * Etiquetas de Ajuda
+# * ============================================
+class ToolTip:
+    """Classe para criar caixas de mensagem flutuantes ao passar o mouse."""
+    def __init__(self, widget, text):
+        self.widget = widget
+        self.text = text
+        self.tooltip_window = None
+        # Vincula os eventos de entrar e sair com o mouse
+        self.widget.bind("<Enter>", self.mostrar_tooltip)
+        self.widget.bind("<Leave>", self.ocultar_tooltip)
+
+    def mostrar_tooltip(self, event):
+        # Pega a posição exata do cursor do mouse
+        x = event.x_root + 15
+        y = event.y_root + 15
+
+        self.tooltip_window = tk.Toplevel(self.widget)
+        self.tooltip_window.wm_overrideredirect(True) # Remove a barra de título da janela
+        self.tooltip_window.wm_geometry(f"+{x}+{y}")
+
+        # Estilo da caixa combinando com o ASTRAEOS
+        label = tk.Label(
+            self.tooltip_window,
+            text=self.text,
+            background="#282C34",
+            foreground="#ABB2BF",
+            relief="solid",
+            borderwidth=1,
+            font=("Roboto", 10, "normal"),
+            padx=8,
+            pady=4,
+            justify="left"
+        )
+        label.pack()
+
+    def ocultar_tooltip(self, event=None):
+        if self.tooltip_window:
+            self.tooltip_window.destroy()
+            self.tooltip_window = None
 
 
 # * ============================================
@@ -197,7 +240,7 @@ class ConfigPage(ctk.CTkFrame):
             cb.grid(row=row, column=3, padx=5, pady=5)
         row_offset = len(self.app_state.refs) + 1
         ctk.CTkLabel(aba, text="Sigma Zone", font=fonte, text_color="#E5C07B").grid(
-            row=row_offset, column=0, columnspan=4, pady=(25, 5)
+            row=row_offset, column=0, columnspan=4, pady=(10, 5)
         )
         frame_sigma = ctk.CTkFrame(aba, fg_color="transparent")
         frame_sigma.grid(row=row_offset + 1, column=0, columnspan=4, pady=5)
@@ -227,7 +270,7 @@ class ConfigPage(ctk.CTkFrame):
 
         row_offset += 2  # Pula duas linhas abaixo da Sigma Zone
         ctk.CTkLabel(aba, text="Axis Scales", font=fonte, text_color="#E5C07B").grid(
-            row=row_offset, column=0, columnspan=4, pady=(25, 5)
+            row=row_offset, column=0, columnspan=4, pady=(10, 5)
         )
 
         # Cria uma caixinha invisível para centralizar os controles
@@ -273,32 +316,146 @@ class ConfigPage(ctk.CTkFrame):
         self.btn_update_plot.grid(row=row_offset, column=0, columnspan=4, pady=(20, 10))
 
     # ? --- Parâmetros de Input (More Options) ---
+    # ? --- Parâmetros de Input (More Options) ---
     def _construir_aba_more(self, aba):
         aba.grid_columnconfigure(0, weight=1)
-        aba.grid_columnconfigure(1, weight=1)
-        aba.grid_columnconfigure(2, weight=1)
-        fonte = ctk.CTkFont(family="Roboto", size=13, weight="normal")
+        
+        fonte_titulo = ctk.CTkFont(family="Consolas", size=14, weight="bold")
+        fonte_check = ctk.CTkFont(family="Roboto", size=13, weight="normal")
         fonte_var = ctk.CTkFont(family="Roboto", size=12, weight="normal")
-        fonte_uni = ctk.CTkFont(family="Roboto", size=12, weight="normal")
-        campos = [
-            (0, "Simulation Distance :", self.app_state.x_sim, "[ Rstar ]"),
-            (1, "Integration Step :", self.app_state.h_rk, "[ Rstar ]"),
-            (2, "u0 Search - Lower Limit :", self.app_state.u0_ini, "[ ve0 ]"),
-            (3, "u0 Search - Step :", self.app_state.u0_step, "[ ve0 ]"),
-            (4, "Jump Size :", self.app_state.tamanho_pulo, "[ Rstar ]"),
-            (5, "Backwards Steps :", self.app_state.recuo_pulo, "[ 1e-5 Rstar ]"),
-        ]
-        for linha, texto, var, uni in campos:
-            ctk.CTkLabel(aba, text=texto, font=fonte, text_color="#E5C07B").grid(
-                row=linha, column=0, padx=20, pady=5, sticky="w"
-            )
-            ctk.CTkEntry(aba, textvariable=var, font=fonte_var).grid(
-                row=linha, column=1, padx=(10, 0), pady=5, sticky="sw"
-            )
-            ctk.CTkLabel(aba, text=uni, font=fonte_uni, text_color="#8b949e").grid(
-                row=linha, column=2, padx=(0, 50), pady=5, sticky="w"
-            )
-            aba.grid_rowconfigure(len(campos), weight=1, minsize=10)
+
+        # Título
+        ctk.CTkLabel(
+            aba, text="Advanced Execution Scripts", font=fonte_titulo, text_color="#E5C07B"
+        ).grid(row=0, column=0, pady=(20, 15), sticky="w", padx=30)
+
+        # --- Checkbox 1: Multicurve ---
+        cb_multicurve = ctk.CTkCheckBox(
+            aba, 
+            text="Run Multicurve Analysis (Resonant vs Constant Damping)", 
+            variable=self.app_state.multicurve,
+            font=fonte_check,
+            fg_color="#61AFEF", hover_color="#56B6C2",
+            command=self._on_multicurve_toggle
+        )
+        cb_multicurve.grid(row=1, column=0, padx=30, pady=10, sticky="w")
+
+        ToolTip(cb_multicurve, "Executa a simulação duas vezes e sobrepõe os perfis\n" \
+        " de velocidade no mesmo gráfico.")
+
+        # --- Checkbox 2: Search DV2 ---
+        cb_searchdv2 = ctk.CTkCheckBox(
+            aba, 
+            text="Run DeltaV0² Search Script", 
+            variable=self.app_state.searchdv2,
+            font=fonte_check,
+            fg_color="#61AFEF", hover_color="#56B6C2",
+            command=self._alternar_parametros_dv2 # <--- Chama a função ao clicar!
+        )
+        # Note que o pady inferior é menor para aproximar dos filhos
+        cb_searchdv2.grid(row=2, column=0, padx=30, pady=(10, 0), sticky="w")
+
+        ToolTip(cb_searchdv2, "Ativa o algoritmo de otimização para encontrar o melhor\n" \
+        " valor de amplitude inicial para as ondas de Alfvén. \n" \
+        "Pode ser muito demorado.")
+
+        # --- SUB-FRAME: Parâmetros Filhos do DV2 ---
+        self.frame_dv2 = ctk.CTkFrame(aba, fg_color="transparent")
+        # O padx=(60, 30) cria a indentação visual perfeita abaixo do checkbox
+        self.frame_dv2.grid(row=3, column=0, padx=(60, 30), pady=(5, 15), sticky="w")
+
+        # Lower Limit
+        self.lbl_ldv2 = ctk.CTkLabel(self.frame_dv2, text="Lower limit:", font=fonte_check)
+        self.lbl_ldv2.grid(row=0, column=0, padx=(0, 5))
+        self.entry_ldv2 = ctk.CTkEntry(self.frame_dv2, textvariable=self.app_state.ldv2, font=fonte_var, width=60)
+        self.entry_ldv2.grid(row=0, column=1, padx=(0, 20))
+
+        # Upper Limit
+        self.lbl_hdv2 = ctk.CTkLabel(self.frame_dv2, text="Upper limit:", font=fonte_check)
+        self.lbl_hdv2.grid(row=0, column=2, padx=(0, 5))
+        self.entry_hdv2 = ctk.CTkEntry(self.frame_dv2, textvariable=self.app_state.hdv2, font=fonte_var, width=60)
+        self.entry_hdv2.grid(row=0, column=3, padx=(0, 20))
+
+        # Step
+        self.lbl_stepdv2 = ctk.CTkLabel(self.frame_dv2, text="Step:", font=fonte_check)
+        self.lbl_stepdv2.grid(row=0, column=4, padx=(0, 5))
+        self.entry_stepdv2 = ctk.CTkEntry(self.frame_dv2, textvariable=self.app_state.stepdv2, font=fonte_var, width=60)
+        self.entry_stepdv2.grid(row=0, column=5, padx=(0, 0))
+
+        self.lbl_contagem_dv2 = ctk.CTkLabel(
+            self.frame_dv2, 
+            text="Estimated runs: 0", 
+            font=("Roboto", 11, "italic"), 
+            text_color="#5c6269" # A cor discreta que você pediu
+        )
+        # Colocamos na linha de baixo (row=1), esticando por todas as colunas, alinhado à direita ("e")
+        self.lbl_contagem_dv2.grid(row=1, column=0, columnspan=6, pady=(8, 0), sticky="e")
+
+        # "Espiões" que ativam a conta sempre que alguém digitar nos campos
+        self.app_state.ldv2.trace_add("write", self._atualizar_contagem_dv2)
+        self.app_state.hdv2.trace_add("write", self._atualizar_contagem_dv2)
+        self.app_state.stepdv2.trace_add("write", self._atualizar_contagem_dv2)
+
+        # Empurra o layout para cima
+        aba.grid_rowconfigure(4, weight=1)
+
+        # Inicia com as cores certas (apagado se começar desmarcado)
+        self._alternar_parametros_dv2()
+
+    # ? --- Função de Animação/Bloqueio (Coloque dentro da classe ConfigPage) ---
+    def _alternar_parametros_dv2(self):
+        """Liga ou desliga as caixas do DV2 dependendo se o checkbox está marcado."""
+        # --- NOVO: Exclusividade Mútua ---
+        estado_ativo = self.app_state.searchdv2.get()
+        if estado_ativo:
+            self.app_state.multicurve.set(False)
+        
+        # Define as cores: Branco/Bege se ativo, Cinza escuro se inativo
+        cor_texto = "#8b949e" if estado_ativo else "#5c6269"
+        estado_widget = "normal" if estado_ativo else "disabled"
+
+        # Atualiza os textos
+        self.lbl_ldv2.configure(text_color=cor_texto)
+        self.lbl_hdv2.configure(text_color=cor_texto)
+        self.lbl_stepdv2.configure(text_color=cor_texto)
+
+        # Bloqueia/Desbloqueia as caixas de texto
+        self.entry_ldv2.configure(state=estado_widget)
+        self.entry_hdv2.configure(state=estado_widget)
+        self.entry_stepdv2.configure(state=estado_widget)
+        
+        # --- NOVO: Mostra ou esconde o texto preditivo ---
+        if estado_ativo:
+            self.lbl_contagem_dv2.grid() # Mostra
+            self._atualizar_contagem_dv2() # Refaz a conta só para garantir
+        else:
+            self.lbl_contagem_dv2.grid_remove() # Apaga da tela
+
+    def _on_multicurve_toggle(self):
+        """Garante exclusividade: Se ligar o Multicurve, desliga o Search DV2."""
+        if self.app_state.multicurve.get():
+            self.app_state.searchdv2.set(False)
+            self._alternar_parametros_dv2() # Força a atualização visual (esconder a UI do DV2)
+
+    # ? --- Função de Cálculo Dinâmico ---
+    def _atualizar_contagem_dv2(self, *args):
+        """Calcula a quantidade de execuções com base nos limites e passo inseridos."""
+        try:
+            min_val = float(self.app_state.ldv2.get())
+            max_val = float(self.app_state.hdv2.get())
+            step_val = float(self.app_state.stepdv2.get())
+            
+            # Garante que não haverá loop infinito ou divisão por zero
+            if step_val > 0 and max_val > min_val:
+                # O round() evita erros de arredondamento de floats do Python (ex: 0.09/0.01 dar 8.99)
+                runs = int(round((max_val - min_val) / step_val, 5))
+                self.lbl_contagem_dv2.configure(text=f"Estimated runs: {runs}")
+            else:
+                self.lbl_contagem_dv2.configure(text="Estimated runs: 0")
+                
+        except ValueError:
+            # Caso o campo esteja vazio ou tenha uma letra, mostra o traço para não quebrar a UI
+            self.lbl_contagem_dv2.configure(text="Estimated runs: --")
 
     # * ============================================
     # * Ações e Eventos

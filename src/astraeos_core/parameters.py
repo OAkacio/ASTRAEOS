@@ -48,3 +48,8 @@ nome_ref_ = (
 sigmas_ref_ = [[39.7, 84.7]]
 sigmas_color_ref_ = ["#8FFF81"]
 sigmas_nome_ref_ = ["ZH"]
+
+# ? --- MultiCurve Script ---
+min_dv2_ = 0.001  # Valor mínimo de busca automática de DV2 [ve0]
+max_dv2_ = 0.1  # Valor máximo de busca automática de DV2 [ve0]
+step_dv2_ = 0.001  # Passo de busca automática de DV2 [ve0]
