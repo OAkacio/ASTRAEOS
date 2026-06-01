@@ -56,6 +56,8 @@ def main_sd(
     # ? --- Inicialização de Varredura ---
     search = [min_dv2, max_dv2]
     idv2 = search[0]
+    idv2_salvos = []
+    uinf_salvos = []
     i = 1
 
     if step_dv2 > 0:
@@ -101,6 +103,10 @@ def main_sd(
                 show_progress=False,
             )
 
+            if y_tot[-1] > 0.2:
+                idv2_salvos.append(idv2)
+                uinf_salvos.append(y_tot[-1])
+
             print("___UPDATE_PLOT___", flush=True)
 
         except Exception as e:
@@ -110,6 +116,14 @@ def main_sd(
         i += 1
 
     print("___PROGRESS___|1.0", flush=True)
+
+    sy.status("Displaying successfully integrated parameters...", flush=True)
+    sy.table(
+        ("Initial Amplitude [ ve0 ]", *idv2_salvos),
+        ("Terminal Velocity [ ve0 ]", *uinf_salvos),
+        mode="column",
+        flush=True,
+    )
     sy.fim("SEARCH COMPLETED", flush=True)
     return None
 
