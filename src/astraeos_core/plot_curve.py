@@ -426,8 +426,10 @@ def plot_plasmaprop(
     y_tot = dados["y_tot"]
     x_t = dados["x_t"].item()
     x_sim = dados["x_sim"].item()
-    u0 = dados["u0"].item()
     nome = str(dados["nome"])
+    x_crit = dados["x_crit"].item()
+    y_crit = dados["y_crit"].item()
+    ve0 = dados["ve0"].item()
 
     rho = dados["rho_total"]
     phi = dados["phi_total"]
@@ -439,6 +441,10 @@ def plot_plasmaprop(
     deltav2_norm = deltav2 / deltav2[0]
     dmdt_norm = dmdt / dmdt[0]
     u_norm = y_tot / y_tot[0]
+
+    # ? --- Lógica do Limite Inferior Dinâmico ---
+    idx_xt = np.argmin(np.abs(x_tot - x_t))
+    rho_rt_norm = rho_norm[idx_xt]
 
     # ? --- Renderização do Gráfico de Propriedades do Plasma ---
     fig = gp.plot(
@@ -455,8 +461,8 @@ def plot_plasmaprop(
         x_label=r"$r/r_{0}$",
         y_label=r"Normalized Value ($f/f_0$)",
         x_scale=x_scale,
-        y_scale="log",
-        linewidth=[2.0, 2.0, 2.0, 1.5],
+        y_scale=y_scale,
+        linewidth=[1.5, 2.0, 2.0, 2.0, 2.0],
         axis_fontsize=16,
         show_grid=True,
         grid_linewidth=0.4,
@@ -484,7 +490,7 @@ def plot_plasmaprop(
         fig_width=10.0,
         fig_height=5.0,
         x_lim=[1, x_sim],
-        y_lim=[0.001, max(list(u_norm))],
+        y_lim=[rho_rt_norm, max(list(u_norm))],
         legend_box=False,
         legend_fontsize=10,
         block_tick=False,
