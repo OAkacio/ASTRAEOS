@@ -177,9 +177,11 @@ def plot_curve_analis(tamanho_pulo, recuo_pulo, L0, deltav0, S_divergencia, cte)
     den_alpha_array = dados["den_alpha_array"]
     idx_crit_num = dados["idx_crit_num"].item()
     idx_crit_den = dados["idx_crit_den"].item()
+    nome = str(dados["nome"])
 
     # ? --- Renderização do Gráfico de Termos da Equação ---
     fig = gp.plot(
+        title=f"{nome} - Critical Topology",
         x_data=[x_tot] * 4,
         y_data=[
             den_alpha_array[:, 0],
@@ -192,27 +194,27 @@ def plot_curve_analis(tamanho_pulo, recuo_pulo, L0, deltav0, S_divergencia, cte)
         y_label="Equation Terms",
         x_scale="linear",
         y_scale="linear",
-        linewidth=[1.5, 1.5, 2.0, 1.2],
-        axis_fontsize=12,
+        linewidth=[1.5, 1.5, 2.5, 1.5],
+        axis_fontsize=16,
         show_grid=True,
-        grid_linewidth=0.5,
-        grid_color="#B0B0B0",
+        grid_linewidth=0.4,
+        grid_color="#5C6370",
         grid_alpha=0.5,
         grid_linestyle=":",
-        color_style=["#E06C75", "#61AFEF", "#282C34", "#ABB2BF"],
+        color_style=["#E06C75", "#61AFEF", "#E5C07B", "#C678DD"],
         linestyle=["-", "-", "--", "-."],
         vlines=[x_crit, x_tot[idx_crit_num], x_tot[idx_crit_den]],
         v_colors=["#98C379", "#E06C75", "#61AFEF"],
-        v_linewidth=[1.5, 1.0, 1.0],
+        v_linewidth=[1.5, 1.5, 1.5],
         v_linestyle=["-", "--", "--"],
-        v_alpha=[0.8, 0.7, 0.7],
+        v_alpha=[0.8, 0.8, 0.8],
         v_labels=[
             "Sonic Point (Analytical)",
             f"$X_{{num}}$: {x_tot[idx_crit_num]:.3f}",
             f"$X_{{den}}$: {x_tot[idx_crit_den]:.3f} (Diff: {x_tot[idx_crit_num]-x_tot[idx_crit_den]:.1e})",
         ],
         hlines=[0.0],
-        h_colors=["black"],
+        h_colors=["#ABB2BF"],
         h_linewidth=[1.2],
         h_linestyle=["-"],
         h_alpha=[0.8],
@@ -225,10 +227,13 @@ def plot_curve_analis(tamanho_pulo, recuo_pulo, L0, deltav0, S_divergencia, cte)
             rf"Velocity ($U$): $\delta v_0^2 = {deltav0:0.4f}$",
             r"Ratio ($N/D$)",
         ],
-        figure_dpi=600,
+        figure_dpi=100,
+        fig_width=10.0,
+        fig_height=5.0,
         x_lim=[x_crit - 0.1, x_crit + 0.2],
         legend_box=False,
         legend_fontsize=10,
+        theme="dark",
     )
     return fig
 
