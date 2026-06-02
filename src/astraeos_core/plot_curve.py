@@ -282,7 +282,7 @@ def plot_multicurve(
         axis_fontsize=16,
         show_grid=True,
         grid_linewidth=0.4,
-        color_style=["#61AFEF", "#61EF97"],
+        color_style=["#61EF97", "#61AFEF"],
         grid_color="#5C6370",
         grid_alpha=0.5,
         grid_linestyle=":",
@@ -318,6 +318,179 @@ def plot_multicurve(
         sigma_intervals=sigmas_ref,
         sigma_linestyle="",
         sigma_labels=sigmas_nome_ref,
+        sigma_colors=sigmas_color_ref,
+        sigma_alpha=0.15,
+        theme="dark",
+    )
+    return fig
+
+
+def plot_charspeeds(
+    x_ref,
+    linestyle_ref,
+    color_ref,
+    nome_ref,
+    sigmas_ref,
+    sigmas_color_ref,
+    sigmas_nome_ref,
+    x_scale,
+    y_scale,
+    cte,
+):
+    # ? --- Carregamento de Dados ---
+    dados = np.load(f"data/curve_{cte}.npz")
+    x_tot = dados["x_tot"]
+    y_tot = dados["y_tot"]
+    x_t = dados["x_t"].item()
+    ve0 = dados["ve0"].item()
+    x_sim = dados["x_sim"].item()
+    nome = str(dados["nome"])
+    u_km = np.array(y_tot) * ve0 / 1e5
+    vA_km = dados["va_total"] * ve0 / 1e5
+    cs_km = dados["cs"] * 1e-5
+    x_crit = dados["x_crit"].item()
+    y_crit = dados["y_crit"].item()
+
+    # ? --- Renderização do Gráfico de Velocidades Características ---
+    fig = gp.plot(
+        title=f"{nome} - Characteristic Speeds",
+        x_data=[x_tot, x_tot],
+        y_data=[list(u_km), list(vA_km)],
+        show_plot=False,
+        x_label=r"$r/r_{0}$",
+        y_label=r"Velocity (km/s)",
+        x_scale=x_scale,
+        y_scale=y_scale,
+        linewidth=[2.5, 1.8],
+        axis_fontsize=16,
+        show_grid=True,
+        grid_linewidth=0.4,
+        grid_color="#5C6370",
+        grid_alpha=0.5,
+        grid_linestyle=":",
+        save_fig=True,
+        file_format="png",
+        filename="charspeeds_output",
+        color_style=["#0072B2", "#E06C75"],
+        linestyle=[":", "-"],
+        vlines=[x_t, *x_ref],
+        v_colors=["#C678DD", *color_ref],
+        v_linewidth=1.5,
+        v_alpha=0.8,
+        v_linestyle=["--", *linestyle_ref],
+        hlines=[cs_km],
+        h_colors=["#6C95E0"],
+        h_labels=r"Speed of Sound ($c_s$)",
+        h_linestyle=["-"],
+        curve_names=[
+            r"Wind Velocity ($u$)",
+            r"Alfvén Speed ($v_A$)",
+        ],
+        highlight_point=[x_crit, y_crit * ve0 / 1e5],
+        highlight_color="#E06C75",
+        highlight_size=50,
+        highlight_marker="o",
+        highlight_label=None,
+        figure_dpi=100,
+        fig_width=10.0,
+        fig_height=5.0,
+        x_lim=[1, x_sim],
+        legend_box=False,
+        legend_fontsize=10,
+        block_tick=False,
+        sigma_intervals=sigmas_ref,
+        sigma_linestyle="",
+        sigma_labels=None,
+        sigma_colors=sigmas_color_ref,
+        sigma_alpha=0.15,
+        theme="dark",
+    )
+    return fig
+
+
+def plot_plasmaprop(
+    x_ref,
+    linestyle_ref,
+    color_ref,
+    nome_ref,
+    sigmas_ref,
+    sigmas_color_ref,
+    sigmas_nome_ref,
+    x_scale,
+    y_scale,
+    cte,
+):
+    # ? --- Carregamento de Dados ---
+    dados = np.load(f"data/curve_{cte}.npz")
+    x_tot = dados["x_tot"]
+    y_tot = dados["y_tot"]
+    x_t = dados["x_t"].item()
+    x_sim = dados["x_sim"].item()
+    u0 = dados["u0"].item()
+    nome = str(dados["nome"])
+
+    rho = dados["rho_total"]
+    phi = dados["phi_total"]
+    deltav2 = dados["deltav2_total"]
+    dmdt = dados["dmdt_total"]
+
+    rho_norm = rho / rho[0]
+    phi_norm = phi / phi[0]
+    deltav2_norm = deltav2 / deltav2[0]
+    dmdt_norm = dmdt / dmdt[0]
+    u_norm = y_tot / y_tot[0]
+
+    # ? --- Renderização do Gráfico de Propriedades do Plasma ---
+    fig = gp.plot(
+        title=f"{nome} - Normalized Plasma Properties",
+        x_data=[x_tot, x_tot, x_tot, x_tot, x_tot],
+        y_data=[
+            list(u_norm),
+            list(rho_norm),
+            list(phi_norm),
+            list(deltav2_norm),
+            list(dmdt_norm),
+        ],
+        show_plot=False,
+        x_label=r"$r/r_{0}$",
+        y_label=r"Normalized Value ($f/f_0$)",
+        x_scale=x_scale,
+        y_scale="log",
+        linewidth=[2.0, 2.0, 2.0, 1.5],
+        axis_fontsize=16,
+        show_grid=True,
+        grid_linewidth=0.4,
+        grid_color="#5C6370",
+        grid_alpha=0.5,
+        grid_linestyle=":",
+        save_fig=True,
+        file_format="png",
+        filename="plasmaprop_output",
+        color_style=["#0072B2", "#56B6C2", "#E5C07B", "#E06C75", "#98C379"],
+        linestyle=[":", "-", "-", "-", "-"],
+        vlines=[x_t, *x_ref],
+        v_colors=["#C678DD", *color_ref],
+        v_linewidth=1.5,
+        v_alpha=0.8,
+        v_linestyle=["--", *linestyle_ref],
+        curve_names=[
+            r"Wind Velocity ($u/u_0$)",
+            r"Density ($\rho/\rho_0$)",
+            r"Alfvén Wave Flux ($\phi_M/\phi_{M0}$)",
+            r"Wave Amplitude ($\langle\delta v^2\rangle/\langle\delta v^2\rangle_0$)",
+            r"Mass Loss Rate ($\dot{M}/\dot{M}_0$)",
+        ],
+        figure_dpi=100,
+        fig_width=10.0,
+        fig_height=5.0,
+        x_lim=[1, x_sim],
+        y_lim=[0.001, max(list(u_norm))],
+        legend_box=False,
+        legend_fontsize=10,
+        block_tick=False,
+        sigma_intervals=sigmas_ref,
+        sigma_linestyle="",
+        sigma_labels=None,
         sigma_colors=sigmas_color_ref,
         sigma_alpha=0.15,
         theme="dark",

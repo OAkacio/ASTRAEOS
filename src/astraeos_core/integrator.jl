@@ -312,14 +312,77 @@ function integra_perfil(u0_final, x_crit, y_crit, vetor_final, x_append_final, y
     x_total = vcat(x_int, x_ext)
     y_total = vcat(y_int, y_ext)
 
+    # Extração de parâmetros constantes para grandezas do plasma
+    rho0 = vetor_final[2]
+    vA0 = vetor_final[4]
+    L0 = vetor_final[5]
+    deltav0 = vetor_final[8]
+    S = vetor_final[9]
     alpha_final = vetor_final[10]
-    num_alpha_list, den_alpha_list = Vector{Float64}[], Vector{Float64}[]
+    phi0 = vetor_final[11]
 
+    Ma0 = alpha_final / vA0
+
+    num_alpha_list, den_alpha_list = Vector{Float64}[], Vector{Float64}[]
+    vA_total = Float64[]
+    rho_total = Float64[]
+    phi_total = Float64[]
+    deltav2_total = Float64[]
+    dmdt_total = Float64[]
+
+    # Pós-processamento de toda a física dependente de 'x' e 'y'
     for i in 1:length(x_total)
-        r = func_analise(x_total[i], y_total[i], vetor_final)
+        x_i = x_total[i]
+        y_i = y_total[i]
+
+        # 1. Singularidades
+        r = func_analise(x_i, y_i, vetor_final)
         push!(num_alpha_list, [r[2], alpha_final])
         push!(den_alpha_list, [r[3], alpha_final])
+
+        # 2. Grandezas Físicas
+        if x_i <= x_t
+            vA = vA0 * (x_i^(-S / 2.0)) * sqrt(y_i / alpha_final)
+            Ma = Ma0 * sqrt(y_i / alpha_final) * (x_i^(S / 2.0))
+
+            # Recálculo rigoroso da integral de amortecimento
+            if cte
+                res = quadgk(t -> integral_subsonica(t, vA0, Ma0, y_i, alpha_final, S, L0), 1.0, x_i)[1]
+            else
+                res = quadgk(t -> integral_subsonicaRES(t, vA0, Ma0, y_i, alpha_final, S, L0), 1.0, x_i)[1]
+            end
+
+            rho = rho0 * (alpha_final / y_i) * (x_i^(-S))
+            A_r = x_i^S
+            deltav1 = deltav0 * (y_i / alpha_final) * (x_i^S) * (Ma0 / Ma) * ((1.0 + Ma0) / (1.0 + Ma))^2
+        else
+            vA = vA0 * (x_t^(-S / 2.0)) * (x_t / x_i) * sqrt(y_i / alpha_final)
+            Ma = Ma0 * sqrt(y_i / alpha_final) * (x_t^(S / 2.0)) * (x_i / x_t)
+
+            if cte
+                res_int1 = quadgk(t -> integral_subsonica(t, vA0, Ma0, y_i, alpha_final, S, L0), 1.0, x_t)[1]
+                res_int2 = quadgk(t -> integral_supersonica(t, x_t, vA0, Ma0, y_i, alpha_final, S, L0), x_t, x_i)[1]
+            else
+                res_int1 = quadgk(t -> integral_subsonicaRES(t, vA0, Ma0, y_i, alpha_final, S, L0), 1.0, x_t)[1]
+                res_int2 = quadgk(t -> integral_supersonicaRES(t, x_t, vA0, Ma0, y_i, alpha_final, S, L0), x_t, x_i)[1]
+            end
+            res = res_int1 + res_int2
+
+            rho = rho0 * (alpha_final / y_i) * (x_t^(-S)) * ((x_t / x_i)^2)
+            A_r = (x_t^S) * ((x_i / x_t)^2)
+            deltav1 = deltav0 * (y_i / alpha_final) * (x_t^S) * ((x_i / x_t)^2) * (Ma0 / Ma) * ((1.0 + Ma0) / (1.0 + Ma))^2
+        end
+
+        deltav2 = deltav1 * exp(-res)
+        dmdt = rho * y_i * A_r
+        phi_M = phi0 * ((1.0 + 1.5 * Ma) / (1.0 + 1.5 * Ma0)) * ((1.0 + Ma0) / (1.0 + Ma))^2 * exp(-res)
+
+        push!(vA_total, vA)
+        push!(rho_total, rho)
+        push!(deltav2_total, deltav2)
+        push!(phi_total, phi_M)
+        push!(dmdt_total, dmdt)
     end
 
-    return x0n, y0, x_int, y_int, x_ext, y_ext, num_alpha_list, den_alpha_list
+    return x0n, y0, x_int, y_int, x_ext, y_ext, num_alpha_list, den_alpha_list, vA_total, rho_total, phi_total, deltav2_total, dmdt_total
 end

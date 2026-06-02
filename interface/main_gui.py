@@ -23,6 +23,8 @@ from astraeos_core.plot_curve import (
     plot_perfil_output,
     plot_multicurve,
     plot_curve_analis,
+    plot_charspeeds,
+    plot_plasmaprop,
 )
 
 
@@ -267,7 +269,7 @@ class AppWindow(ctk.CTk):
             m = self.app_state.parameters_more_options()
 
             if m["multicurve"]:
-                minha_figura = plot_multicurve(
+                figura_inicial = plot_multicurve(
                     x_ref=p["x_ref"],
                     linestyle_ref=p["linestyle_ref"],
                     color_ref=p["color_ref"],
@@ -278,8 +280,9 @@ class AppWindow(ctk.CTk):
                     x_scale=p["x_scale"],
                     y_scale=p["y_scale"],
                 )
+                self.exibir_grafico(figura_inicial, self.tab_velocity)
             else:
-                minha_figura = plot_perfil_output(
+                figura_inicial = plot_perfil_output(
                     x_ref=p["x_ref"],
                     linestyle_ref=p["linestyle_ref"],
                     color_ref=p["color_ref"],
@@ -291,8 +294,36 @@ class AppWindow(ctk.CTk):
                     y_scale=p["y_scale"],
                     cte=i["cte"],
                 )
+                self.exibir_grafico(figura_inicial, self.tab_velocity)
 
-            self.exibir_grafico(minha_figura, self.tab_velocity)
+                figura_charspeeds = plot_charspeeds(
+                    x_ref=p["x_ref"],
+                    linestyle_ref=p["linestyle_ref"],
+                    color_ref=p["color_ref"],
+                    nome_ref=p["nome_ref"],
+                    sigmas_ref=p["sigmas_ref"],
+                    sigmas_color_ref=p["sigmas_color_ref"],
+                    sigmas_nome_ref=p["sigmas_nome_ref"],
+                    x_scale=p["x_scale"],
+                    y_scale=p["y_scale"],
+                    cte=i["cte"],
+                )
+                self.exibir_grafico(figura_charspeeds, self.tab_charspeeds)
+
+                figura_plasmaprop = plot_plasmaprop(
+                    x_ref=p["x_ref"],
+                    linestyle_ref=p["linestyle_ref"],
+                    color_ref=p["color_ref"],
+                    nome_ref=p["nome_ref"],
+                    sigmas_ref=p["sigmas_ref"],
+                    sigmas_color_ref=p["sigmas_color_ref"],
+                    sigmas_nome_ref=p["sigmas_nome_ref"],
+                    x_scale=p["x_scale"],
+                    y_scale=p["y_scale"],
+                    cte=i["cte"],
+                )
+                self.exibir_grafico(figura_plasmaprop, self.tab_plasmaprop)
+
             self.set_status("Plot updated successfully!", "#98C379")
 
         except Exception as e:
@@ -435,7 +466,6 @@ class AppWindow(ctk.CTk):
         m = self.app_state.parameters_more_options()
 
         try:
-            # <-- NOVO: 1. GERAÇÃO E INJEÇÃO DO GRÁFICO PRINCIPAL -->
             if m["multicurve"]:
                 figura_inicial = plot_multicurve(
                     x_ref=p["x_ref"],
@@ -448,6 +478,7 @@ class AppWindow(ctk.CTk):
                     x_scale=p["x_scale"],
                     y_scale=p["y_scale"],
                 )
+                self.exibir_grafico(figura_inicial, self.tab_velocity)
             else:
                 figura_inicial = plot_perfil_output(
                     x_ref=p["x_ref"],
@@ -461,17 +492,45 @@ class AppWindow(ctk.CTk):
                     y_scale=p["y_scale"],
                     cte=i["cte"],
                 )
-            self.exibir_grafico(figura_inicial, self.tab_velocity)
+                self.exibir_grafico(figura_inicial, self.tab_velocity)
 
-            figura_analitica = plot_curve_analis(
-                tamanho_pulo=i["tamanho_pulo"],
-                recuo_pulo=i["recuo_pulo"],
-                L0=i["L0"],
-                deltav0=i["deltav0"],
-                S_divergencia=i["S_divergencia"],
-                cte=i["cte"],
-            )
-            self.exibir_grafico(figura_analitica, self.tab_topology)
+                figura_analitica = plot_curve_analis(
+                    tamanho_pulo=i["tamanho_pulo"],
+                    recuo_pulo=i["recuo_pulo"],
+                    L0=i["L0"],
+                    deltav0=i["deltav0"],
+                    S_divergencia=i["S_divergencia"],
+                    cte=i["cte"],
+                )
+                self.exibir_grafico(figura_analitica, self.tab_topology)
+
+                figura_charspeeds = plot_charspeeds(
+                    x_ref=p["x_ref"],
+                    linestyle_ref=p["linestyle_ref"],
+                    color_ref=p["color_ref"],
+                    nome_ref=p["nome_ref"],
+                    sigmas_ref=p["sigmas_ref"],
+                    sigmas_color_ref=p["sigmas_color_ref"],
+                    sigmas_nome_ref=p["sigmas_nome_ref"],
+                    x_scale=p["x_scale"],
+                    y_scale=p["y_scale"],
+                    cte=i["cte"],
+                )
+                self.exibir_grafico(figura_charspeeds, self.tab_charspeeds)
+
+                figura_plasmaprop = plot_plasmaprop(
+                    x_ref=p["x_ref"],
+                    linestyle_ref=p["linestyle_ref"],
+                    color_ref=p["color_ref"],
+                    nome_ref=p["nome_ref"],
+                    sigmas_ref=p["sigmas_ref"],
+                    sigmas_color_ref=p["sigmas_color_ref"],
+                    sigmas_nome_ref=p["sigmas_nome_ref"],
+                    x_scale=p["x_scale"],
+                    y_scale=p["y_scale"],
+                    cte=i["cte"],
+                )
+                self.exibir_grafico(figura_plasmaprop, self.tab_plasmaprop)
 
         except FileNotFoundError:
             self.set_status(

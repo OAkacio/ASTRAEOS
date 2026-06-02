@@ -143,22 +143,34 @@ def main(
     sy.status("Initiating velocity profile integration...", flush=True)
     time.sleep(1)
 
-    x0n, y0, x_int, y_int, x_ext, y_ext, num_alpha_list, den_alpha_list = (
-        jl.integra_perfil(
-            u0,
-            x_crit,
-            y_crit,
-            vetor,
-            x_append,
-            y_append,
-            x_t,
-            recuo_pulo,
-            tamanho_pulo,
-            h_rk,
-            cte,
-            x_sim,
-            cb_int,
-        )
+    (
+        x0n,
+        y0,
+        x_int,
+        y_int,
+        x_ext,
+        y_ext,
+        num_alpha_list,
+        den_alpha_list,
+        vA_total,
+        rho_total,
+        phi_total,
+        deltav2_total,
+        dmdt_total,
+    ) = jl.integra_perfil(
+        u0,
+        x_crit,
+        y_crit,
+        vetor,
+        x_append,
+        y_append,
+        x_t,
+        recuo_pulo,
+        tamanho_pulo,
+        h_rk,
+        cte,
+        x_sim,
+        cb_int,
     )
 
     # ? --- Processamento e Salvamento de Dados ---
@@ -176,11 +188,18 @@ def main(
         x_t=x_t,
         ve0=ve0,
         x_sim=x_sim,
+        u0=u0,
         nome=nome,
         num_alpha_array=num_alpha_array,
         den_alpha_array=den_alpha_array,
         idx_crit_num=idx_crit_num,
         idx_crit_den=idx_crit_den,
+        va_total=vA_total,
+        cs=cs,
+        rho_total=rho_total,
+        phi_total=phi_total,
+        deltav2_total=deltav2_total,
+        dmdt_total=dmdt_total,
     )
 
     sy.param(
@@ -226,6 +245,32 @@ def main(
     )
 
     plot_curve_analis(tamanho_pulo, recuo_pulo, L0, deltav0, S_divergencia, cte)
+
+    plot_charspeeds(
+        x_ref,
+        linestyle_ref,
+        color_ref,
+        nome_ref,
+        sigmas_ref,
+        sigmas_color_ref,
+        sigmas_nome_ref,
+        x_scale,
+        y_scale,
+        cte,
+    )
+
+    plot_plasmaprop(
+        x_ref,
+        linestyle_ref,
+        color_ref,
+        nome_ref,
+        sigmas_ref,
+        sigmas_color_ref,
+        sigmas_nome_ref,
+        x_scale,
+        y_scale,
+        cte,
+    )
 
     if show_progress:
         print("___PROGRESS___|1.0", flush=True)
