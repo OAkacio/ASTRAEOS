@@ -90,6 +90,38 @@ class AppWindow(ctk.CTk):
         )
         self.lbl_grafico_vazio.place(relx=0.5, rely=0.5, anchor="center")
 
+        self.lbl_grafico_vazio2 = ctk.CTkLabel(
+            self.tab_charspeeds,
+            text="[ Visualization Area ]\nWaiting for simulation data...",
+            text_color="#5c5c5c",
+            font=("Consolas", 16, "italic"),
+        )
+        self.lbl_grafico_vazio2.place(relx=0.5, rely=0.5, anchor="center")
+
+        self.lbl_grafico_vazio3 = ctk.CTkLabel(
+            self.tab_plasmaprop,
+            text="[ Visualization Area ]\nWaiting for simulation data...",
+            text_color="#5c5c5c",
+            font=("Consolas", 16, "italic"),
+        )
+        self.lbl_grafico_vazio3.place(relx=0.5, rely=0.5, anchor="center")
+
+        self.lbl_grafico_vazio4 = ctk.CTkLabel(
+            self.tab_topology,
+            text="[ Visualization Area ]\nWaiting for simulation data...",
+            text_color="#5c5c5c",
+            font=("Consolas", 16, "italic"),
+        )
+        self.lbl_grafico_vazio4.place(relx=0.5, rely=0.5, anchor="center")
+
+        self.lbl_grafico_vazio5 = ctk.CTkLabel(
+            self.tab_magnetospheric,
+            text="[ Visualization Area ]\nWaiting for simulation data...",
+            text_color="#5c5c5c",
+            font=("Consolas", 16, "italic"),
+        )
+        self.lbl_grafico_vazio5.place(relx=0.5, rely=0.5, anchor="center")
+
         # ? --- Console Integrado ---
         self.console_box = ctk.CTkTextbox(
             self.main_container,
