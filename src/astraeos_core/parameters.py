@@ -70,3 +70,9 @@ step_dv2_ = 0.001  # Passo de busca automática de DV2 [ve0]
 exoplanet_name_ = "TRAPPIST-1f"  # Nome do exoplaneta para análise de zona habitável
 e_ = 0.0056  # Excentricidade da órbita (e = 0 : Órbita circular ; 0 < e < 1 : Órbita elíptica) [adm]
 Ab_ = 0.3  # Albedo planetário [adm]
+
+# * ============================================
+# * Parâmetros de Entrada | Blindagem Magnetosférica
+# * ============================================
+Mmag_ = 8e22  # Momento Magnético do Planeta [Am²]
+f0_ = 1.16  # Fator de forma da magnetosfera [adm]

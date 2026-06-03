@@ -139,3 +139,18 @@ def distancia_habitavel_classic(Rstar_sun, Teff, Ab):
     d_int = Rstar_au * 0.5 * (Teff / Teq_int) ** 2 * (1 - Ab) ** 0.5
     d_ext = Rstar_au * 0.5 * (Teff / Teq_ext) ** 2 * (1 - Ab) ** 0.5
     return d_int, d_ext
+
+
+# * ============================================
+# * Blindagem Magnetosférica
+# * ============================================
+
+
+def Pram(rho, u):
+    return rho * u**2
+
+
+def raio_magnetopausa(rho, u, f0, Mmag):
+    N = perm_mag_vac * f0**2 * Mmag**2
+    D = 8 * pi**2 * Pram(rho, u)
+    return (N / D) ** (1 / 6)

@@ -1,11 +1,19 @@
+try:
+    from .lib import *
+except ImportError:
+    from lib import *
+
 # * ============================================
 # * Constantes Físicas
 # * ============================================
-mp = 1.6726e-24  # Massa do próton [g]
-kb = 1.3807e-16  # Constante de Boltzmann [erg/K]
-G = 6.6743e-8  # Constante gravitacional [cm³g⁻¹s⁻²]
-rsun = 6.96e10  # Raio Solar [cm]
-Msun = 1.989e33  # Massa Solar [g]
+mp = const.m_p.cgs.value  # Massa do próton [g]
+kb = const.k_B.cgs.value  # Constante de Boltzmann [erg/K]
+G = const.G.cgs.value  # Constante gravitacional [cm³g⁻¹s⁻²]
+rsun = const.R_sun.cgs.value  # Raio Solar [cm]
+Msun = const.M_sun.cgs.value  # Massa Solar [g]
+perm_mag_vac = const.mu0.value  # Permeabilidade magnética do vácuo [H/m]
+pi = np.pi  # Valor da constante matemática PI
+
 
 # * ============================================
 # * Constantes de Zona Habitável
@@ -32,3 +40,10 @@ d_ext = -5.1925e-16  # Coeficiente d para a borda externa da zona habitável [ad
 Teq_int = 303  # Temperatura de equilíbrio para a borda interna da zona habitável [K]
 Teq_ext = 185  # Temperatura de equilíbrio para a borda externa da zona habitável [K]
 Rsun_to_AU = 0.00465047  # Fator de conversão de raios solares para unidades astronômicas [AU/Rsun]
+
+# * ============================================
+# * Constantes de Blindagem Magnetosférica
+# * ============================================
+Rp = 1.045  # Raio do planeta [Raios Terrestres]
+Rseg_terra_at = 10.2  # Raio Padrão de Segurança da Magnetosfera (magnetosfera atual do planeta Terra) [Raios Planetários]
+Rseg_terra_min = 5  # Raio Mínimo de Segurança Magnetosfera (magnetosfera paleoarqueana do planeta Terra) [Raios Planetários]
