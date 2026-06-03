@@ -98,3 +98,44 @@ def zerosND(x_int, y_int, x_ext, y_ext, num_alpha_list, den_alpha_list):
         idx_crit_num,
         idx_crit_den,
     )
+
+
+# * ============================================
+# * Zona Habitável
+# * ============================================
+
+
+def Seff_int(Teff):
+    T_dif = Teff - 5780
+    return (
+        Seff_sun_int
+        + a_int * T_dif
+        + b_int * T_dif**2
+        + c_int * T_dif**3
+        + d_int * T_dif**4
+    )
+
+
+def Seff_ext(Teff):
+    T_dif = Teff - 5780
+    return (
+        Seff_sun_ext
+        + a_ext * T_dif
+        + b_ext * T_dif**2
+        + c_ext * T_dif**3
+        + d_ext * T_dif**4
+    )
+
+
+def distancia_habitavel(Lstar, Teff, e):
+    fator_ecc = (1 - e**2) ** 0.5
+    d_int = (Lstar / (Seff_int(Teff) * fator_ecc)) ** 0.5
+    d_ext = (Lstar / (Seff_ext(Teff) * fator_ecc)) ** 0.5
+    return d_int, d_ext
+
+
+def distancia_habitavel_classic(Rstar_sun, Teff, Ab):
+    Rstar_au = Rstar_sun * Rsun_to_AU
+    d_int = Rstar_au * 0.5 * (Teff / Teq_int) ** 2 * (1 - Ab) ** 0.5
+    d_ext = Rstar_au * 0.5 * (Teff / Teq_ext) ** 2 * (1 - Ab) ** 0.5
+    return d_int, d_ext

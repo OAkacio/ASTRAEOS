@@ -1,8 +1,6 @@
 # * ============================================
-# * Parâmetros de Entrada
+# * Parâmetros de Entrada | Vento Estelar
 # * ============================================
-
-
 # ? --- Identificação ---
 
 
@@ -13,6 +11,7 @@ nome_ = "TRAPPIST 1a"
 Mstar_ = 0.0898  # Massa da estrela [Massas Solares]
 Rstar_ = 0.1192  # Raio da estrela [Raios Solares].
 Teff_ = 2566  # Temperatura efetiva [K]
+Lstar_ = 5.2e-4  # Luminosidade da estrela [Luminosidades Solares]
 
 
 # ? --- Parâmetros Físicos da Coroa ---
@@ -64,3 +63,9 @@ sigmas_nome_ref_ = ["ZH"]
 min_dv2_ = 0.001  # Valor mínimo de busca automática de DV2 [ve0]
 max_dv2_ = 0.1  # Valor máximo de busca automática de DV2 [ve0]
 step_dv2_ = 0.001  # Passo de busca automática de DV2 [ve0]
+
+# * ============================================
+# * Parâmetros de Entrada | Zona Habitável
+# * ============================================
+e_ = 0.0  # Excentricidade da órbita (e = 0 : Órbita circular ; 0 < e < 1 : Órbita elíptica) [adm]
+Ab_ = 0.3  # Albedo planetário [adm]
