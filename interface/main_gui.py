@@ -26,7 +26,9 @@ from astraeos_core.plot_curve import (
     plot_charspeeds,
     plot_plasmaprop,
     plot_habitability_radar,
+    plot_magnetosphere_shield,
 )
+
 
 # * ============================================
 # * Controlador Principal (AppWindow)
@@ -121,22 +123,52 @@ class AppWindow(ctk.CTk):
 
         self.texto_vazio = "[ Visualization Area ]\nWaiting for simulation data..."
 
-        self.lbl_grafico_vazio = ctk.CTkLabel(self.tab_velocity, text=self.texto_vazio, text_color="#5c5c5c", font=("Consolas", 16, "italic"))
+        self.lbl_grafico_vazio = ctk.CTkLabel(
+            self.tab_velocity,
+            text=self.texto_vazio,
+            text_color="#5c5c5c",
+            font=("Consolas", 16, "italic"),
+        )
         self.lbl_grafico_vazio.place(relx=0.5, rely=0.5, anchor="center")
 
-        self.lbl_grafico_vazio2 = ctk.CTkLabel(self.tab_charspeeds, text=self.texto_vazio, text_color="#5c5c5c", font=("Consolas", 16, "italic"))
+        self.lbl_grafico_vazio2 = ctk.CTkLabel(
+            self.tab_charspeeds,
+            text=self.texto_vazio,
+            text_color="#5c5c5c",
+            font=("Consolas", 16, "italic"),
+        )
         self.lbl_grafico_vazio2.place(relx=0.5, rely=0.5, anchor="center")
 
-        self.lbl_grafico_vazio3 = ctk.CTkLabel(self.tab_plasmaprop, text=self.texto_vazio, text_color="#5c5c5c", font=("Consolas", 16, "italic"))
+        self.lbl_grafico_vazio3 = ctk.CTkLabel(
+            self.tab_plasmaprop,
+            text=self.texto_vazio,
+            text_color="#5c5c5c",
+            font=("Consolas", 16, "italic"),
+        )
         self.lbl_grafico_vazio3.place(relx=0.5, rely=0.5, anchor="center")
 
-        self.lbl_grafico_vazio4 = ctk.CTkLabel(self.tab_topology, text=self.texto_vazio, text_color="#5c5c5c", font=("Consolas", 16, "italic"))
+        self.lbl_grafico_vazio4 = ctk.CTkLabel(
+            self.tab_topology,
+            text=self.texto_vazio,
+            text_color="#5c5c5c",
+            font=("Consolas", 16, "italic"),
+        )
         self.lbl_grafico_vazio4.place(relx=0.5, rely=0.5, anchor="center")
 
-        self.lbl_grafico_vazio5 = ctk.CTkLabel(self.tab_zh, text=self.texto_vazio, text_color="#5c5c5c", font=("Consolas", 16, "italic"))
+        self.lbl_grafico_vazio5 = ctk.CTkLabel(
+            self.tab_zh,
+            text=self.texto_vazio,
+            text_color="#5c5c5c",
+            font=("Consolas", 16, "italic"),
+        )
         self.lbl_grafico_vazio5.place(relx=0.5, rely=0.5, anchor="center")
 
-        self.lbl_grafico_vazio6 = ctk.CTkLabel(self.tab_magnetospheric, text=self.texto_vazio, text_color="#5c5c5c", font=("Consolas", 16, "italic"))
+        self.lbl_grafico_vazio6 = ctk.CTkLabel(
+            self.tab_magnetospheric,
+            text=self.texto_vazio,
+            text_color="#5c5c5c",
+            font=("Consolas", 16, "italic"),
+        )
         self.lbl_grafico_vazio6.place(relx=0.5, rely=0.5, anchor="center")
 
         # ? --- Console Integrado ---
@@ -151,10 +183,22 @@ class AppWindow(ctk.CTk):
         self.console_box.grid(row=1, column=0, sticky="nsew", padx=(0, 20))
 
         self.cores_ansi = {
-            "30": "#282C34", "31": "#E06C75", "32": "#98C379", "33": "#E5C07B",
-            "34": "#61AFEF", "35": "#C678DD", "36": "#56B6C2", "37": "#ABB2BF",
-            "90": "#5C6370", "91": "#E06C75", "92": "#98C379", "93": "#E5C07B",
-            "94": "#61AFEF", "95": "#C678DD", "96": "#56B6C2", "97": "#FFFFFF",
+            "30": "#282C34",
+            "31": "#E06C75",
+            "32": "#98C379",
+            "33": "#E5C07B",
+            "34": "#61AFEF",
+            "35": "#C678DD",
+            "36": "#56B6C2",
+            "37": "#ABB2BF",
+            "90": "#5C6370",
+            "91": "#E06C75",
+            "92": "#98C379",
+            "93": "#E5C07B",
+            "94": "#61AFEF",
+            "95": "#C678DD",
+            "96": "#56B6C2",
+            "97": "#FFFFFF",
         }
         for codigo, hex_cor in self.cores_ansi.items():
             self.console_box._textbox.tag_config(f"color_{codigo}", foreground=hex_cor)
@@ -231,7 +275,12 @@ class AppWindow(ctk.CTk):
     def limpar_aba_grafico(self, container):
         for widget in container.winfo_children():
             widget.destroy()
-        vazio = ctk.CTkLabel(container, text=self.texto_vazio, text_color="#5c5c5c", font=("Consolas", 16, "italic"))
+        vazio = ctk.CTkLabel(
+            container,
+            text=self.texto_vazio,
+            text_color="#5c5c5c",
+            font=("Consolas", 16, "italic"),
+        )
         vazio.place(relx=0.5, rely=0.5, anchor="center")
 
     # * ============================================
@@ -288,10 +337,18 @@ class AppWindow(ctk.CTk):
         try:
             figura_radar = plot_habitability_radar(
                 cte=i["cte"],
-                Dorb=i["Dorb"], e=i["e"], Rstar=i["Rstar"], exoplanet_name=i["exoplanet_name"],
+                Dorb=i["Dorb"],
+                e=i["e"],
+                Rstar=i["Rstar"],
+                exoplanet_name=i["exoplanet_name"],
+            )
+            figura_mag= plot_magnetosphere_shield(
+                cte=i["cte"],
+                Rplan=i["Rplan"],
+                exoplanet_name=i["exoplanet_name"],
             )
             self.exibir_grafico(figura_radar, self.tab_zh)
-            self.painel_graficos.set("Habitable Zone")
+            self.exibir_grafico(figura_mag, self.tab_magnetospheric)
         except Exception as e:
             self.set_status(f"Error drawing exoplanet radar: {e}", "#E06C75")
 
@@ -308,39 +365,77 @@ class AppWindow(ctk.CTk):
 
             if m["multicurve"]:
                 figura_inicial = plot_multicurve(
-                    x_ref=p["x_ref"], linestyle_ref=p["linestyle_ref"], color_ref=p["color_ref"],
-                    nome_ref=p["nome_ref"], sigmas_ref=p["sigmas_ref"], sigmas_color_ref=p["sigmas_color_ref"],
-                    sigmas_nome_ref=p["sigmas_nome_ref"], x_scale=p["x_scale"], y_scale=p["y_scale"],
+                    x_ref=p["x_ref"],
+                    linestyle_ref=p["linestyle_ref"],
+                    color_ref=p["color_ref"],
+                    nome_ref=p["nome_ref"],
+                    sigmas_ref=p["sigmas_ref"],
+                    sigmas_color_ref=p["sigmas_color_ref"],
+                    sigmas_nome_ref=p["sigmas_nome_ref"],
+                    x_scale=p["x_scale"],
+                    y_scale=p["y_scale"],
                 )
                 self.exibir_grafico(figura_inicial, self.tab_velocity)
             else:
                 figura_inicial = plot_perfil_output(
-                    x_ref=p["x_ref"], linestyle_ref=p["linestyle_ref"], color_ref=p["color_ref"],
-                    nome_ref=p["nome_ref"], sigmas_ref=p["sigmas_ref"], sigmas_color_ref=p["sigmas_color_ref"],
-                    sigmas_nome_ref=p["sigmas_nome_ref"], x_scale=p["x_scale"], y_scale=p["y_scale"], cte=i["cte"],
+                    x_ref=p["x_ref"],
+                    linestyle_ref=p["linestyle_ref"],
+                    color_ref=p["color_ref"],
+                    nome_ref=p["nome_ref"],
+                    sigmas_ref=p["sigmas_ref"],
+                    sigmas_color_ref=p["sigmas_color_ref"],
+                    sigmas_nome_ref=p["sigmas_nome_ref"],
+                    x_scale=p["x_scale"],
+                    y_scale=p["y_scale"],
+                    cte=i["cte"],
                 )
                 self.exibir_grafico(figura_inicial, self.tab_velocity)
 
                 figura_charspeeds = plot_charspeeds(
-                    x_ref=p["x_ref"], linestyle_ref=p["linestyle_ref"], color_ref=p["color_ref"],
-                    nome_ref=p["nome_ref"], sigmas_ref=p["sigmas_ref"], sigmas_color_ref=p["sigmas_color_ref"],
-                    sigmas_nome_ref=p["sigmas_nome_ref"], x_scale=p["x_scale"], y_scale=p["y_scale"], cte=i["cte"],
+                    x_ref=p["x_ref"],
+                    linestyle_ref=p["linestyle_ref"],
+                    color_ref=p["color_ref"],
+                    nome_ref=p["nome_ref"],
+                    sigmas_ref=p["sigmas_ref"],
+                    sigmas_color_ref=p["sigmas_color_ref"],
+                    sigmas_nome_ref=p["sigmas_nome_ref"],
+                    x_scale=p["x_scale"],
+                    y_scale=p["y_scale"],
+                    cte=i["cte"],
                 )
                 self.exibir_grafico(figura_charspeeds, self.tab_charspeeds)
 
                 figura_plasmaprop = plot_plasmaprop(
-                    x_ref=p["x_ref"], linestyle_ref=p["linestyle_ref"], color_ref=p["color_ref"],
-                    nome_ref=p["nome_ref"], sigmas_ref=p["sigmas_ref"], sigmas_color_ref=p["sigmas_color_ref"],
-                    sigmas_nome_ref=p["sigmas_nome_ref"], x_scale=p["x_scale"], y_scale=p["y_scale"], cte=i["cte"],
+                    x_ref=p["x_ref"],
+                    linestyle_ref=p["linestyle_ref"],
+                    color_ref=p["color_ref"],
+                    nome_ref=p["nome_ref"],
+                    sigmas_ref=p["sigmas_ref"],
+                    sigmas_color_ref=p["sigmas_color_ref"],
+                    sigmas_nome_ref=p["sigmas_nome_ref"],
+                    x_scale=p["x_scale"],
+                    y_scale=p["y_scale"],
+                    cte=i["cte"],
                 )
                 self.exibir_grafico(figura_plasmaprop, self.tab_plasmaprop)
 
                 if i["habitabilidade"]:
                     figura_radar = plot_habitability_radar(
                         cte=i["cte"],
-                        Dorb=i["Dorb"], e=i["e"], Rstar=i["Rstar"], exoplanet_name=i["exoplanet_name"],
+                        Dorb=i["Dorb"],
+                        e=i["e"],
+                        Rstar=i["Rstar"],
+                        exoplanet_name=i["exoplanet_name"],
                     )
                     self.exibir_grafico(figura_radar, self.tab_zh)
+                
+                if i["habitabilidade"]:
+                    figura_mag = plot_magnetosphere_shield(
+                        cte=i["cte"],
+                        Rplan=i["Rplan"],
+                        exoplanet_name=i["exoplanet_name"],
+                    )
+                    self.exibir_grafico(figura_mag, self.tab_magnetospheric)
 
             self.set_status("Plot updated successfully!", "#98C379")
 
@@ -357,9 +452,16 @@ class AppWindow(ctk.CTk):
             i = self.app_state.parameters_input()
 
             figura_parcial = plot_perfil_output(
-                x_ref=p["x_ref"], linestyle_ref=p["linestyle_ref"], color_ref=p["color_ref"],
-                nome_ref=p["nome_ref"], sigmas_ref=p["sigmas_ref"], sigmas_color_ref=p["sigmas_color_ref"],
-                sigmas_nome_ref=p["sigmas_nome_ref"], x_scale=p["x_scale"], y_scale=p["y_scale"], cte=i["cte"],
+                x_ref=p["x_ref"],
+                linestyle_ref=p["linestyle_ref"],
+                color_ref=p["color_ref"],
+                nome_ref=p["nome_ref"],
+                sigmas_ref=p["sigmas_ref"],
+                sigmas_color_ref=p["sigmas_color_ref"],
+                sigmas_nome_ref=p["sigmas_nome_ref"],
+                x_scale=p["x_scale"],
+                y_scale=p["y_scale"],
+                cte=i["cte"],
             )
             self.exibir_grafico(figura_parcial, self.tab_velocity)
         except Exception:
@@ -396,8 +498,13 @@ class AppWindow(ctk.CTk):
                 parametros_completos["max_dv2"] = float(self.app_state.hdv2.get())
                 parametros_completos["step_dv2"] = float(self.app_state.stepdv2.get())
             except ValueError:
-                self.set_status("Erro: Os limites e o step do Search DV2 devem ser números!", "#E06C75")
-                self.pagina_atual.btn_run.configure(state="normal", text="Run Star Simulation")
+                self.set_status(
+                    "Erro: Os limites e o step do Search DV2 devem ser números!",
+                    "#E06C75",
+                )
+                self.pagina_atual.btn_run.configure(
+                    state="normal", text="Run Star Simulation"
+                )
                 return
         else:
             parametros_completos["script_type"] = "main"
@@ -406,7 +513,10 @@ class AppWindow(ctk.CTk):
         self.set_status(msg_status, "#E5C07B")
         self.console_box.configure(state="normal")
         self.console_box.delete("0.0", "end")
-        self.console_box.insert("end", f"--- Initiating Execution [{parametros_completos['script_type'].upper()}] ---\n")
+        self.console_box.insert(
+            "end",
+            f"--- Initiating Execution [{parametros_completos['script_type'].upper()}] ---\n",
+        )
         self.console_box.configure(state="disabled")
 
         self.pagina_atual.btn_abort.configure(state="normal", text="Abort")
@@ -425,7 +535,9 @@ class AppWindow(ctk.CTk):
 
     def abortar_execucao(self):
         self.set_status("Sending abort signal...", "#E06C75")
-        self.escrever_console("\n\x1b[31m[!] ABORT SIGNAL INITIATED BY USER...\x1b[0m\n")
+        self.escrever_console(
+            "\n\x1b[31m[!] ABORT SIGNAL INITIATED BY USER...\x1b[0m\n"
+        )
 
         processos_ativos = multiprocessing.active_children()
         for processo in processos_ativos:
@@ -640,6 +752,7 @@ class AppWindow(ctk.CTk):
 
         else:
             self.after(0, self.escrever_console, texto_bruto)
+
 
 # * ============================================
 # * Inicialização do Aplicativo

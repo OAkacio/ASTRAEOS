@@ -317,6 +317,11 @@ def main(
             Rstar=Rstar,
             exoplanet_name=exoplanet_name,
         )
+        plot_magnetosphere_shield(
+            cte,
+            Rplan,
+            exoplanet_name,
+        )
 
     if show_progress:
         print("___PROGRESS___|1.0", flush=True)

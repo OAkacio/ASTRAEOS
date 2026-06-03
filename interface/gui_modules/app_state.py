@@ -3,6 +3,7 @@
 # * ============================================
 import customtkinter as ctk
 
+
 # * ============================================
 # * Gerenciador de Estado (AppState)
 # * ============================================
@@ -36,16 +37,36 @@ class AppState:
         self.e = ctk.StringVar(value="0.0056")
         self.Ab = ctk.StringVar(value="0.3")
         self.f0 = ctk.StringVar(value="1.16")
-        self.Mmag = ctk.StringVar(value="8e22")   
-        self.Dorb = ctk.StringVar(value="0.03849")  
-        self.Rplan = ctk.StringVar(value="1.045")    
+        self.Mmag = ctk.StringVar(value="8e22")
+        self.Dorb = ctk.StringVar(value="0.03849")
+        self.Rplan = ctk.StringVar(value="1.045")
 
         # ? --- Variáveis de Referência e Gráficos ---
         self.refs = [
-            {"x": ctk.StringVar(value="37.0"), "nome": ctk.StringVar(value="1d"), "cor": ctk.StringVar(value="#922424"), "estilo": ctk.StringVar(value=":")},
-            {"x": ctk.StringVar(value="49.0"), "nome": ctk.StringVar(value="1e"), "cor": ctk.StringVar(value="#926224"), "estilo": ctk.StringVar(value=":")},
-            {"x": ctk.StringVar(value="63.0"), "nome": ctk.StringVar(value="1f"), "cor": ctk.StringVar(value="#927824"), "estilo": ctk.StringVar(value=":")},
-            {"x": ctk.StringVar(value="77.0"), "nome": ctk.StringVar(value="1g"), "cor": ctk.StringVar(value="#439224"), "estilo": ctk.StringVar(value=":")},
+            {
+                "x": ctk.StringVar(value="37.0"),
+                "nome": ctk.StringVar(value="1d"),
+                "cor": ctk.StringVar(value="#922424"),
+                "estilo": ctk.StringVar(value=":"),
+            },
+            {
+                "x": ctk.StringVar(value="49.0"),
+                "nome": ctk.StringVar(value="1e"),
+                "cor": ctk.StringVar(value="#926224"),
+                "estilo": ctk.StringVar(value=":"),
+            },
+            {
+                "x": ctk.StringVar(value="63.0"),
+                "nome": ctk.StringVar(value="1f"),
+                "cor": ctk.StringVar(value="#927824"),
+                "estilo": ctk.StringVar(value=":"),
+            },
+            {
+                "x": ctk.StringVar(value="77.0"),
+                "nome": ctk.StringVar(value="1g"),
+                "cor": ctk.StringVar(value="#439224"),
+                "estilo": ctk.StringVar(value=":"),
+            },
         ]
         self.sigma_ini = ctk.StringVar(value="39.7")
         self.sigma_fim = ctk.StringVar(value="84.7")

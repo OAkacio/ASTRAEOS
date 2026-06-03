@@ -16,7 +16,7 @@ Lsun = const.L_sun.cgs.value  # Luminosidade Solar [erg/s]
 perm_mag_vac = const.mu0.value  # Permeabilidade magnética do vácuo [N/A²]
 Rterra = const.R_earth.value  # Raio da Terra [m]
 pi = np.pi  # Valor da constante matemática PI
-au_cgs = const.au.cgs.value # Distância Astronômica em centímetros [cm]
+au_cgs = const.au.cgs.value  # Distância Astronômica em centímetros [cm]
 
 
 # * ============================================

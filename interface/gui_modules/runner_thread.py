@@ -55,25 +55,27 @@ def motor_isolado(parametros, fila_de_mensagens, fila_de_logs):
         # ? --- Roteamento Dinâmico de Scripts ---
         if script_type == "multicurve":
             from scripts.multiCURVE import main_mc as simulation
+
             simulation(**parametros)
-            
+
         elif script_type == "searchdv2":
             from scripts.searchDV2 import main_sd as simulation
+
             simulation(**parametros)
-            
+
         elif script_type == "exoplanet":
             # Conecta com a nova simulação de habitabilidade
             import numpy as np
             from astraeos_core.habitability import main_hab
-            from astropy import constants as const # <-- Correção AQUI!
-            
+            from astropy import constants as const  # <-- Correção AQUI!
+
             # Puxamos o raio solar em CGS diretamente da biblioteca fonte
-            rsun = const.R_sun.cgs.value 
-            
+            rsun = const.R_sun.cgs.value
+
             cte = parametros["cte"]
             dados = np.load(f"data/curve_{cte}.npz")
             r0 = parametros["Rstar"] * rsun
-            
+
             main_hab(
                 Lstar=parametros["Lstar"],
                 Teff=parametros["Teff"],
@@ -89,11 +91,12 @@ def motor_isolado(parametros, fila_de_mensagens, fila_de_logs):
                 ve0=dados["ve0"].item(),
                 Rplan=parametros["Rplan"],
                 r0=r0,
-                cte=cte
+                cte=cte,
             )
-            
+
         else:
             from astraeos_core.main import main as simulation
+
             simulation(**parametros)
 
         fila_de_mensagens.put({"sucesso": True})

@@ -168,8 +168,8 @@ def raio_magnetosfera(rho_cgs, u_ve0, ve0_cgs, f0, Mmag_AM2):
 def exo_status(Rmag_RT, Rplan_RT):
     Rmag_RP = Rmag_RT / Rplan_RT
     if Rmag_RP > Rseg_terra_at:
-        return "Extended Magnetosphere", "Safe Zone", "green"
-    elif Rseg_terra_min <= Rmag_RP <= Rseg_terra_at:
-        return "Compressed Magnetosphere", "Marginal Zone", "yellow"
+        return "Extended Magnetosphere", "Safe Zone", "lightgreen"
+    elif Rseg_terra_min <= Rmag_RP and Rmag_RP <= Rseg_terra_at:
+        return "Compressed Magnetosphere", "Marginal Zone", "cyan"
     else:
         return "Sub-critical Shield", "Unsafe Zone", "red"
