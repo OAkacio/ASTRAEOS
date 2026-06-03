@@ -3,7 +3,6 @@
 # * ============================================
 import customtkinter as ctk
 
-
 # * ============================================
 # * Gerenciador de Estado (AppState)
 # * ============================================
@@ -30,32 +29,23 @@ class AppState:
         self.tamanho_pulo = ctk.StringVar(value="0.1")
         self.cte = ctk.BooleanVar(value=False)
 
+        # ? --- Variáveis de Habitabilidade e Exoplanetas ---
+        self.habitabilidade = ctk.BooleanVar(value=False)
+        self.exoplanet_name = ctk.StringVar(value="TRAPPIST-1f")
+        self.Lstar = ctk.StringVar(value="5.2e-4")
+        self.e = ctk.StringVar(value="0.0056")
+        self.Ab = ctk.StringVar(value="0.3")
+        self.f0 = ctk.StringVar(value="1.16")
+        self.Mmag = ctk.StringVar(value="8e22")   
+        self.Dorb = ctk.StringVar(value="0.03849")  
+        self.Rplan = ctk.StringVar(value="1.045")    
+
         # ? --- Variáveis de Referência e Gráficos ---
         self.refs = [
-            {
-                "x": ctk.StringVar(value="37.0"),
-                "nome": ctk.StringVar(value="1d"),
-                "cor": ctk.StringVar(value="#922424"),
-                "estilo": ctk.StringVar(value=":"),
-            },
-            {
-                "x": ctk.StringVar(value="49.0"),
-                "nome": ctk.StringVar(value="1e"),
-                "cor": ctk.StringVar(value="#926224"),
-                "estilo": ctk.StringVar(value=":"),
-            },
-            {
-                "x": ctk.StringVar(value="63.0"),
-                "nome": ctk.StringVar(value="1f"),
-                "cor": ctk.StringVar(value="#927824"),
-                "estilo": ctk.StringVar(value=":"),
-            },
-            {
-                "x": ctk.StringVar(value="77.0"),
-                "nome": ctk.StringVar(value="1g"),
-                "cor": ctk.StringVar(value="#439224"),
-                "estilo": ctk.StringVar(value=":"),
-            },
+            {"x": ctk.StringVar(value="37.0"), "nome": ctk.StringVar(value="1d"), "cor": ctk.StringVar(value="#922424"), "estilo": ctk.StringVar(value=":")},
+            {"x": ctk.StringVar(value="49.0"), "nome": ctk.StringVar(value="1e"), "cor": ctk.StringVar(value="#926224"), "estilo": ctk.StringVar(value=":")},
+            {"x": ctk.StringVar(value="63.0"), "nome": ctk.StringVar(value="1f"), "cor": ctk.StringVar(value="#927824"), "estilo": ctk.StringVar(value=":")},
+            {"x": ctk.StringVar(value="77.0"), "nome": ctk.StringVar(value="1g"), "cor": ctk.StringVar(value="#439224"), "estilo": ctk.StringVar(value=":")},
         ]
         self.sigma_ini = ctk.StringVar(value="39.7")
         self.sigma_fim = ctk.StringVar(value="84.7")
@@ -76,7 +66,6 @@ class AppState:
     # * ============================================
     # * Exportação de Dados (Cofres)
     # * ============================================
-    # ? --- Parâmetros de Entrada ---
     def parameters_input(self):
         """
         Gera o dicionário de parâmetros físicos e numéricos atuais da interface.
@@ -101,15 +90,19 @@ class AppState:
             "cte": self.cte.get(),
             "L0": float(self.L0.get()),
             "x_sim": float(self.x_sim.get()),
+            "habitabilidade": self.habitabilidade.get(),
+            "exoplanet_name": self.exoplanet_name.get(),
+            "Lstar": float(self.Lstar.get()),
+            "e": float(self.e.get()),
+            "Ab": float(self.Ab.get()),
+            "f0": float(self.f0.get()),
+            "Mmag": float(self.Mmag.get()),
+            "Dorb": float(self.Dorb.get()),
+            "Rplan": float(self.Rplan.get()),
         }
 
-    # ? --- Parâmetros de Plotagem ---
     def parameters_plot(self):
-        """
-        Gera o dicionário de configurações de geração de gráfico atuais da interface.
-        """
         x_ref, nome_ref, color_ref, linestyle_ref = [], [], [], []
-
         for ref in self.refs:
             val_x = ref["x"].get().strip()
             if val_x:
@@ -120,7 +113,6 @@ class AppState:
                 linestyle_ref.append(ref["estilo"].get())
 
         sigmas_ref, sigmas_nome_ref, sigmas_color_ref = [], [], []
-
         val_ini = self.sigma_ini.get().strip()
         val_fim = self.sigma_fim.get().strip()
 
@@ -141,11 +133,7 @@ class AppState:
             "y_scale": self.axis["Y Axis"].get(),
         }
 
-    # ? --- Opções Avançadas ---
     def parameters_more_options(self):
-        """
-        Gera o dicionário de controle dos scripts avançados.
-        """
         return {
             "multicurve": self.multicurve.get(),
             "searchdv2": self.searchdv2.get(),

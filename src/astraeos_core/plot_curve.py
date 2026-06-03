@@ -497,3 +497,159 @@ def plot_plasmaprop(
         theme="dark",
     )
     return fig
+
+
+def plot_habitability_radar(
+    cte,
+    Dorb,
+    e,
+    Rstar,
+    exoplanet_name,
+):
+    # * ============================================
+    # * Importações
+    # * ============================================
+    import os
+    import numpy as np
+
+    # * ============================================
+    # * Carregamento e Preparação de Dados
+    # * ============================================
+    # ? --- Extração do Arquivo .npz ---
+    dados = np.load(f"data/curve_{cte}.npz")
+    x_tot = dados["x_tot"]
+    rho_total = dados["rho_total"]
+    nome = str(dados["nome"])
+    x_sim = dados["x_sim"].item()
+
+    d_int = dados["d_int"].item()
+    d_ext = dados["d_ext"].item()
+    d_int_classic = dados["dc_int"].item()
+    d_ext_classic = dados["dc_ext"].item()
+
+    # ? --- Normalização e Otimização Crítica ---
+    # Normalização da densidade
+    rho_norm = rho_total / rho_total[0]
+
+    # Amostragem da malha para evitar lentidão excessiva no Tkinter
+    step = max(1, len(x_tot) // 1000)
+    x_mesh = x_tot[::step]
+    rho_mesh = rho_norm[::step]
+
+    # ? --- Grade Polar e Matriz Z (Heatmap) ---
+    theta_1d = np.linspace(0, 2 * np.pi, 200)
+    Theta, R = np.meshgrid(theta_1d, x_mesh)
+    Z = rho_mesh[:, np.newaxis] * np.ones((1, len(theta_1d)))
+
+    # * ============================================
+    # * Elementos Visuais do Mapa Orbital
+    # * ============================================
+    # ? --- Zonas Habitáveis ---
+    rings_in = []
+    rings_out = []
+    rings_cols = []
+    rings_alps = []
+    rings_labs = []
+
+    # Segurança: Adiciona a Zona Clássica se o valor for válido
+    if d_int_classic > 0 and d_ext_classic > 0:
+        rings_in.append(d_int_classic)
+        rings_out.append(d_ext_classic)
+        rings_cols.append("#6AFF00")  # Verde
+        rings_alps.append(0.3)
+        rings_labs.append("Classic Habitable Zone")
+
+    # Segurança: Adiciona a Zona de Kopparapu se o valor for válido
+    if d_int > 0 and d_ext > 0:
+        rings_in.append(d_int)
+        rings_out.append(d_ext)
+        rings_cols.append("#00D8FF")  # Ciano
+        rings_alps.append(0.3)
+        rings_labs.append("Kopparapu Habitable Zone")
+
+    # ? --- Órbita e Posição do Exoplaneta ---
+    # Conversão da distância orbital (AU -> r0)
+    rsun = 6.957e10
+    au_em_cm = 1.495978707e13
+    r0 = Rstar * rsun
+    Dorb_r0 = Dorb * (au_em_cm / r0)
+
+    # Equação geométrica da órbita elíptica
+    theta_orb = np.linspace(0, 2 * np.pi, 150)
+    r_orb = Dorb_r0 * (1 - e**2) / (1 + e * np.cos(theta_orb))
+
+    planets_theta = list(theta_orb) + [np.pi / 4]
+    planets_r = list(r_orb) + [Dorb_r0 * (1 - e**2) / (1 + e * np.cos(np.pi / 4))]
+
+    # Estilização: Órbita pontilhada (150 pontos) + Planeta central (1 ponto)
+    planets_colors = ["#ABB2BF"] * 150 + ["#FF3333"]
+    planets_markers = ["."] * 150 + ["o"]
+    planets_sizes = [2] * 150 + [60]
+    planets_names = [None] * 150 + [exoplanet_name]
+
+    # * ============================================
+    # * Renderização e Ajustes Finais
+    # * ============================================
+    # ? --- Geração do Gráfico Base ---
+    fig = gp.radar(
+        r_data=R,
+        theta_data=Theta,
+        z_matrix=Z,
+        rings_inner=rings_in,
+        rings_outer=rings_out,
+        rings_colors=rings_cols,
+        rings_alphas=rings_alps,
+        rings_labels=rings_labs,
+        scatter_r=planets_r,
+        scatter_theta=planets_theta,
+        scatter_colors=planets_colors,
+        scatter_markers=planets_markers,
+        scatter_sizes=planets_sizes,
+        scatter_labels=planets_names,
+        title=None,
+        r_scale="log",
+        z_scale="log",
+        r_lim=[0, x_sim],
+        cmap="magma",
+        show_grid=True,
+        background_color="#1E1E1E",
+        grid_color="#5C6370",
+        grid_alpha=0.3,
+        grid_linestyle=":",
+        theme="dark",
+        z_label=r"Normalized Plasma Density ($\rho/\rho_0$)",
+        fig_width=10.0,
+        fig_height=6.0,
+        figure_dpi=100,
+        save_fig=False,
+        show_plot=False,
+    )
+
+    # ? --- Intervenções Estéticas Customizadas ---
+    ax = fig.axes[0]
+
+    # Remove as marcações de ângulos das bordas (90º, 180º) para um visual limpo
+    ax.set_xticks([])
+
+    # Recolhe e reposiciona a legenda à esquerda para evitar sobreposição
+    handles, labels = ax.get_legend_handles_labels()
+    by_label = dict(zip(labels, handles))
+    if None in by_label:
+        del by_label[None]
+
+    ax.legend(
+        by_label.values(),
+        by_label.keys(),
+        loc="upper left",
+        bbox_to_anchor=(-0.25, 1.05),
+        frameon=False,
+        fontsize=11,
+        labelcolor="#ABB2BF",
+    )
+
+    # ? --- Salvamento Manual da Figura ---
+    filepath = "figures/habitability_radar.png"
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    fig.savefig(filepath, dpi=100, bbox_inches="tight", facecolor="#1E1E1E")
+
+    return fig

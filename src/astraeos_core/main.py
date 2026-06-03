@@ -7,12 +7,14 @@ try:
     from .utils import *
     from .core import *
     from .plot_curve import *
+    from .habitability import *
 except ImportError:
     from lib import *
     from parameters import *
     from utils import *
     from core import *
     from plot_curve import *
+    from habitability import *
 
 
 # * ============================================
@@ -47,6 +49,15 @@ def main(
     sigmas_nome_ref,
     x_scale,
     y_scale,
+    habitabilidade,
+    exoplanet_name,
+    Lstar,
+    e,
+    Ab,
+    f0,
+    Mmag,
+    Dorb,
+    Rplan,
     show_progress=True,
     **kwargs,
 ):
@@ -173,11 +184,30 @@ def main(
         cb_int,
     )
 
-    # ? --- Processamento e Salvamento de Dados ---
     x_tot, y_tot, num_alpha_array, den_alpha_array, idx_crit_num, idx_crit_den = (
         zerosND(x_int, y_int, x_ext, y_ext, num_alpha_list, den_alpha_list)
     )
 
+    if habitabilidade:
+        d_int, d_ext, dc_int, dc_ext, P_din, Rmag = main_hab(
+            Lstar,
+            Teff,
+            e,
+            Rstar,
+            Ab,
+            Dorb,
+            Mmag,
+            f0,
+            x_tot,
+            y_tot,
+            rho_total,
+            ve0,
+            Rplan,
+            r0,
+            cte,
+        )
+
+    # ? --- Processamento e Salvamento de Dados ---
     os.makedirs("data", exist_ok=True)
     np.savez(
         f"data/curve_{cte}.npz",
@@ -200,8 +230,15 @@ def main(
         phi_total=phi_total,
         deltav2_total=deltav2_total,
         dmdt_total=dmdt_total,
+        d_int=d_int if habitabilidade else np.nan,
+        d_ext=d_ext if habitabilidade else np.nan,
+        dc_int=dc_int if habitabilidade else np.nan,
+        dc_ext=dc_ext if habitabilidade else np.nan,
+        P_din=P_din if habitabilidade else np.nan,
+        Rmag=Rmag if habitabilidade else np.nan,
     )
 
+    sy.status("Displaying final results...", flush=True)
     sy.param(
         ("Terminal Velocity", y_tot[-1] * ve0 / 1e5, "km/s"),
         ("Terminal Velocity", y_tot[-1], "ve0"),
@@ -272,6 +309,15 @@ def main(
         cte,
     )
 
+    if habitabilidade:
+        plot_habitability_radar(
+            cte=cte,
+            Dorb=Dorb,
+            e=e,
+            Rstar=Rstar,
+            exoplanet_name=exoplanet_name,
+        )
+
     if show_progress:
         print("___PROGRESS___|1.0", flush=True)
 
@@ -326,4 +372,14 @@ if __name__ == "__main__":
         sigmas_nome_ref=sigmas_nome_ref_,
         x_scale=x_scale_,
         y_scale=y_scale_,
+        habitabilidade=True,
+        exoplanet_name=exoplanet_name_,
+        Lstar=Lstar_,
+        e=e_,
+        Ab=Ab_,
+        f0=f0_,
+        Mmag=Mmag_,
+        Dorb=Dorb_,
+        Rplan=Rplan_,
+        show_progress=False,
     )

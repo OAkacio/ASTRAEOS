@@ -16,6 +16,7 @@ Lsun = const.L_sun.cgs.value  # Luminosidade Solar [erg/s]
 perm_mag_vac = const.mu0.value  # Permeabilidade magnética do vácuo [N/A²]
 Rterra = const.R_earth.value  # Raio da Terra [m]
 pi = np.pi  # Valor da constante matemática PI
+au_cgs = const.au.cgs.value # Distância Astronômica em centímetros [cm]
 
 
 # * ============================================
@@ -46,6 +47,5 @@ Teq_ext = 185  # Temperatura de equilíbrio para a borda externa da zona habitá
 # * ============================================
 # * Constantes de Blindagem Magnetosférica
 # * ============================================
-Rp = 1.045  # Raio do planeta [Raios Terrestres]
 Rseg_terra_at = 10.2  # Raio Padrão de Segurança da Magnetosfera (magnetosfera atual do planeta Terra) [Raios Planetários]
 Rseg_terra_min = 5  # Raio Mínimo de Segurança Magnetosfera (magnetosfera paleoarqueana do planeta Terra) [Raios Planetários]

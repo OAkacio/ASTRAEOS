@@ -100,6 +100,10 @@ def zerosND(x_int, y_int, x_ext, y_ext, num_alpha_list, den_alpha_list):
     )
 
 
+def find_i(lista, valor):
+    return min(range(len(lista)), key=lambda i: abs(lista[i] - valor))
+
+
 # * ============================================
 # * Zona Habitável
 # * ============================================
@@ -127,20 +131,20 @@ def Seff_ext(Teff):
     )
 
 
-def distancia_habitavel(Lstar, Teff, e, R0):
+def distancia_habitavel(Lstar, Teff, e, Rstar_sun):
     fator_ecc = (1 - e**2) ** 0.5
-    R0AU = R0 * rsunAU
-    d_int = ((Lstar / (Seff_int(Teff) * fator_ecc)) ** 0.5) * R0AU
-    d_ext = ((Lstar / (Seff_ext(Teff) * fator_ecc)) ** 0.5) * R0AU
-    return d_int, d_ext
+    d_int_au = (Lstar / (Seff_int(Teff) * fator_ecc)) ** 0.5
+    d_ext_au = (Lstar / (Seff_ext(Teff) * fator_ecc)) ** 0.5
+    fator_conversao = au_cgs / (Rstar_sun * rsun)
+    return d_int_au * fator_conversao, d_ext_au * fator_conversao
 
 
-def distancia_habitavel_classic(Rstar_sun, Teff, Ab, R0):
-    Rstar_au = Rstar_sun * rsunAU
-    R0AU = R0 * rsunAU
-    d_int = (Rstar_au * 0.5 * (Teff / Teq_int) ** 2 * (1 - Ab) ** 0.5) * R0AU
-    d_ext = (Rstar_au * 0.5 * (Teff / Teq_ext) ** 2 * (1 - Ab) ** 0.5) * R0AU
-    return d_int, d_ext
+def distancia_habitavel_classic(Rstar_sun, Teff, Ab):
+    Rstar_au = (Rstar_sun * rsun) / au_cgs
+    d_int_au = Rstar_au * 0.5 * (Teff / Teq_int) ** 2 * (1 - Ab) ** 0.5
+    d_ext_au = Rstar_au * 0.5 * (Teff / Teq_ext) ** 2 * (1 - Ab) ** 0.5
+    fator_conversao = au_cgs / (Rstar_sun * rsun)
+    return d_int_au * fator_conversao, d_ext_au * fator_conversao
 
 
 # * ============================================
@@ -154,8 +158,18 @@ def Pram(rho_cgs, u_ve0, ve0_cgs):
     return (rho_cgs * u_cgs**2) * conversao_cgs_to_SI
 
 
-def raio_magnetopausa(rho_cgs, u_ve0, ve0_cgs, f0, Mmag_AM2):
+def raio_magnetosfera(rho_cgs, u_ve0, ve0_cgs, f0, Mmag_AM2):
     N = perm_mag_vac * f0**2 * Mmag_AM2**2
     D = 8 * pi**2 * Pram(rho_cgs, u_ve0, ve0_cgs)
     convcersao_SI_to_RaiosTerrastres = 1 / Rterra
     return ((N / D) ** (1 / 6)) * convcersao_SI_to_RaiosTerrastres
+
+
+def exo_status(Rmag_RT, Rplan_RT):
+    Rmag_RP = Rmag_RT / Rplan_RT
+    if Rmag_RP > Rseg_terra_at:
+        return "Extended Magnetosphere", "Safe Zone", "green"
+    elif Rseg_terra_min <= Rmag_RP <= Rseg_terra_at:
+        return "Compressed Magnetosphere", "Marginal Zone", "yellow"
+    else:
+        return "Sub-critical Shield", "Unsafe Zone", "red"

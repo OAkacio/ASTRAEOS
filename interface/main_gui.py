@@ -25,8 +25,8 @@ from astraeos_core.plot_curve import (
     plot_curve_analis,
     plot_charspeeds,
     plot_plasmaprop,
+    plot_habitability_radar,
 )
-
 
 # * ============================================
 # * Controlador Principal (AppWindow)
@@ -119,52 +119,24 @@ class AppWindow(ctk.CTk):
         self.tab_zh = self.painel_graficos.add("Habitable Zone")
         self.tab_magnetospheric = self.painel_graficos.add("Magnetospheric Impact")
 
-        self.lbl_grafico_vazio = ctk.CTkLabel(
-            self.tab_velocity,
-            text="[ Visualization Area ]\nWaiting for simulation data...",
-            text_color="#5c5c5c",
-            font=("Consolas", 16, "italic"),
-        )
+        self.texto_vazio = "[ Visualization Area ]\nWaiting for simulation data..."
+
+        self.lbl_grafico_vazio = ctk.CTkLabel(self.tab_velocity, text=self.texto_vazio, text_color="#5c5c5c", font=("Consolas", 16, "italic"))
         self.lbl_grafico_vazio.place(relx=0.5, rely=0.5, anchor="center")
 
-        self.lbl_grafico_vazio2 = ctk.CTkLabel(
-            self.tab_charspeeds,
-            text="[ Visualization Area ]\nWaiting for simulation data...",
-            text_color="#5c5c5c",
-            font=("Consolas", 16, "italic"),
-        )
+        self.lbl_grafico_vazio2 = ctk.CTkLabel(self.tab_charspeeds, text=self.texto_vazio, text_color="#5c5c5c", font=("Consolas", 16, "italic"))
         self.lbl_grafico_vazio2.place(relx=0.5, rely=0.5, anchor="center")
 
-        self.lbl_grafico_vazio3 = ctk.CTkLabel(
-            self.tab_plasmaprop,
-            text="[ Visualization Area ]\nWaiting for simulation data...",
-            text_color="#5c5c5c",
-            font=("Consolas", 16, "italic"),
-        )
+        self.lbl_grafico_vazio3 = ctk.CTkLabel(self.tab_plasmaprop, text=self.texto_vazio, text_color="#5c5c5c", font=("Consolas", 16, "italic"))
         self.lbl_grafico_vazio3.place(relx=0.5, rely=0.5, anchor="center")
 
-        self.lbl_grafico_vazio4 = ctk.CTkLabel(
-            self.tab_topology,
-            text="[ Visualization Area ]\nWaiting for simulation data...",
-            text_color="#5c5c5c",
-            font=("Consolas", 16, "italic"),
-        )
+        self.lbl_grafico_vazio4 = ctk.CTkLabel(self.tab_topology, text=self.texto_vazio, text_color="#5c5c5c", font=("Consolas", 16, "italic"))
         self.lbl_grafico_vazio4.place(relx=0.5, rely=0.5, anchor="center")
 
-        self.lbl_grafico_vazio5 = ctk.CTkLabel(
-            self.tab_zh,
-            text="[ Visualization Area ]\nWaiting for simulation data...",
-            text_color="#5c5c5c",
-            font=("Consolas", 16, "italic"),
-        )
+        self.lbl_grafico_vazio5 = ctk.CTkLabel(self.tab_zh, text=self.texto_vazio, text_color="#5c5c5c", font=("Consolas", 16, "italic"))
         self.lbl_grafico_vazio5.place(relx=0.5, rely=0.5, anchor="center")
 
-        self.lbl_grafico_vazio6 = ctk.CTkLabel(
-            self.tab_magnetospheric,
-            text="[ Visualization Area ]\nWaiting for simulation data...",
-            text_color="#5c5c5c",
-            font=("Consolas", 16, "italic"),
-        )
+        self.lbl_grafico_vazio6 = ctk.CTkLabel(self.tab_magnetospheric, text=self.texto_vazio, text_color="#5c5c5c", font=("Consolas", 16, "italic"))
         self.lbl_grafico_vazio6.place(relx=0.5, rely=0.5, anchor="center")
 
         # ? --- Console Integrado ---
@@ -179,22 +151,10 @@ class AppWindow(ctk.CTk):
         self.console_box.grid(row=1, column=0, sticky="nsew", padx=(0, 20))
 
         self.cores_ansi = {
-            "30": "#282C34",
-            "31": "#E06C75",
-            "32": "#98C379",
-            "33": "#E5C07B",
-            "34": "#61AFEF",
-            "35": "#C678DD",
-            "36": "#56B6C2",
-            "37": "#ABB2BF",
-            "90": "#5C6370",
-            "91": "#E06C75",
-            "92": "#98C379",
-            "93": "#E5C07B",
-            "94": "#61AFEF",
-            "95": "#C678DD",
-            "96": "#56B6C2",
-            "97": "#FFFFFF",
+            "30": "#282C34", "31": "#E06C75", "32": "#98C379", "33": "#E5C07B",
+            "34": "#61AFEF", "35": "#C678DD", "36": "#56B6C2", "37": "#ABB2BF",
+            "90": "#5C6370", "91": "#E06C75", "92": "#98C379", "93": "#E5C07B",
+            "94": "#61AFEF", "95": "#C678DD", "96": "#56B6C2", "97": "#FFFFFF",
         }
         for codigo, hex_cor in self.cores_ansi.items():
             self.console_box._textbox.tag_config(f"color_{codigo}", foreground=hex_cor)
@@ -209,13 +169,13 @@ class AppWindow(ctk.CTk):
             on_run_click=self.executar_fisica,
             on_update_click=self.atualizar_somente_grafico,
             on_abort_click=self.abortar_execucao,
+            on_simulate_exo_click=self.simular_exoplaneta,
         )
         self.pagina_atual.grid(row=0, column=1, rowspan=2, sticky="nsew")
 
     # * ============================================
     # * Rotinas de Interface Visual
     # * ============================================
-    # ? --- Gestão do Console e Status ---
     def escrever_console(self, texto):
         self.console_box.configure(state="normal")
         partes = re.split(r"(\x1b\[[0-9;]*m)", texto)
@@ -241,7 +201,6 @@ class AppWindow(ctk.CTk):
     def set_status(self, mensagem, cor="#858585"):
         self.lbl_status.configure(text=f" {mensagem}", text_color=cor)
 
-    # ? --- Renderização de Gráficos Dinâmica ---
     def exibir_grafico(self, figura_matplotlib, container=None):
         if container is None:
             container = self.tab_velocity
@@ -269,6 +228,76 @@ class AppWindow(ctk.CTk):
         except Exception as e:
             self.set_status(f"Erro ao renderizar gráfico interativo: {e}", "#E06C75")
 
+    def limpar_aba_grafico(self, container):
+        for widget in container.winfo_children():
+            widget.destroy()
+        vazio = ctk.CTkLabel(container, text=self.texto_vazio, text_color="#5c5c5c", font=("Consolas", 16, "italic"))
+        vazio.place(relx=0.5, rely=0.5, anchor="center")
+
+    # * ============================================
+    # * Orquestração de Threads - Exoplanetas
+    # * ============================================
+    def simular_exoplaneta(self):
+        try:
+            parametros_fisica = self.app_state.parameters_input()
+            parametros_plot = self.app_state.parameters_plot()
+            parametros_completos = {**parametros_fisica, **parametros_plot}
+            parametros_completos["script_type"] = "exoplanet"
+
+            self.pagina_atual.btn_run.configure(state="disabled")
+            self.pagina_atual.btn_update_plot.configure(state="disabled")
+            self.pagina_atual.btn_sim_exo.configure(
+                state="disabled", text="Simulating..."
+            )
+            self.pagina_atual.btn_abort.configure(state="normal")
+
+            self.set_status(
+                "Starting Exoplanet Simulation... Check the console.", "#E5C07B"
+            )
+            self.console_box.configure(state="normal")
+            self.console_box.insert(
+                "end", "\n--- Initiating Execution [EXOPLANET] ---\n"
+            )
+            self.console_box.configure(state="disabled")
+
+            run(
+                parametros=parametros_completos,
+                callback_sucesso=self.ao_terminar_sim_exo_sucesso,
+                callback_erro=self.ao_dar_erro,
+                callback_log=self.ao_receber_log,
+            )
+
+        except Exception as e:
+            self.set_status(f"Error starting exoplanet simulation: {e}", "#E06C75")
+
+    def ao_terminar_sim_exo_sucesso(self):
+        self.after(0, self._atualizar_ui_sim_exo_sucesso)
+
+    def _atualizar_ui_sim_exo_sucesso(self):
+        self.set_status("Exoplanet simulated successfully!", "#98C379")
+        self.pagina_atual.btn_run.configure(state="normal", text="Run Star Simulation")
+        self.pagina_atual.btn_update_plot.configure(state="normal", text="Update Plot")
+        self.pagina_atual.btn_sim_exo.configure(
+            state="normal", text="Simulate Exoplanet"
+        )
+        self.pagina_atual.btn_abort.configure(state="disabled")
+
+        p = self.app_state.parameters_plot()
+        i = self.app_state.parameters_input()
+
+        try:
+            figura_radar = plot_habitability_radar(
+                cte=i["cte"],
+                Dorb=i["Dorb"], e=i["e"], Rstar=i["Rstar"], exoplanet_name=i["exoplanet_name"],
+            )
+            self.exibir_grafico(figura_radar, self.tab_zh)
+            self.painel_graficos.set("Habitable Zone")
+        except Exception as e:
+            self.set_status(f"Error drawing exoplanet radar: {e}", "#E06C75")
+
+    # * ============================================
+    # * Atualização de UI Geral
+    # * ============================================
     def atualizar_somente_grafico(self):
         try:
             self.set_status("Updating plot styling...", "#61AFEF")
@@ -279,59 +308,39 @@ class AppWindow(ctk.CTk):
 
             if m["multicurve"]:
                 figura_inicial = plot_multicurve(
-                    x_ref=p["x_ref"],
-                    linestyle_ref=p["linestyle_ref"],
-                    color_ref=p["color_ref"],
-                    nome_ref=p["nome_ref"],
-                    sigmas_ref=p["sigmas_ref"],
-                    sigmas_color_ref=p["sigmas_color_ref"],
-                    sigmas_nome_ref=p["sigmas_nome_ref"],
-                    x_scale=p["x_scale"],
-                    y_scale=p["y_scale"],
+                    x_ref=p["x_ref"], linestyle_ref=p["linestyle_ref"], color_ref=p["color_ref"],
+                    nome_ref=p["nome_ref"], sigmas_ref=p["sigmas_ref"], sigmas_color_ref=p["sigmas_color_ref"],
+                    sigmas_nome_ref=p["sigmas_nome_ref"], x_scale=p["x_scale"], y_scale=p["y_scale"],
                 )
                 self.exibir_grafico(figura_inicial, self.tab_velocity)
             else:
                 figura_inicial = plot_perfil_output(
-                    x_ref=p["x_ref"],
-                    linestyle_ref=p["linestyle_ref"],
-                    color_ref=p["color_ref"],
-                    nome_ref=p["nome_ref"],
-                    sigmas_ref=p["sigmas_ref"],
-                    sigmas_color_ref=p["sigmas_color_ref"],
-                    sigmas_nome_ref=p["sigmas_nome_ref"],
-                    x_scale=p["x_scale"],
-                    y_scale=p["y_scale"],
-                    cte=i["cte"],
+                    x_ref=p["x_ref"], linestyle_ref=p["linestyle_ref"], color_ref=p["color_ref"],
+                    nome_ref=p["nome_ref"], sigmas_ref=p["sigmas_ref"], sigmas_color_ref=p["sigmas_color_ref"],
+                    sigmas_nome_ref=p["sigmas_nome_ref"], x_scale=p["x_scale"], y_scale=p["y_scale"], cte=i["cte"],
                 )
                 self.exibir_grafico(figura_inicial, self.tab_velocity)
 
                 figura_charspeeds = plot_charspeeds(
-                    x_ref=p["x_ref"],
-                    linestyle_ref=p["linestyle_ref"],
-                    color_ref=p["color_ref"],
-                    nome_ref=p["nome_ref"],
-                    sigmas_ref=p["sigmas_ref"],
-                    sigmas_color_ref=p["sigmas_color_ref"],
-                    sigmas_nome_ref=p["sigmas_nome_ref"],
-                    x_scale=p["x_scale"],
-                    y_scale=p["y_scale"],
-                    cte=i["cte"],
+                    x_ref=p["x_ref"], linestyle_ref=p["linestyle_ref"], color_ref=p["color_ref"],
+                    nome_ref=p["nome_ref"], sigmas_ref=p["sigmas_ref"], sigmas_color_ref=p["sigmas_color_ref"],
+                    sigmas_nome_ref=p["sigmas_nome_ref"], x_scale=p["x_scale"], y_scale=p["y_scale"], cte=i["cte"],
                 )
                 self.exibir_grafico(figura_charspeeds, self.tab_charspeeds)
 
                 figura_plasmaprop = plot_plasmaprop(
-                    x_ref=p["x_ref"],
-                    linestyle_ref=p["linestyle_ref"],
-                    color_ref=p["color_ref"],
-                    nome_ref=p["nome_ref"],
-                    sigmas_ref=p["sigmas_ref"],
-                    sigmas_color_ref=p["sigmas_color_ref"],
-                    sigmas_nome_ref=p["sigmas_nome_ref"],
-                    x_scale=p["x_scale"],
-                    y_scale=p["y_scale"],
-                    cte=i["cte"],
+                    x_ref=p["x_ref"], linestyle_ref=p["linestyle_ref"], color_ref=p["color_ref"],
+                    nome_ref=p["nome_ref"], sigmas_ref=p["sigmas_ref"], sigmas_color_ref=p["sigmas_color_ref"],
+                    sigmas_nome_ref=p["sigmas_nome_ref"], x_scale=p["x_scale"], y_scale=p["y_scale"], cte=i["cte"],
                 )
                 self.exibir_grafico(figura_plasmaprop, self.tab_plasmaprop)
+
+                if i["habitabilidade"]:
+                    figura_radar = plot_habitability_radar(
+                        cte=i["cte"],
+                        Dorb=i["Dorb"], e=i["e"], Rstar=i["Rstar"], exoplanet_name=i["exoplanet_name"],
+                    )
+                    self.exibir_grafico(figura_radar, self.tab_zh)
 
             self.set_status("Plot updated successfully!", "#98C379")
 
@@ -348,16 +357,9 @@ class AppWindow(ctk.CTk):
             i = self.app_state.parameters_input()
 
             figura_parcial = plot_perfil_output(
-                x_ref=p["x_ref"],
-                linestyle_ref=p["linestyle_ref"],
-                color_ref=p["color_ref"],
-                nome_ref=p["nome_ref"],
-                sigmas_ref=p["sigmas_ref"],
-                sigmas_color_ref=p["sigmas_color_ref"],
-                sigmas_nome_ref=p["sigmas_nome_ref"],
-                x_scale=p["x_scale"],
-                y_scale=p["y_scale"],
-                cte=i["cte"],
+                x_ref=p["x_ref"], linestyle_ref=p["linestyle_ref"], color_ref=p["color_ref"],
+                nome_ref=p["nome_ref"], sigmas_ref=p["sigmas_ref"], sigmas_color_ref=p["sigmas_color_ref"],
+                sigmas_nome_ref=p["sigmas_nome_ref"], x_scale=p["x_scale"], y_scale=p["y_scale"], cte=i["cte"],
             )
             self.exibir_grafico(figura_parcial, self.tab_velocity)
         except Exception:
@@ -368,15 +370,20 @@ class AppWindow(ctk.CTk):
         widget_barra.update_idletasks()
 
     # * ============================================
-    # * Controle de Execução
+    # * Orquestração de Threads - Estrela
     # * ============================================
-    # ? --- Iniciar Simulação ---
     def executar_fisica(self):
         parametros_fisica = self.app_state.parameters_input()
         parametros_plot = self.app_state.parameters_plot()
         parametros_more = self.app_state.parameters_more_options()
 
         parametros_completos = {**parametros_fisica, **parametros_plot}
+
+        # ! LIMPA A ABA DO EXOPLANETA QUANDO INICIA NOVA SIMULAÇÃO DE ESTRELA
+        self.limpar_aba_grafico(self.tab_zh)
+
+        self.pagina_atual.btn_update_plot.configure(state="disabled")
+        self.pagina_atual.btn_sim_exo.configure(state="disabled")
 
         if parametros_more["multicurve"]:
             parametros_completos["script_type"] = "multicurve"
@@ -389,13 +396,8 @@ class AppWindow(ctk.CTk):
                 parametros_completos["max_dv2"] = float(self.app_state.hdv2.get())
                 parametros_completos["step_dv2"] = float(self.app_state.stepdv2.get())
             except ValueError:
-                self.set_status(
-                    "Erro: Os limites e o step do Search DV2 devem ser números!",
-                    "#E06C75",
-                )
-                self.pagina_atual.btn_run.configure(
-                    state="normal", text="Run Simulation"
-                )
+                self.set_status("Erro: Os limites e o step do Search DV2 devem ser números!", "#E06C75")
+                self.pagina_atual.btn_run.configure(state="normal", text="Run Star Simulation")
                 return
         else:
             parametros_completos["script_type"] = "main"
@@ -404,10 +406,7 @@ class AppWindow(ctk.CTk):
         self.set_status(msg_status, "#E5C07B")
         self.console_box.configure(state="normal")
         self.console_box.delete("0.0", "end")
-        self.console_box.insert(
-            "end",
-            f"--- Initiating Execution [{parametros_completos['script_type'].upper()}] ---\n",
-        )
+        self.console_box.insert("end", f"--- Initiating Execution [{parametros_completos['script_type'].upper()}] ---\n")
         self.console_box.configure(state="disabled")
 
         self.pagina_atual.btn_abort.configure(state="normal", text="Abort")
@@ -424,20 +423,30 @@ class AppWindow(ctk.CTk):
             callback_log=self.ao_receber_log,
         )
 
-    # ? --- Abortar e Encerrar ---
     def abortar_execucao(self):
         self.set_status("Sending abort signal...", "#E06C75")
-        self.escrever_console(
-            "\n\x1b[31m[!] ABORT SIGNAL INITIATED BY USER...\x1b[0m\n"
-        )
+        self.escrever_console("\n\x1b[31m[!] ABORT SIGNAL INITIATED BY USER...\x1b[0m\n")
 
         processos_ativos = multiprocessing.active_children()
         for processo in processos_ativos:
             processo.terminate()
             processo.join(timeout=1.0)
 
-        self.pagina_atual.btn_run.configure(state="normal", text="Run Simulation")
+        self.pagina_atual.btn_run.configure(state="normal", text="Run Star Simulation")
         self.pagina_atual.btn_abort.configure(state="disabled", text="Abort")
+
+        i = self.app_state.parameters_input()
+        if os.path.exists(f"data/curve_{i['cte']}.npz"):
+            self.pagina_atual.btn_update_plot.configure(state="normal")
+            self.pagina_atual.btn_sim_exo.configure(
+                state="normal", text="Simulate Exoplanet"
+            )
+        else:
+            self.pagina_atual.btn_update_plot.configure(state="disabled")
+            self.pagina_atual.btn_sim_exo.configure(
+                state="disabled", text="Simulate Exoplanet"
+            )
+
         self.set_status("Simulation aborted successfully.", "#E06C75")
 
         self.progressbar.pack_forget()
@@ -458,14 +467,18 @@ class AppWindow(ctk.CTk):
     # * ============================================
     # * Callbacks e Sinais em Tempo Real
     # * ============================================
-    # ? --- Conclusão e Falhas ---
     def ao_terminar_com_sucesso(self):
         self.after(0, self._atualizar_ui_sucesso)
 
     def _atualizar_ui_sucesso(self):
         self.set_status("Task completed successfully!", "#98C379")
-        self.pagina_atual.btn_run.configure(state="normal", text="Run Simulation")
+        self.pagina_atual.btn_run.configure(state="normal", text="Run Star Simulation")
+
         self.pagina_atual.btn_update_plot.configure(state="normal", text="Update Plot")
+        self.pagina_atual.btn_sim_exo.configure(
+            state="normal", text="Simulate Exoplanet"
+        )
+
         self.pagina_atual.btn_abort.configure(state="disabled", text="Abort")
         self.progressbar.pack_forget()
         self.micro_bars_frame.pack_forget()
@@ -554,12 +567,24 @@ class AppWindow(ctk.CTk):
 
     def _atualizar_ui_erro(self, erro):
         self.set_status(f"Execution error | {erro}", "#E06C75")
-        self.pagina_atual.btn_run.configure(state="normal", text="Run Simulation")
+        self.pagina_atual.btn_run.configure(state="normal", text="Run Star Simulation")
+
+        i = self.app_state.parameters_input()
+        if os.path.exists(f"data/curve_{i['cte']}.npz"):
+            self.pagina_atual.btn_update_plot.configure(state="normal")
+            self.pagina_atual.btn_sim_exo.configure(
+                state="normal", text="Simulate Exoplanet"
+            )
+        else:
+            self.pagina_atual.btn_update_plot.configure(state="disabled")
+            self.pagina_atual.btn_sim_exo.configure(
+                state="disabled", text="Simulate Exoplanet"
+            )
+
         self.pagina_atual.btn_abort.configure(state="disabled", text="Abort")
         self.progressbar.pack_forget()
         self.micro_bars_frame.pack_forget()
 
-    # ? --- Stream de Logs e Progressão ---
     def ao_receber_log(self, texto_bruto):
         if self.skip_next_newline and texto_bruto in ("\n", "\r\n"):
             self.skip_next_newline = False
@@ -615,7 +640,6 @@ class AppWindow(ctk.CTk):
 
         else:
             self.after(0, self.escrever_console, texto_bruto)
-
 
 # * ============================================
 # * Inicialização do Aplicativo
