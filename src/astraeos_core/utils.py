@@ -10,10 +10,13 @@ mp = const.m_p.cgs.value  # Massa do próton [g]
 kb = const.k_B.cgs.value  # Constante de Boltzmann [erg/K]
 G = const.G.cgs.value  # Constante gravitacional [cm³g⁻¹s⁻²]
 rsun = const.R_sun.cgs.value  # Raio Solar [cm]
+rsunAU = const.const.R_sun.to(u.au).value  # Raio Solar [AU]
 Msun = const.M_sun.cgs.value  # Massa Solar [g]
-perm_mag_vac = const.mu0.value  # Permeabilidade magnética do vácuo [H/m]
-Rterra = const.R_earth.value  # Raio da Terra [m]
+Lsun = const.L_sun.cgs.value  # Luminosidade Solar [erg/s]
+perm_mag_vac = const.mu0.value  # Permeabilidade magnética do vácuo [Tm/A]
+Rterra = const.R_earth.value  # Raio da Terra [cm]
 pi = np.pi  # Valor da constante matemática PI
+au = const.au.cgs.value  # Unidade Astronômica [m]
 
 
 # * ============================================
@@ -40,7 +43,6 @@ d_ext = -5.1925e-16  # Coeficiente d para a borda externa da zona habitável [ad
 # ? --- Coeficientes de Zona Habitável Clássica ---
 Teq_int = 303  # Temperatura de equilíbrio para a borda interna da zona habitável [K]
 Teq_ext = 185  # Temperatura de equilíbrio para a borda externa da zona habitável [K]
-Rsun_to_AU = 0.00465047  # Fator de conversão de raios solares para unidades astronômicas [AU/Rsun]
 
 # * ============================================
 # * Constantes de Blindagem Magnetosférica

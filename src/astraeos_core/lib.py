@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from scipy.integrate import *
 import time
 from astropy import constants as const
+from astropy import units as u
 
 try:
     from .pytools import system as sy

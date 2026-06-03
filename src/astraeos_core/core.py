@@ -127,17 +127,19 @@ def Seff_ext(Teff):
     )
 
 
-def distancia_habitavel(Lstar, Teff, e):
+def distancia_habitavel(Lstar, Teff, e, R0):
     fator_ecc = (1 - e**2) ** 0.5
-    d_int = (Lstar / (Seff_int(Teff) * fator_ecc)) ** 0.5
-    d_ext = (Lstar / (Seff_ext(Teff) * fator_ecc)) ** 0.5
+    R0AU = R0 * rsunAU
+    d_int = ((Lstar / (Seff_int(Teff) * fator_ecc)) ** 0.5) * R0AU
+    d_ext = ((Lstar / (Seff_ext(Teff) * fator_ecc)) ** 0.5) * R0AU
     return d_int, d_ext
 
 
-def distancia_habitavel_classic(Rstar_sun, Teff, Ab):
-    Rstar_au = Rstar_sun * Rsun_to_AU
-    d_int = Rstar_au * 0.5 * (Teff / Teq_int) ** 2 * (1 - Ab) ** 0.5
-    d_ext = Rstar_au * 0.5 * (Teff / Teq_ext) ** 2 * (1 - Ab) ** 0.5
+def distancia_habitavel_classic(Rstar_sun, Teff, Ab, R0):
+    Rstar_au = Rstar_sun * rsunAU
+    R0AU = R0 * rsunAU
+    d_int = (Rstar_au * 0.5 * (Teff / Teq_int) ** 2 * (1 - Ab) ** 0.5) * R0AU
+    d_ext = (Rstar_au * 0.5 * (Teff / Teq_ext) ** 2 * (1 - Ab) ** 0.5) * R0AU
     return d_int, d_ext
 
 
@@ -146,11 +148,14 @@ def distancia_habitavel_classic(Rstar_sun, Teff, Ab):
 # * ============================================
 
 
-def Pram(rho, u):
-    return rho * u**2
+def Pram(rho_cgs, u_ve0, ve0_cgs):
+    u_cgs = u_ve0 * ve0_cgs
+    conversao_cgs_to_SI = 0.1
+    return (rho_cgs * u_cgs**2) * conversao_cgs_to_SI
 
 
-def raio_magnetopausa(rho, u, f0, Mmag):
-    N = perm_mag_vac * f0**2 * Mmag**2
-    D = 8 * pi**2 * Pram(rho, u)
-    return (N / D) ** (1 / 6)
+def raio_magnetopausa(rho_cgs, u_ve0, ve0_cgs, f0, Mmag_AM2):
+    N = perm_mag_vac * f0**2 * Mmag_AM2**2
+    D = 8 * pi**2 * Pram(rho_cgs, u_ve0, ve0_cgs)
+    convcersao_SI_to_RaiosTerrastres = 1 / Rterra
+    return ((N / D) ** (1 / 6)) * convcersao_SI_to_RaiosTerrastres
