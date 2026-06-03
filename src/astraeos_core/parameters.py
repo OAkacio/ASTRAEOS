@@ -67,5 +67,5 @@ step_dv2_ = 0.001  # Passo de busca automática de DV2 [ve0]
 # * ============================================
 # * Parâmetros de Entrada | Zona Habitável
 # * ============================================
-e_ = 0.0  # Excentricidade da órbita (e = 0 : Órbita circular ; 0 < e < 1 : Órbita elíptica) [adm]
+e_ = 0.0056  # Excentricidade da órbita (e = 0 : Órbita circular ; 0 < e < 1 : Órbita elíptica) [adm]
 Ab_ = 0.3  # Albedo planetário [adm]
