@@ -12,6 +12,7 @@ G = const.G.cgs.value  # Constante gravitacional [cm³g⁻¹s⁻²]
 rsun = const.R_sun.cgs.value  # Raio Solar [cm]
 Msun = const.M_sun.cgs.value  # Massa Solar [g]
 perm_mag_vac = const.mu0.value  # Permeabilidade magnética do vácuo [H/m]
+Rterra = const.R_earth.value  # Raio da Terra [m]
 pi = np.pi  # Valor da constante matemática PI
 
 
