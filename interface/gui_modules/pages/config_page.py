@@ -75,7 +75,6 @@ class ConfigPage(ctk.CTkScrollableFrame):
         # ? --- Configuração de Layout Principal ---
         self.grid_columnconfigure(0, weight=1)
 
-        # PAINEL 1: SIMULAÇÃO ESTELAR & CABEÇALHO DINÂMICO
         self.header_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.header_frame.grid(row=0, column=0, pady=(10, 2), sticky="ew", padx=20)
         self.header_frame.grid_columnconfigure(0, weight=1)
@@ -85,7 +84,6 @@ class ConfigPage(ctk.CTkScrollableFrame):
         )
         self.lbl_titulo.grid(row=0, column=0, sticky="w")
 
-        # Tentativa silenciosa de carregar os ícones para os botões de perfil
         try:
             img_load = ctk.CTkImage(
                 Image.open(os.path.join(self.assets_path, "load.png")), size=(18, 18)
@@ -138,7 +136,6 @@ class ConfigPage(ctk.CTkScrollableFrame):
         self._construir_aba_gp(aba_gp)
         self._construir_aba_more(aba_more)
 
-        # PAINEL 2: EXOPLANETAS
         self.lbl_exo = ctk.CTkLabel(
             self,
             text="Exoplanet Settings",

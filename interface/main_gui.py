@@ -207,7 +207,6 @@ class AppWindow(ctk.CTk):
         self.console_box.configure(state="disabled")
 
         # ? --- Página de Configuração de Parâmetros ---
-        # ! MUDANÇA AQUI: Injeção do ASSETS_PATH para os novos botões de Save/Load
         self.pagina_atual = ConfigPage(
             master=self.main_container,
             state=self.app_state,
