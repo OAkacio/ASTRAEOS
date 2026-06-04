@@ -270,7 +270,7 @@ class AppWindow(ctk.CTk):
             canvas.get_tk_widget().pack(side="top", fill="both", expand=True)
 
         except Exception as e:
-            self.set_status(f"Erro ao renderizar gráfico interativo: {e}", "#E06C75")
+            self.set_status(f"Error rendering interactive plot: {e}", "#E06C75")
 
     def limpar_aba_grafico(self, container):
         for widget in container.winfo_children():
@@ -342,7 +342,7 @@ class AppWindow(ctk.CTk):
                 Rstar=i["Rstar"],
                 exoplanet_name=i["exoplanet_name"],
             )
-            figura_mag= plot_magnetosphere_shield(
+            figura_mag = plot_magnetosphere_shield(
                 cte=i["cte"],
                 Rplan=i["Rplan"],
                 exoplanet_name=i["exoplanet_name"],
@@ -428,7 +428,7 @@ class AppWindow(ctk.CTk):
                         exoplanet_name=i["exoplanet_name"],
                     )
                     self.exibir_grafico(figura_radar, self.tab_zh)
-                
+
                 if i["habitabilidade"]:
                     figura_mag = plot_magnetosphere_shield(
                         cte=i["cte"],
@@ -499,7 +499,7 @@ class AppWindow(ctk.CTk):
                 parametros_completos["step_dv2"] = float(self.app_state.stepdv2.get())
             except ValueError:
                 self.set_status(
-                    "Erro: Os limites e o step do Search DV2 devem ser números!",
+                    "Error: Search DV2 limits and step must be numeric values!",
                     "#E06C75",
                 )
                 self.pagina_atual.btn_run.configure(
@@ -668,11 +668,11 @@ class AppWindow(ctk.CTk):
 
         except FileNotFoundError:
             self.set_status(
-                "Erro: O Multicurve exige que você rode o padrão com 'Constante' ON e OFF antes!",
+                "Error: Multicurve analysis requires prior runs with 'Constant Damping' toggled ON and OFF!",
                 "#E06C75",
             )
         except Exception as e:
-            self.set_status(f"Erro ao montar gráfico final: {e}", "#E06C75")
+            self.set_status(f"Error building final plot: {e}", "#E06C75")
 
     def ao_dar_erro(self, mensagem_erro):
         self.after(0, self._atualizar_ui_erro, mensagem_erro)

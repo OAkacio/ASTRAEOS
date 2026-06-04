@@ -227,10 +227,20 @@ class ConfigPage(ctk.CTkScrollableFrame):
         campos = [
             (0, "Simulation Distance :", self.app_state.x_sim, "[ Rstar ]"),
             (1, "Integration Step :", self.app_state.h_rk, "[ Rstar ]"),
-            (2, "u0 Search - Lower Limit :", self.app_state.u0_ini, "[ ve0 ]"),
-            (3, "u0 Search - Step :", self.app_state.u0_step, "[ ve0 ]"),
-            (4, "Jump Size :", self.app_state.tamanho_pulo, "[ Rstar ]"),
-            (5, "Backwards Steps :", self.app_state.recuo_pulo, "[ 1e-5 Rstar ]"),
+            (
+                2,
+                "Base Velocity Search - Lower Limit :",
+                self.app_state.u0_ini,
+                "[ ve0 ]",
+            ),
+            (3, "Base Velocity Search - Step :", self.app_state.u0_step, "[ ve0 ]"),
+            (4, "Critical Point Jump Size :", self.app_state.tamanho_pulo, "[ Rstar ]"),
+            (
+                5,
+                "Topology Backtrack Steps :",
+                self.app_state.recuo_pulo,
+                "[ 1e-5 Rstar ]",
+            ),
         ]
 
         for linha, texto, var, uni in campos:
@@ -379,7 +389,7 @@ class ConfigPage(ctk.CTkScrollableFrame):
         cb_multicurve.grid(row=1, column=0, padx=30, pady=10, sticky="w")
         ToolTip(
             cb_multicurve,
-            "Executa a simulação duas vezes e sobrepõe os perfis\n de velocidade no mesmo gráfico.",
+            "Runs the simulation twice to overlay resonant\n and constant damping profiles.",
         )
 
         cb_searchdv2 = ctk.CTkCheckBox(
@@ -394,7 +404,7 @@ class ConfigPage(ctk.CTkScrollableFrame):
         cb_searchdv2.grid(row=2, column=0, padx=30, pady=(10, 0), sticky="w")
         ToolTip(
             cb_searchdv2,
-            "Ativa o algoritmo de otimização para encontrar o melhor\n valor de amplitude inicial para as ondas de Alfvén. \nPode ser muito demorado.",
+            "Enables optimization algorithm to find the best\n initial amplitude for Alfvén waves. \nMay be computationally expensive.",
         )
 
         self.frame_dv2 = ctk.CTkFrame(aba, fg_color="transparent")

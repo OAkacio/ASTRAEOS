@@ -38,10 +38,10 @@ def main_hab(
         Ab=Ab,
     )
     sy.param(
-        ("Inner Edge Distance", d_int, "r0"),
-        ("Outer Edge Distance", d_ext, "r0"),
-        ("Classic Inner Edge Distance", dc_int, "r0"),
-        ("Classic Outer Edge Distance", dc_ext, "r0"),
+        ("Kopparapu Inner Edge", d_int, "r0"),
+        ("Kopparapu Outer Edge", d_ext, "r0"),
+        ("Classic Inner Edge", dc_int, "r0"),
+        ("CClassic Outer Edge", dc_ext, "r0"),
         flush=True,
     )
     time.sleep(1)
@@ -53,9 +53,9 @@ def main_hab(
         rho_cgs=rho_total[i], u_ve0=y_tot[i], ve0_cgs=ve0, f0=f0, Mmag_AM2=Mmag
     )
     sy.param(
-        ("Pressão Dinâmica", P_din, "Pa"),
-        ("Raio Magnetosférico", Rmag, "Rearth"),
-        ("Raio Magnetosférico", Rmag / Rplan, "Rplan"),
+        ("Ram Pressure", P_din, "Pa"),
+        ("Magnetopause Radius", Rmag, "Rearth"),
+        ("Normalized Magnetopause Radius", Rmag / Rplan, "Rplan"),
         flush=True,
     )
     time.sleep(1)

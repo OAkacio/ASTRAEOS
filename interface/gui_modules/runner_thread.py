@@ -99,10 +99,10 @@ def motor_isolado(parametros, fila_de_mensagens, fila_de_logs):
 
             simulation(**parametros)
 
-        fila_de_mensagens.put({"sucesso": True})
+        fila_de_mensagens.put({"success": True})
 
     except Exception as e:
-        fila_de_mensagens.put({"sucesso": False, "erro": str(e)})
+        fila_de_mensagens.put({"success": False, "erro": str(e)})
 
 
 # * ============================================
@@ -134,12 +134,12 @@ def run(parametros, callback_sucesso, callback_erro, callback_log):
 
         if not fila_msg.empty():
             resposta = fila_msg.get()
-            if resposta["sucesso"]:
+            if resposta["success"]:
                 callback_sucesso()
             else:
-                callback_erro(resposta["erro"])
+                callback_erro(resposta["error"])
         else:
-            callback_erro("O núcleo de cálculo encerrou inesperadamente.")
+            callback_erro("Error: Calculation core terminated unexpectedly.")
 
     thread = threading.Thread(target=vigia_de_processo, daemon=True)
     thread.start()

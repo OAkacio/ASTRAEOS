@@ -432,7 +432,7 @@ def plot_plasmaprop(
     dmdt = dados["dmdt_total"]
 
     rho_norm = rho / rho[0]
-    phi_norm = phi / phi[0]
+    phi_norm = phi if phi[0] == 0 else phi / phi[0]
     deltav2_norm = deltav2 / deltav2[0]
     dmdt_norm = dmdt / dmdt[0]
     u_norm = y_tot / y_tot[0]

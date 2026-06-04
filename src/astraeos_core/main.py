@@ -66,7 +66,7 @@ def main(
         print("___PROGRESS___|0.05", flush=True)
 
     sy.header("ASTRAEOS", Version="v0.1.0", Author="Victor M. Acacio", flush=True)
-    sy.status("Displaying input parameters...", flush=True)
+    sy.status("Loading input parameters...", flush=True)
 
     ve0, cs, vA0, vT, x_t, r0, M = calc_param(
         nome,
@@ -98,12 +98,12 @@ def main(
     )
 
     sy.param(
-        ("Name", nome, ""),
+        ("Target Name", nome, ""),
         ("Mass", Mstar, "Msun"),
         ("Radius", Rstar, "Rsun"),
         ("Teff", Teff, "K"),
         ("ve0", ve0 / 1e5, "km/s"),
-        ("vA0", vA0, "ve0"),
+        ("Normalized vA0", vA0, "ve0"),
         ("vA0", vA0 * ve0 / 1e5, "km/s"),
         ("vT", vT, "ve0"),
         ("deltav0", deltav0, "ve0²"),
@@ -129,7 +129,7 @@ def main(
         print(f"___INT_PROGRESS___|{pct}", flush=True)
 
     # ? --- Busca por Velocidade Inicial ---
-    sy.status("Initiating search for initial velocity...", flush=True)
+    sy.status("Searching for base velocity and critical point...", flush=True)
     time.sleep(1)
 
     u0, x_crit, y_crit, r_crit, x_append, y_append, vetor = jl.busca_u0(
@@ -142,16 +142,16 @@ def main(
     )
 
     sy.param(
-        ("Initial Velocity", u0 * ve0 / 1e5, "km/s"),
-        ("Dimensionless Initial Velocity", u0, "ve0"),
+        ("Base Velocity", u0 * ve0 / 1e5, "km/s"),
+        ("Normalized Base Velocity", u0, "ve0"),
         ("Critical Point Distance", x_crit, "r0"),
-        ("Velocity at Critical Point", y_crit, "ve0"),
-        ("Function Value at Critical Point", r_crit, "adm"),
+        ("Critical Velocity", y_crit, "ve0"),
+        ("Critical Point Residual", r_crit, "adm"),
         flush=True,
     )
 
     # ? --- Integração do Perfil de Velocidade ---
-    sy.status("Initiating velocity profile integration...", flush=True)
+    sy.status("Integrating wind velocity profile...", flush=True)
     time.sleep(1)
 
     (
@@ -238,11 +238,11 @@ def main(
         Rmag=Rmag if habitabilidade else np.nan,
     )
 
-    sy.status("Displaying final results...", flush=True)
+    sy.status("Extracting final results...", flush=True)
     sy.param(
         ("Terminal Velocity", y_tot[-1] * ve0 / 1e5, "km/s"),
-        ("Terminal Velocity", y_tot[-1], "ve0"),
-        ("Transition Point Distance", x_t, "r0"),
+        ("Normalized Terminal Velocity", y_tot[-1], "ve0"),
+        ("Alfvén Radius", x_t, "r0"),
         flush=True,
     )
 
