@@ -1,3 +1,0 @@
-[submodule "src/astraeos_core/pytools"]
-	path = src/astraeos_core/pytools
-	url = https://github.com/OAkacio/pytools
