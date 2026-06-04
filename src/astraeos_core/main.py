@@ -152,7 +152,7 @@ def main(
         ("Normalized Base Velocity", u0, "ve0"),
         ("Critical Point Distance", x_crit, "r0"),
         ("Critical Velocity", y_crit, "ve0"),
-        ("Critical Point Residual", r_crit, "adm"),
+        ("Critical Topology Slope (du/dx)", r_crit, "adm"),
         flush=True,
     )
 
