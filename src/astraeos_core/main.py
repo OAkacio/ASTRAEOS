@@ -257,6 +257,7 @@ def main(
         print("___PROGRESS___|0.8", flush=True)
 
     # ? --- Geração de Gráficos ---
+    sy.status("Plotting simulation results...", flush=True)
     plot_perfil_main(
         x_ref,
         linestyle_ref,
