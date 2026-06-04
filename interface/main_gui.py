@@ -349,7 +349,6 @@ class AppWindow(ctk.CTk):
             )
             self.exibir_grafico(figura_radar, self.tab_zh)
             self.exibir_grafico(figura_mag, self.tab_magnetospheric)
-            self.painel_graficos.set("Habitable Zone")
         except Exception as e:
             self.set_status(f"Error drawing exoplanet radar: {e}", "#E06C75")
 
@@ -491,7 +490,7 @@ class AppWindow(ctk.CTk):
         parametros_more = self.app_state.parameters_more_options()
 
         parametros_completos = {**parametros_fisica, **parametros_plot}
-        
+
         self.limpar_aba_grafico(self.tab_zh)
         self.limpar_aba_grafico(self.tab_magnetospheric)
 
