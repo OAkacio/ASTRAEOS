@@ -694,7 +694,7 @@ class AppWindow(ctk.CTk):
                 "DomainError (Negative Velocity)",
                 "Stellar free-fall. Gravity overcame the pressure gradient mid-flight.",
                 "Provide more lift/energy to the flow so it doesn't decelerate.",
-                "Increase T (Coronal Temp), phi0, or Expansion Factor (S)."
+                "Increase T (Coronal Temp), phi0, or modify Expansion Factor (S)."
             )
         elif "maximum number of evaluations" in erro_str_lower or "quadgk" in erro_str_lower:
             return (

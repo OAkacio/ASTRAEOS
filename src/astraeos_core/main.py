@@ -66,6 +66,7 @@ def main(
         print("___PROGRESS___|0.05", flush=True)
 
     sy.header("ASTRAEOS", Version="v0.1.0", Author="Victor M. Acacio", flush=True)
+    time.sleep(1)
     sy.status("Loading input parameters...", flush=True)
 
     ve0, cs, vA0, vT, x_t, r0, M = calc_param(
