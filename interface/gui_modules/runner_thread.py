@@ -64,12 +64,10 @@ def motor_isolado(parametros, fila_de_mensagens, fila_de_logs):
             simulation(**parametros)
 
         elif script_type == "exoplanet":
-            # Conecta com a nova simulação de habitabilidade
             import numpy as np
             from astraeos_core.habitability import main_hab
-            from astropy import constants as const  # <-- Correção AQUI!
+            from astropy import constants as const
 
-            # Puxamos o raio solar em CGS diretamente da biblioteca fonte
             rsun = const.R_sun.cgs.value
 
             cte = parametros["cte"]
@@ -92,7 +90,6 @@ def motor_isolado(parametros, fila_de_mensagens, fila_de_logs):
                 Rplan=parametros["Rplan"],
                 r0=r0,
                 cte=cte,
-                exoplanet_name=parametros["exoplanet_name"],
             )
 
         else:
@@ -103,7 +100,7 @@ def motor_isolado(parametros, fila_de_mensagens, fila_de_logs):
         fila_de_mensagens.put({"success": True})
 
     except Exception as e:
-        fila_de_mensagens.put({"success": False, "erro": str(e)})
+        fila_de_mensagens.put({"success": False, "error": str(e)})
 
 
 # * ============================================
