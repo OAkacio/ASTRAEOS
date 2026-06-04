@@ -726,6 +726,13 @@ class AppWindow(ctk.CTk):
                 "Expand the search grid to lower values.",
                 "Reduce Base Velocity Search - Lower Limit."
             )
+        elif "breeze_state" in erro_str_lower:
+            return (
+                "Breeze State (Sub-Alfvénic Collapse)",
+                "The flow failed to accelerate properly and collapsed into a slow breeze. The initial velocity (u0) lacked the precision to perfectly thread the critical point.",
+                "Increase the numerical precision of the initial velocity search.",
+                "Reduce Base Velocity Search - Step (u0_step)."
+            )
             
         return None
 

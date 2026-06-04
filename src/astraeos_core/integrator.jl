@@ -387,6 +387,10 @@ function integra_perfil(u0_final, x_crit, y_crit, vetor_final, x_append_final, y
         push!(phi_total, phi_M)
         push!(dmdt_total, dmdt)
     end
+    limiar_brisa = 0.1 
+    if y_total[end] < limiar_brisa
+        error("BREEZE_STATE: The terminal velocity is too low, indicating insufficient u0 precision.")
+    end
 
     return x0n, y0, x_int, y_int, x_ext, y_ext, num_alpha_list, den_alpha_list, vA_total, rho_total, phi_total, deltav2_total, dmdt_total
 end
