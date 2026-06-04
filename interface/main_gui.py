@@ -683,8 +683,78 @@ class AppWindow(ctk.CTk):
     def ao_dar_erro(self, mensagem_erro):
         self.after(0, self._atualizar_ui_erro, mensagem_erro)
 
+    # * ============================================
+    # * Motor de Diagnóstico Físico
+    # * ============================================
+    def _classificar_erro_fisico(self, erro_str):
+        erro_str_lower = erro_str.lower()
+        
+        if "domainerror" in erro_str_lower or "complex result" in erro_str_lower:
+            return (
+                "DomainError (Negative Velocity)",
+                "Stellar free-fall. Gravity overcame the pressure gradient mid-flight.",
+                "Provide more lift/energy to the flow so it doesn't decelerate.",
+                "Increase T (Coronal Temp), phi0, or Expansion Factor (S)."
+            )
+        elif "maximum number of evaluations" in erro_str_lower or "quadgk" in erro_str_lower:
+            return (
+                "QuadGK MaxEval (Convergence Failure)",
+                "Wave damping is too abrupt (stiff equation), causing an infinite loop in the integrator.",
+                "Smooth the energy dissipation curve along the corona.",
+                "Increase L0 (Damping Length) or reduce deltav0."
+            )
+        elif "nan" in erro_str_lower or "inf" in erro_str_lower or "singular" in erro_str_lower:
+            return (
+                "NaN/Inf in RK4 (Choked Flow)",
+                "Integration hit the mathematical singularity without crossing it perfectly. Acceleration blew up.",
+                "Refine the search grid or widen the jump over the singularity.",
+                "Reduce u0_step, or slightly adjust Critical Point Jump Size."
+            )
+        # NOTA: Se no futuro você quiser forçar o Julia a ejetar erro quando u0 == 0 ou u0 == u0_ini,
+        # basta o Julia fazer: error("U0_COLLAPSE") ou error("U0_LOWER_LIMIT"). O Python vai capturar aqui:
+        elif "u0_collapse" in erro_str_lower:
+            return (
+                "Search Collapse (Base Velocity = 0)",
+                "Star lacks thermodynamic/magnetic energy to launch a continuous wind.",
+                "Inject more energy at the base or reduce stellar weight.",
+                "Increase T, deltav0, or reduce Stellar Mass."
+            )
+        elif "u0_limit" in erro_str_lower:
+            return (
+                "Search Boundary Hit",
+                "The required initial velocity is lower than the search grid allows.",
+                "Expand the search grid to lower values.",
+                "Reduce Base Velocity Search - Lower Limit."
+            )
+            
+        return None
+
     def _atualizar_ui_erro(self, erro):
-        self.set_status(f"Execution error | {erro}", "#E06C75")
+        diagnostico = self._classificar_erro_fisico(str(erro))
+        
+        # Se for um erro de física conhecido, montamos o relatório
+        if diagnostico:
+            tipo, significado, solucao, parametro = diagnostico
+            
+            # Feedback Curto na Status Bar
+            self.set_status(f"Physics Error: {tipo} | Tweak: {parametro}", "#E06C75")
+            
+            # Relatório Completo no Console
+            msg_console = (
+                f"\n\x1b[31m[!] PHYSICS INTEGRATION ERROR\x1b[0m\n"
+                f"► \x1b[37mPresentation:\x1b[0m {tipo}\n"
+                f"► \x1b[37mPhysics Meaning:\x1b[0m {significado}\n"
+                f"► \x1b[37mHow to fix:\x1b[0m {solucao}\n"
+                f"► \x1b[37mParameter to tweak:\x1b[0m \x1b[33m{parametro}\x1b[0m\n\n"
+            )
+            self.escrever_console(msg_console)
+            
+        # Se for um erro de sistema (bug de Python/Julia não listado)
+        else:
+            self.set_status("System execution error. Check console.", "#E06C75")
+            self.escrever_console(f"\n\x1b[31m[!] SYSTEM ERROR:\x1b[0m\n{erro}\n\n")
+
+        # Libera os botões de execução
         self.pagina_atual.btn_run.configure(state="normal", text="Run Star Simulation")
 
         i = self.app_state.parameters_input()

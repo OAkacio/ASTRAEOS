@@ -254,7 +254,11 @@ function busca_u0(vT, vetor_base, u0_step, u0_ini, cte, py_cb)
             end
         end
     end
-
+    if u0_final == 0.0
+        error("U0_COLLAPSE: The base velocity is exactly 0.0.")
+    elseif u0_final == u0_ini
+        error("U0_LIMIT: The algorithm hit the lower search limit.")
+    end
     py_cb(1.0)
     return u0_final, x_crit, y_crit, r_crit, x_append_final, y_append_final, vetor_final
 end
