@@ -7,6 +7,10 @@ import json
 import os
 from tkinter import filedialog
 from PIL import Image
+from astropy import constants as const
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SRC_PATH = os.path.join(BASE_DIR, "src")
+from astraeos_core.utils import *
 
 
 # * ============================================
@@ -681,8 +685,8 @@ class ConfigPage(ctk.CTkScrollableFrame):
 
         slider_dorb = ctk.CTkSlider(
             aba,
-            from_=0.001,
-            to=0.100,
+            from_=float(self.app_state.Rstar.get()) * rsunAU,
+            to=500*float(self.app_state.Rstar.get()) * rsunAU,
             height=8,
             button_length=12,
             button_color="#61AFEF",
