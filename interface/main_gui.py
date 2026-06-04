@@ -349,6 +349,7 @@ class AppWindow(ctk.CTk):
             )
             self.exibir_grafico(figura_radar, self.tab_zh)
             self.exibir_grafico(figura_mag, self.tab_magnetospheric)
+            self.painel_graficos.set("Habitable Zone")
         except Exception as e:
             self.set_status(f"Error drawing exoplanet radar: {e}", "#E06C75")
 
@@ -391,6 +392,16 @@ class AppWindow(ctk.CTk):
                 )
                 self.exibir_grafico(figura_inicial, self.tab_velocity)
 
+                figura_analitica = plot_curve_analis(
+                    tamanho_pulo=i["tamanho_pulo"],
+                    recuo_pulo=i["recuo_pulo"],
+                    L0=i["L0"],
+                    deltav0=i["deltav0"],
+                    S_divergencia=i["S_divergencia"],
+                    cte=i["cte"],
+                )
+                self.exibir_grafico(figura_analitica, self.tab_topology)
+
                 figura_charspeeds = plot_charspeeds(
                     x_ref=p["x_ref"],
                     linestyle_ref=p["linestyle_ref"],
@@ -428,7 +439,7 @@ class AppWindow(ctk.CTk):
                         exoplanet_name=i["exoplanet_name"],
                     )
                     self.exibir_grafico(figura_radar, self.tab_zh)
-
+                
                 if i["habitabilidade"]:
                     figura_mag = plot_magnetosphere_shield(
                         cte=i["cte"],
@@ -480,9 +491,9 @@ class AppWindow(ctk.CTk):
         parametros_more = self.app_state.parameters_more_options()
 
         parametros_completos = {**parametros_fisica, **parametros_plot}
-
-        # ! LIMPA A ABA DO EXOPLANETA QUANDO INICIA NOVA SIMULAÇÃO DE ESTRELA
+        
         self.limpar_aba_grafico(self.tab_zh)
+        self.limpar_aba_grafico(self.tab_magnetospheric)
 
         self.pagina_atual.btn_update_plot.configure(state="disabled")
         self.pagina_atual.btn_sim_exo.configure(state="disabled")
