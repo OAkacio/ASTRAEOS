@@ -3,6 +3,10 @@
 # * ============================================
 import tkinter as tk
 import customtkinter as ctk
+import json
+import os
+from tkinter import filedialog
+from PIL import Image
 
 
 # * ============================================
@@ -56,6 +60,7 @@ class ConfigPage(ctk.CTkScrollableFrame):
         on_update_click,
         on_abort_click,
         on_simulate_exo_click,
+        assets_path,
     ):
         super().__init__(master, corner_radius=0, fg_color="transparent")
 
@@ -65,15 +70,58 @@ class ConfigPage(ctk.CTkScrollableFrame):
         self.on_update_click = on_update_click
         self.on_abort_click = on_abort_click
         self.on_simulate_exo_click = on_simulate_exo_click
+        self.assets_path = assets_path
 
         # ? --- Configuração de Layout Principal ---
         self.grid_columnconfigure(0, weight=1)
 
-        # PAINEL 1: SIMULAÇÃO ESTELAR
+        # PAINEL 1: SIMULAÇÃO ESTELAR & CABEÇALHO DINÂMICO
+        self.header_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.header_frame.grid(row=0, column=0, pady=(10, 2), sticky="ew", padx=20)
+        self.header_frame.grid_columnconfigure(0, weight=1)
+
         self.lbl_titulo = ctk.CTkLabel(
-            self, text="Simulation Settings", font=("Consolas", 18, "bold")
+            self.header_frame, text="Simulation Settings", font=("Consolas", 18, "bold")
         )
-        self.lbl_titulo.grid(row=0, column=0, pady=(10, 2), sticky="w", padx=20)
+        self.lbl_titulo.grid(row=0, column=0, sticky="w")
+
+        # Tentativa silenciosa de carregar os ícones para os botões de perfil
+        try:
+            img_load = ctk.CTkImage(
+                Image.open(os.path.join(self.assets_path, "load.png")), size=(18, 18)
+            )
+            img_save = ctk.CTkImage(
+                Image.open(os.path.join(self.assets_path, "save.png")), size=(18, 18)
+            )
+        except Exception:
+            img_load = None
+            img_save = None
+
+        self.btn_load_prof = ctk.CTkButton(
+            self.header_frame,
+            text="" if img_load else "L",
+            image=img_load,
+            width=28,
+            height=28,
+            fg_color="#282C34",
+            hover_color="#404C55",
+            command=self.load_profile,
+        )
+        self.btn_load_prof.grid(row=0, column=1, padx=(0, 5), sticky="e")
+        ToolTip(self.btn_load_prof, "Load Input Profile (*.json)")
+
+        self.btn_save_prof = ctk.CTkButton(
+            self.header_frame,
+            text="" if img_save else "S",
+            image=img_save,
+            width=28,
+            height=28,
+            fg_color="#282C34",
+            hover_color="#404C55",
+            command=self.save_profile,
+        )
+        self.btn_save_prof.grid(row=0, column=2, sticky="e")
+        ToolTip(self.btn_save_prof, "Save Input Profile (*.json)")
 
         self.tabview = ctk.CTkTabview(self, height=250)
         self.tabview.grid(row=1, column=0, padx=20, pady=5, sticky="nsew")
@@ -149,6 +197,152 @@ class ConfigPage(ctk.CTkScrollableFrame):
         self.btn_abort.grid(row=0, column=1, sticky="ew", padx=(5, 0))
 
     # * ============================================
+    # * Gestão Dinâmica de Perfis (JSON)
+    # * ============================================
+    def save_profile(self):
+        filepath = filedialog.asksaveasfilename(
+            initialdir=os.path.join(os.getcwd(), "data"),
+            title="Save Input Profile",
+            defaultextension=".json",
+            filetypes=[("ASTRAEOS Profile", "*.json"), ("All Files", "*.*")],
+        )
+        if not filepath:
+            return
+
+        try:
+            data = {
+                "star": {
+                    "nome": self.app_state.nome.get(),
+                    "Mstar": self.app_state.Mstar.get(),
+                    "Rstar": self.app_state.Rstar.get(),
+                    "Teff": self.app_state.Teff.get(),
+                    "T": self.app_state.T.get(),
+                    "rho0": self.app_state.rho0.get(),
+                    "B0": self.app_state.B0.get(),
+                    "mu": self.app_state.mu.get(),
+                },
+                "wave": {
+                    "S_divergencia": self.app_state.S_divergencia.get(),
+                    "deltav0": self.app_state.deltav0.get(),
+                    "phi0": self.app_state.phi0.get(),
+                    "L0": self.app_state.L0.get(),
+                    "cte": self.app_state.cte.get(),
+                },
+                "numeric": {
+                    "x_sim": self.app_state.x_sim.get(),
+                    "h_rk": self.app_state.h_rk.get(),
+                    "u0_ini": self.app_state.u0_ini.get(),
+                    "u0_step": self.app_state.u0_step.get(),
+                    "tamanho_pulo": self.app_state.tamanho_pulo.get(),
+                    "recuo_pulo": self.app_state.recuo_pulo.get(),
+                },
+                "exoplanet": {
+                    "exoplanet_name": self.app_state.exoplanet_name.get(),
+                    "Dorb": self.app_state.Dorb.get(),
+                    "e": self.app_state.e.get(),
+                    "Ab": self.app_state.Ab.get(),
+                    "Rplan": self.app_state.Rplan.get(),
+                    "Mmag": self.app_state.Mmag.get(),
+                    "f0": self.app_state.f0.get(),
+                },
+                "advanced": {
+                    "multicurve": self.app_state.multicurve.get(),
+                    "searchdv2": self.app_state.searchdv2.get(),
+                    "ldv2": self.app_state.ldv2.get(),
+                    "hdv2": self.app_state.hdv2.get(),
+                    "stepdv2": self.app_state.stepdv2.get(),
+                },
+                "plot": {
+                    "sigma_ini": self.app_state.sigma_ini.get(),
+                    "sigma_fim": self.app_state.sigma_fim.get(),
+                    "sigma_nome": self.app_state.sigma_nome.get(),
+                    "sigma_cor": self.app_state.sigma_cor.get(),
+                    "axis_x": self.app_state.axis["X Axis"].get(),
+                    "axis_y": self.app_state.axis["Y Axis"].get(),
+                    "refs": [
+                        {
+                            "x": r["x"].get(),
+                            "nome": r["nome"].get(),
+                            "cor": r["cor"].get(),
+                            "estilo": r["estilo"].get(),
+                        }
+                        for r in self.app_state.refs
+                    ],
+                },
+            }
+            with open(filepath, "w") as f:
+                json.dump(data, f, indent=4)
+        except Exception as e:
+            print(f"Error saving profile: {e}")
+
+    def load_profile(self):
+        filepath = filedialog.askopenfilename(
+            initialdir=os.path.join(os.getcwd(), "data"),
+            title="Load Input Profile",
+            filetypes=[("ASTRAEOS Profile", "*.json"), ("All Files", "*.*")],
+        )
+        if not filepath:
+            return
+
+        try:
+            with open(filepath, "r") as f:
+                data = json.load(f)
+
+            mapping = {
+                "star": ["nome", "Mstar", "Rstar", "Teff", "T", "rho0", "B0", "mu"],
+                "wave": ["S_divergencia", "deltav0", "phi0", "L0", "cte"],
+                "numeric": [
+                    "x_sim",
+                    "h_rk",
+                    "u0_ini",
+                    "u0_step",
+                    "tamanho_pulo",
+                    "recuo_pulo",
+                ],
+                "exoplanet": [
+                    "exoplanet_name",
+                    "Dorb",
+                    "e",
+                    "Ab",
+                    "Rplan",
+                    "Mmag",
+                    "f0",
+                ],
+                "advanced": ["multicurve", "searchdv2", "ldv2", "hdv2", "stepdv2"],
+            }
+
+            for group, keys in mapping.items():
+                if group in data:
+                    for key in keys:
+                        if key in data[group]:
+                            getattr(self.app_state, key).set(data[group][key])
+
+            if "plot" in data:
+                p = data["plot"]
+                if "sigma_ini" in p:
+                    self.app_state.sigma_ini.set(p["sigma_ini"])
+                if "sigma_fim" in p:
+                    self.app_state.sigma_fim.set(p["sigma_fim"])
+                if "sigma_nome" in p:
+                    self.app_state.sigma_nome.set(p["sigma_nome"])
+                if "sigma_cor" in p:
+                    self.app_state.sigma_cor.set(p["sigma_cor"])
+                if "axis_x" in p:
+                    self.app_state.axis["X Axis"].set(p["axis_x"])
+                if "axis_y" in p:
+                    self.app_state.axis["Y Axis"].set(p["axis_y"])
+                if "refs" in p:
+                    for i, r in enumerate(p["refs"]):
+                        if i < len(self.app_state.refs):
+                            self.app_state.refs[i]["x"].set(r.get("x", ""))
+                            self.app_state.refs[i]["nome"].set(r.get("nome", ""))
+                            self.app_state.refs[i]["cor"].set(r.get("cor", ""))
+                            self.app_state.refs[i]["estilo"].set(r.get("estilo", "-"))
+
+        except Exception as e:
+            print(f"Error loading profile: {e}")
+
+    # * ============================================
     # * Construtores de Abas (Estrela)
     # * ============================================
     def _construir_aba_astro(self, aba):
@@ -161,14 +355,14 @@ class ConfigPage(ctk.CTkScrollableFrame):
         fonte_uni = ctk.CTkFont(family="Roboto", size=12, weight="normal")
 
         campos = [
-            (0, "Star name:", self.app_state.nome, ""),
-            (1, "Star Mass ( M ) :", self.app_state.Mstar, "[ Msun ]"),
-            (2, "Star Radius ( R ) :", self.app_state.Rstar, "[ Rsun ]"),
+            (0, "Target Name:", self.app_state.nome, ""),
+            (1, "Stellar Mass ( M ) :", self.app_state.Mstar, "[ Msun ]"),
+            (2, "Stellar Radius ( R ) :", self.app_state.Rstar, "[ Rsun ]"),
             (3, "Effective Temperature ( Teff ) :", self.app_state.Teff, "[ K ]"),
             (4, "Coronal Temperature ( T ) :", self.app_state.T, "[ K ]"),
-            (5, "Coronal Density ( rho0 ) :", self.app_state.rho0, "[ g/cm³ ]"),
+            (5, "Coronal Base Density ( rho0 ) :", self.app_state.rho0, "[ g/cm³ ]"),
             (6, "Surface Magnetic Field ( B0 ) :", self.app_state.B0, "[ G ]"),
-            (7, "Average Molecular Weight ( mu ) :", self.app_state.mu, "[ dim ]"),
+            (7, "Mean Molecular Weight ( mu ) :", self.app_state.mu, "[ adm ]"),
         ]
 
         for linha, texto, var, uni in campos:
@@ -193,9 +387,14 @@ class ConfigPage(ctk.CTkScrollableFrame):
         fonte_uni = ctk.CTkFont(family="Roboto", size=12, weight="normal")
 
         campos = [
-            (0, "Expansion Factor ( S ) :", self.app_state.S_divergencia, "[ dim ]"),
-            (1, "Initial Amplitude ( DeltaV0² ) :", self.app_state.deltav0, "[ ve0² ]"),
-            (2, "Initial Flux ( phi0 ) :", self.app_state.phi0, "[ erg/cm²/s ]"),
+            (0, "Expansion Factor ( S ) :", self.app_state.S_divergencia, "[ adm ]"),
+            (
+                1,
+                "Initial Wave Amplitude ( DeltaV0² ) :",
+                self.app_state.deltav0,
+                "[ ve0² ]",
+            ),
+            (2, "Initial Alfvén Flux ( phi0 ) :", self.app_state.phi0, "[ erg/cm²/s ]"),
             (3, "Damping Length ( L0 ) :", self.app_state.L0, "[ r0 ]"),
         ]
 
@@ -389,7 +588,7 @@ class ConfigPage(ctk.CTkScrollableFrame):
         cb_multicurve.grid(row=1, column=0, padx=30, pady=10, sticky="w")
         ToolTip(
             cb_multicurve,
-            "Runs the simulation twice to overlay resonant\n and constant damping profiles.",
+            "Runs the simulation twice to overlay resonant\n and constant damping velocity profiles.",
         )
 
         cb_searchdv2 = ctk.CTkCheckBox(
@@ -404,7 +603,7 @@ class ConfigPage(ctk.CTkScrollableFrame):
         cb_searchdv2.grid(row=2, column=0, padx=30, pady=(10, 0), sticky="w")
         ToolTip(
             cb_searchdv2,
-            "Enables optimization algorithm to find the best\n initial amplitude for Alfvén waves. \nMay be computationally expensive.",
+            "Enables optimization algorithm to find the optimal\n initial amplitude for Alfvén waves. \nComputationally expensive.",
         )
 
         self.frame_dv2 = ctk.CTkFrame(aba, fg_color="transparent")
@@ -440,7 +639,7 @@ class ConfigPage(ctk.CTkScrollableFrame):
 
         self.lbl_contagem_dv2 = ctk.CTkLabel(
             self.frame_dv2,
-            text="Estimated runs: 0",
+            text="Estimated iterations: 0",
             font=("Roboto", 11, "normal"),
             text_color="#5c6269",
         )
@@ -469,7 +668,7 @@ class ConfigPage(ctk.CTkScrollableFrame):
         fonte_uni = ctk.CTkFont(family="Roboto", size=12, weight="normal")
 
         ctk.CTkLabel(
-            aba, text="Exoplanet Name:", font=fonte, text_color="#E5C07B"
+            aba, text="Exoplanet Designation:", font=fonte, text_color="#E5C07B"
         ).grid(row=0, column=0, padx=20, pady=5, sticky="w")
         ctk.CTkEntry(
             aba, textvariable=self.app_state.exoplanet_name, font=fonte_var
@@ -483,7 +682,6 @@ class ConfigPage(ctk.CTkScrollableFrame):
         )
         entry_dorb.grid(row=1, column=1, padx=(10, 5), pady=5, sticky="w")
 
-        # MUDANÇA ESTÉTICA: height=8, button_length=12 para um slider mais fino e com botão redondo pequeno
         slider_dorb = ctk.CTkSlider(
             aba,
             from_=0.001,
@@ -510,7 +708,7 @@ class ConfigPage(ctk.CTkScrollableFrame):
         update_dorb_slider()
 
         ctk.CTkLabel(
-            aba, text="Eccentricity ( e ) :", font=fonte, text_color="#E5C07B"
+            aba, text="Orbital Eccentricity ( e ) :", font=fonte, text_color="#E5C07B"
         ).grid(row=2, column=0, padx=20, pady=5, sticky="w")
         ctk.CTkEntry(aba, textvariable=self.app_state.e, font=fonte_var).grid(
             row=2, column=1, columnspan=2, padx=(10, 0), pady=5, sticky="we"
@@ -520,7 +718,7 @@ class ConfigPage(ctk.CTkScrollableFrame):
         )
 
         ctk.CTkLabel(
-            aba, text="Albedo ( Ab ) :", font=fonte, text_color="#E5C07B"
+            aba, text="Bond Albedo ( Ab ) :", font=fonte, text_color="#E5C07B"
         ).grid(row=3, column=0, padx=20, pady=5, sticky="w")
         ctk.CTkEntry(aba, textvariable=self.app_state.Ab, font=fonte_var).grid(
             row=3, column=1, columnspan=2, padx=(10, 0), pady=5, sticky="we"
@@ -540,7 +738,7 @@ class ConfigPage(ctk.CTkScrollableFrame):
         fonte_uni = ctk.CTkFont(family="Roboto", size=12, weight="normal")
 
         ctk.CTkLabel(
-            aba, text="Planet Radius ( Rplan ) :", font=fonte, text_color="#E5C07B"
+            aba, text="Planetary Radius ( Rplan ) :", font=fonte, text_color="#E5C07B"
         ).grid(row=0, column=0, padx=20, pady=5, sticky="w")
         ctk.CTkEntry(aba, textvariable=self.app_state.Rplan, font=fonte_var).grid(
             row=0, column=1, columnspan=2, padx=(10, 0), pady=5, sticky="we"
@@ -550,14 +748,16 @@ class ConfigPage(ctk.CTkScrollableFrame):
         ).grid(row=0, column=3, padx=(0, 20), pady=5, sticky="w")
 
         ctk.CTkLabel(
-            aba, text="Magnetic Moment ( Mmag ) :", font=fonte, text_color="#E5C07B"
+            aba,
+            text="Magnetic Dipole Moment ( Mmag ) :",
+            font=fonte,
+            text_color="#E5C07B",
         ).grid(row=1, column=0, padx=20, pady=5, sticky="w")
         entry_mmag = ctk.CTkEntry(
             aba, textvariable=self.app_state.Mmag, font=fonte_var, width=80
         )
         entry_mmag.grid(row=1, column=1, padx=(10, 5), pady=5, sticky="w")
 
-        # MUDANÇA ESTÉTICA: height=8, button_length=12 para um slider mais fino e com botão redondo pequeno
         slider_mmag = ctk.CTkSlider(
             aba,
             from_=1e21,
@@ -584,7 +784,10 @@ class ConfigPage(ctk.CTkScrollableFrame):
         update_mmag_slider()
 
         ctk.CTkLabel(
-            aba, text="Form Factor ( f0 ) :", font=fonte, text_color="#E5C07B"
+            aba,
+            text="Chapman-Ferraro Factor ( f0 ) :",
+            font=fonte,
+            text_color="#E5C07B",
         ).grid(row=2, column=0, padx=20, pady=5, sticky="w")
         ctk.CTkEntry(aba, textvariable=self.app_state.f0, font=fonte_var).grid(
             row=2, column=1, columnspan=2, padx=(10, 0), pady=5, sticky="we"
@@ -631,11 +834,11 @@ class ConfigPage(ctk.CTkScrollableFrame):
 
             if step_val > 0 and max_val > min_val:
                 runs = int(round((max_val - min_val) / step_val, 5))
-                self.lbl_contagem_dv2.configure(text=f"Estimated runs: {runs}")
+                self.lbl_contagem_dv2.configure(text=f"Estimated iterations: {runs}")
             else:
-                self.lbl_contagem_dv2.configure(text="Estimated runs: 0")
+                self.lbl_contagem_dv2.configure(text="Estimated iterations: 0")
         except ValueError:
-            self.lbl_contagem_dv2.configure(text="Estimated runs: --")
+            self.lbl_contagem_dv2.configure(text="Estimated iterations: --")
 
     # * ============================================
     # * Ações de Controle

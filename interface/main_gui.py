@@ -207,6 +207,7 @@ class AppWindow(ctk.CTk):
         self.console_box.configure(state="disabled")
 
         # ? --- Página de Configuração de Parâmetros ---
+        # ! MUDANÇA AQUI: Injeção do ASSETS_PATH para os novos botões de Save/Load
         self.pagina_atual = ConfigPage(
             master=self.main_container,
             state=self.app_state,
@@ -214,6 +215,7 @@ class AppWindow(ctk.CTk):
             on_update_click=self.atualizar_somente_grafico,
             on_abort_click=self.abortar_execucao,
             on_simulate_exo_click=self.simular_exoplaneta,
+            assets_path=ASSETS_PATH,
         )
         self.pagina_atual.grid(row=0, column=1, rowspan=2, sticky="nsew")
 
@@ -345,6 +347,7 @@ class AppWindow(ctk.CTk):
             )
             self.exibir_grafico(figura_radar, self.tab_zh)
             self.exibir_grafico(figura_mag, self.tab_magnetospheric)
+            self.painel_graficos.set("Habitable Zone")
         except Exception as e:
             self.set_status(f"Error drawing exoplanet radar: {e}", "#E06C75")
 
@@ -434,7 +437,7 @@ class AppWindow(ctk.CTk):
                         exoplanet_name=i["exoplanet_name"],
                     )
                     self.exibir_grafico(figura_radar, self.tab_zh)
-                
+
                 if i["habitabilidade"]:
                     figura_mag = plot_magnetosphere_shield(
                         cte=i["cte"],
@@ -566,14 +569,12 @@ class AppWindow(ctk.CTk):
             )
 
         self.set_status("Simulation aborted successfully.", "#E06C75")
-
         self.progressbar.pack_forget()
         self.micro_bars_frame.pack_forget()
 
     def fechar_aplicativo(self):
         self.set_status("Shutting down ASTRAEOS and clearing memory...", "#E06C75")
         self.update()
-
         processos_ativos = multiprocessing.active_children()
         for processo in processos_ativos:
             processo.terminate()
