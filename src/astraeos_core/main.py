@@ -271,7 +271,6 @@ def main(
         y_crit=y_crit,
         x_t=x_t,
         ve0=ve0,
-        x_sim=x_sim,
         u0=u0,
         num_alpha_array=num_alpha_array,
         den_alpha_array=den_alpha_array,
