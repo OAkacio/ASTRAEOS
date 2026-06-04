@@ -98,23 +98,29 @@ def main(
     )
 
     sy.param(
+        # --- Stellar & Coronal Properties ---
         ("Target Name", nome, ""),
-        ("Mass", Mstar, "Msun"),
-        ("Radius", Rstar, "Rsun"),
-        ("Teff", Teff, "K"),
-        ("ve0", ve0 / 1e5, "km/s"),
-        ("Normalized vA0", vA0, "ve0"),
-        ("vA0", vA0 * ve0 / 1e5, "km/s"),
-        ("vT", vT, "ve0"),
-        ("deltav0", deltav0, "ve0²"),
-        ("B0", B0, "G"),
-        ("rho0", rho0, "g/cm³"),
-        ("S", S_divergencia, ""),
-        ("phi0", phi0, "erg/cm²/s"),
-        ("T", T, "K"),
-        ("L0", L0, "r0"),
-        ("x_t", x_t, "r0"),
-        ("cs", cs, "cm/s"),
+        ("Stellar Mass", Mstar, "Msun"),
+        ("Stellar Radius", Rstar, "Rsun"),
+        ("Effective Temperature", Teff, "K"),
+        ("Stellar Luminosity", Lstar, "Lsun"),
+        ("Coronal Temperature", T, "K"),
+        ("Coronal Base Density", rho0, "g/cm³"),
+        ("Mean Molecular Weight", mu, "adm"),
+        ("Surface Magnetic Field", B0, "G"),
+        # --- Wind & Wave Parameters ---
+        ("Expansion Factor", S_divergencia, "adm"),
+        ("Initial Wave Amplitude", deltav0, "ve0²"),
+        ("Initial Alfvén Flux", phi0, "erg/cm²/s"),
+        ("Damping Length", L0, "r0"),
+        ("Constant Damping Mode", cte, "bool"),
+        # --- Calculated Velocities & Scales ---
+        ("Escape Velocity (ve0)", ve0 / 1e5, "km/s"),
+        ("Normalized Alfvén Velocity", vA0, "ve0"),
+        ("Alfvén Velocity (vA0)", vA0 * ve0 / 1e5, "km/s"),
+        ("Thermal Velocity (vT)", vT, "ve0"),
+        ("Sound Speed (cs)", cs, "cm/s"),
+        ("Alfvén Radius (x_t)", x_t, "r0"),
         flush=True,
     )
 
@@ -205,6 +211,7 @@ def main(
             Rplan,
             r0,
             cte,
+            exoplanet_name,
         )
 
     # ? --- Processamento e Salvamento de Dados ---

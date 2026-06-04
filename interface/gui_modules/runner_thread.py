@@ -92,6 +92,7 @@ def motor_isolado(parametros, fila_de_mensagens, fila_de_logs):
                 Rplan=parametros["Rplan"],
                 r0=r0,
                 cte=cte,
+                exoplanet_name=parametros["exoplanet_name"],
             )
 
         else:

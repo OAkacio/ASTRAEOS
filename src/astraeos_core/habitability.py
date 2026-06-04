@@ -28,8 +28,20 @@ def main_hab(
     Rplan,
     r0,
     cte,
+    exoplanet_name,
 ):
     # ? --- Cálculo de ZH ---
+    sy.status("Loading input parameters...", flush=True)
+    sy.param(
+        ("Exoplanet Designation", exoplanet_name, ""),
+        ("Orbital Distance", Dorb, "AU"),
+        ("Orbital Eccentricity", e, "adm"),
+        ("Bond Albedo", Ab, "adm"),
+        ("Planetary Radius", Rplan, "Rearth"),
+        ("Magnetic Dipole Moment", Mmag, "Am²"),
+        ("Chapman-Ferraro Form Factor", f0, "adm"),
+        flush=True,
+    )
     sy.status("Calculating habitable zone distances...", flush=True)
     d_int, d_ext = distancia_habitavel(Lstar=Lstar, Teff=Teff, e=e, Rstar_sun=Rstar)
     dc_int, dc_ext = distancia_habitavel_classic(
