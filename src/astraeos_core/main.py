@@ -194,6 +194,14 @@ def main(
         zerosND(x_int, y_int, x_ext, y_ext, num_alpha_list, den_alpha_list)
     )
 
+    sy.status("Extracting final results...", flush=True)
+    sy.param(
+        ("Terminal Velocity", y_tot[-1] * ve0 / 1e5, "km/s"),
+        ("Normalized Terminal Velocity", y_tot[-1], "ve0"),
+        ("Alfvén Radius", x_t, "r0"),
+        flush=True,
+    )
+
     if habitabilidade:
         d_int, d_ext, dc_int, dc_ext, P_din, Rmag = main_hab(
             Lstar,
@@ -243,14 +251,6 @@ def main(
         dc_ext=dc_ext if habitabilidade else np.nan,
         P_din=P_din if habitabilidade else np.nan,
         Rmag=Rmag if habitabilidade else np.nan,
-    )
-
-    sy.status("Extracting final results...", flush=True)
-    sy.param(
-        ("Terminal Velocity", y_tot[-1] * ve0 / 1e5, "km/s"),
-        ("Normalized Terminal Velocity", y_tot[-1], "ve0"),
-        ("Alfvén Radius", x_t, "r0"),
-        flush=True,
     )
 
     if show_progress:
