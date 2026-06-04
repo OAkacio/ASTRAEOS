@@ -273,7 +273,6 @@ def main(
         ve0=ve0,
         x_sim=x_sim,
         u0=u0,
-        nome=nome,
         num_alpha_array=num_alpha_array,
         den_alpha_array=den_alpha_array,
         idx_crit_num=idx_crit_num,
