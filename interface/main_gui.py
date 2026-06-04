@@ -248,27 +248,23 @@ class AppWindow(ctk.CTk):
     def exibir_grafico(self, figura_matplotlib, container=None):
         if container is None:
             container = self.tab_velocity
-
         try:
             for widget in container.winfo_children():
                 widget.destroy()
-
             canvas = FigureCanvasTkAgg(figura_matplotlib, master=container)
+            tk_widget = canvas.get_tk_widget()
+            tk_widget.configure(bg="#1E1E1E", highlightthickness=0)
             canvas.draw()
-
             toolbar = NavigationToolbar2Tk(canvas, container)
             toolbar.config(background="#1E1E1E")
-
             for widget in toolbar.winfo_children():
                 try:
                     widget.config(background="#1E1E1E")
                     widget.config(activebackground="#2C313A")
                 except Exception:
                     pass
-
             toolbar.update()
-            canvas.get_tk_widget().pack(side="top", fill="both", expand=True)
-
+            tk_widget.pack(side="top", fill="both", expand=True)
         except Exception as e:
             self.set_status(f"Error rendering interactive plot: {e}", "#E06C75")
 
