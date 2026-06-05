@@ -42,7 +42,10 @@ end
 # ? --- Derivadas da Velocidade do Vento ---
 function derivada_velocidade_vento(x, y, vetor)
     B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S, alpha, phi0 = vetor
-    x_t = 10.0^(1.0 / (S - 2.0))
+    
+    # [!] INJEÇÃO DE SEGURANÇA: Previne singularidade e força topologia puramente radial
+    x_t = (S == 2.0) ? Inf : 10.0^(1.0 / (S - 2.0))
+    
     Ma0 = alpha / vA0
 
     if x <= x_t
@@ -74,7 +77,10 @@ end
 
 function derivada_velocidade_ventoRES(x, y, vetor)
     B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S, alpha, phi0 = vetor
-    x_t = 10.0^(1.0 / (S - 2.0))
+    
+    # [!] INJEÇÃO DE SEGURANÇA
+    x_t = (S == 2.0) ? Inf : 10.0^(1.0 / (S - 2.0))
+    
     Ma0 = alpha / vA0
 
     if x <= x_t
@@ -107,7 +113,10 @@ end
 # ? --- Topologia do Ponto Crítico ---
 function analisa_singularidade_vento(x, y, vetor)
     B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S, alpha, phi0 = vetor
-    x_t = 10.0^(1.0 / (S - 2.0))
+    
+    # [!] INJEÇÃO DE SEGURANÇA
+    x_t = (S == 2.0) ? Inf : 10.0^(1.0 / (S - 2.0))
+    
     Ma0 = alpha / vA0
 
     if x <= x_t
@@ -139,7 +148,10 @@ end
 
 function analisa_singularidade_ventoRES(x, y, vetor)
     B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S, alpha, phi0 = vetor
-    x_t = 10.0^(1.0 / (S - 2.0))
+    
+    # [!] INJEÇÃO DE SEGURANÇA
+    x_t = (S == 2.0) ? Inf : 10.0^(1.0 / (S - 2.0))
+    
     Ma0 = alpha / vA0
 
     if x <= x_t
@@ -268,6 +280,10 @@ function integra_perfil(u0_final, x_crit, y_crit, vetor_final, x_append_final, y
     func_derivada = cte ? derivada_velocidade_vento : derivada_velocidade_ventoRES
     func_analise = cte ? analisa_singularidade_vento : analisa_singularidade_ventoRES
 
+    # [!] INJEÇÃO DE SEGURANÇA: Sobrescreve x_t nativamente dentro do integrador
+    S_interno = vetor_final[9]
+    x_t_eff = (S_interno == 2.0) ? Inf : x_t
+
     x_sub = x_append_final[1:end-passos_recuo]
     y_sub = y_append_final[1:end-passos_recuo]
     x_int = vcat([1.0], x_sub)
@@ -282,7 +298,12 @@ function integra_perfil(u0_final, x_crit, y_crit, vetor_final, x_append_final, y
     y0 = y0_old + (h_step / 6.0) * (k1 + 2.0 * k2 + 2.0 * k3 + k4)
     x0n = x0_old + h_step
 
-    x_e = vcat(collect(x0n:h_step:(x_t-0.02)), collect((x_t+0.01):0.1:x_sim))
+    # [!] INJEÇÃO DE SEGURANÇA: Previne a criação de uma malha com x=Inf
+    if S_interno == 2.0
+        x_e = collect(x0n:h_step:x_sim)
+    else
+        x_e = vcat(collect(x0n:h_step:(x_t_eff-0.02)), collect((x_t_eff+0.01):0.1:x_sim))
+    end
 
     u0_aux = y0
     x_ext_append, y_ext_append = Float64[], Float64[]
@@ -345,7 +366,7 @@ function integra_perfil(u0_final, x_crit, y_crit, vetor_final, x_append_final, y
         push!(den_alpha_list, [r[3], alpha_final])
 
         # 2. Grandezas Físicas
-        if x_i <= x_t
+        if x_i <= x_t_eff  # <--- Usa a barreira protegida (Inf se S=2)
             vA = vA0 * (x_i^(-S / 2.0)) * sqrt(y_i / alpha_final)
             Ma = Ma0 * sqrt(y_i / alpha_final) * (x_i^(S / 2.0))
 
@@ -360,21 +381,21 @@ function integra_perfil(u0_final, x_crit, y_crit, vetor_final, x_append_final, y
             A_r = x_i^S
             deltav1 = deltav0 * (y_i / alpha_final) * (x_i^S) * (Ma0 / Ma) * ((1.0 + Ma0) / (1.0 + Ma))^2
         else
-            vA = vA0 * (x_t^(-S / 2.0)) * (x_t / x_i) * sqrt(y_i / alpha_final)
-            Ma = Ma0 * sqrt(y_i / alpha_final) * (x_t^(S / 2.0)) * (x_i / x_t)
+            vA = vA0 * (x_t_eff^(-S / 2.0)) * (x_t_eff / x_i) * sqrt(y_i / alpha_final)
+            Ma = Ma0 * sqrt(y_i / alpha_final) * (x_t_eff^(S / 2.0)) * (x_i / x_t_eff)
 
             if cte
-                res_int1 = quadgk(t -> integral_subsonica(t, vA0, Ma0, y_i, alpha_final, S, L0), 1.0, x_t)[1]
-                res_int2 = quadgk(t -> integral_supersonica(t, x_t, vA0, Ma0, y_i, alpha_final, S, L0), x_t, x_i)[1]
+                res_int1 = quadgk(t -> integral_subsonica(t, vA0, Ma0, y_i, alpha_final, S, L0), 1.0, x_t_eff)[1]
+                res_int2 = quadgk(t -> integral_supersonica(t, x_t_eff, vA0, Ma0, y_i, alpha_final, S, L0), x_t_eff, x_i)[1]
             else
-                res_int1 = quadgk(t -> integral_subsonicaRES(t, vA0, Ma0, y_i, alpha_final, S, L0), 1.0, x_t)[1]
-                res_int2 = quadgk(t -> integral_supersonicaRES(t, x_t, vA0, Ma0, y_i, alpha_final, S, L0), x_t, x_i)[1]
+                res_int1 = quadgk(t -> integral_subsonicaRES(t, vA0, Ma0, y_i, alpha_final, S, L0), 1.0, x_t_eff)[1]
+                res_int2 = quadgk(t -> integral_supersonicaRES(t, x_t_eff, vA0, Ma0, y_i, alpha_final, S, L0), x_t_eff, x_i)[1]
             end
             res = res_int1 + res_int2
 
-            rho = rho0 * (alpha_final / y_i) * (x_t^(-S)) * ((x_t / x_i)^2)
-            A_r = (x_t^S) * ((x_i / x_t)^2)
-            deltav1 = deltav0 * (y_i / alpha_final) * (x_t^S) * ((x_i / x_t)^2) * (Ma0 / Ma) * ((1.0 + Ma0) / (1.0 + Ma))^2
+            rho = rho0 * (alpha_final / y_i) * (x_t_eff^(-S)) * ((x_t_eff / x_i)^2)
+            A_r = (x_t_eff^S) * ((x_i / x_t_eff)^2)
+            deltav1 = deltav0 * (y_i / alpha_final) * (x_t_eff^S) * ((x_i / x_t_eff)^2) * (Ma0 / Ma) * ((1.0 + Ma0) / (1.0 + Ma))^2
         end
 
         deltav2 = deltav1 * exp(-res)

@@ -48,7 +48,7 @@ def calc_param(
     cs = math.sqrt(kb * T / (mu * mp))
     vA0 = (B0 / math.sqrt(4.0 * math.pi * rho0)) / ve0
     vT = cs / ve0
-    x_t = 10.0 ** (1.0 / (S_divergencia - 2.0))
+    x_t = 0 if S_divergencia == 2.0 else 10.0 ** (1.0 / (S_divergencia - 2.0))
     return ve0, cs, vA0, vT, x_t, r0, M
 
 
