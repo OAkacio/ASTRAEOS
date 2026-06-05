@@ -340,7 +340,7 @@ class ConfigPage(ctk.CTkScrollableFrame):
             try:
                 # allow_pickle=True é essencial para carregar strings/listas salvas no npz
                 dados = np.load(filepath_npz, allow_pickle=True)
-                
+
                 # Função auxiliar para extrair escalares com segurança
                 def val(key):
                     if key in dados:
@@ -359,50 +359,95 @@ class ConfigPage(ctk.CTkScrollableFrame):
                     f.write("# " + "=" * 60 + "\n")
                     f.write("# [ 1. STAR & CORONA ]\n")
                     f.write(f"# Target Name: {val('nome')}\n")
-                    f.write(f"# Stellar Mass [Msun]: {val('Mstar')} | Stellar Radius [Rsun]: {val('Rstar')} | Stellar Luminosity [Lsun]: {val('Lstar')}\n")
-                    f.write(f"# Effective Temp [K]: {val('Teff')} | Coronal Temp [K]: {val('T')}\n")
-                    f.write(f"# Base Density [g/cm3]: {val('rho0')} | Surface B-Field [G]: {val('B0')} | Mean Mol. Weight: {val('mu')}\n")
-                    
+                    f.write(
+                        f"# Stellar Mass [Msun]: {val('Mstar')} | Stellar Radius [Rsun]: {val('Rstar')} | Stellar Luminosity [Lsun]: {val('Lstar')}\n"
+                    )
+                    f.write(
+                        f"# Effective Temp [K]: {val('Teff')} | Coronal Temp [K]: {val('T')}\n"
+                    )
+                    f.write(
+                        f"# Base Density [g/cm3]: {val('rho0')} | Surface B-Field [G]: {val('B0')} | Mean Mol. Weight: {val('mu')}\n"
+                    )
+
                     f.write("#\n# [ 2. WIND & WAVES ]\n")
-                    f.write(f"# Expansion Factor (S): {val('S_divergencia')} | Initial Wave Amp (dv0^2): {val('deltav0')}\n")
-                    f.write(f"# Initial Flux (phi0): {val('phi0')} | Damping Length (L0): {val('L0')} | Constant Damping: {val('cte')}\n")
-                    
+                    f.write(
+                        f"# Expansion Factor (S): {val('S_divergencia')} | Initial Wave Amp (dv0^2): {val('deltav0')}\n"
+                    )
+                    f.write(
+                        f"# Initial Flux (phi0): {val('phi0')} | Damping Length (L0): {val('L0')} | Constant Damping: {val('cte')}\n"
+                    )
+
                     f.write("#\n# [ 3. NUMERICAL SETUP & TOPOLOGY ]\n")
-                    f.write(f"# Simulation Dist: {val('x_sim')} | Step (h_rk): {val('h_rk')} | ve0: {val('ve0')}\n")
-                    f.write(f"# Search Lower Limit: {val('u0_ini')} | Search Step: {val('u0_step')} | Final Base Vel (u0): {val('u0')}\n")
-                    f.write(f"# Critical Point (x_crit): {val('x_crit')} | Velocity at Crit (y_crit): {val('y_crit')} | Alfvén Point (x_t): {val('x_t')}\n")
-                    f.write(f"# Critical Jump Size: {val('tamanho_pulo')} | Backtrack Steps: {val('recuo_pulo')}\n")
-                    f.write(f"# Crit. Numerator Idx: {val('idx_crit_num')} | Crit. Denominator Idx: {val('idx_crit_den')}\n")
-                    
+                    f.write(
+                        f"# Simulation Dist: {val('x_sim')} | Step (h_rk): {val('h_rk')} | ve0: {val('ve0')}\n"
+                    )
+                    f.write(
+                        f"# Search Lower Limit: {val('u0_ini')} | Search Step: {val('u0_step')} | Final Base Vel (u0): {val('u0')}\n"
+                    )
+                    f.write(
+                        f"# Critical Point (x_crit): {val('x_crit')} | Velocity at Crit (y_crit): {val('y_crit')} | Alfvén Point (x_t): {val('x_t')}\n"
+                    )
+                    f.write(
+                        f"# Critical Jump Size: {val('tamanho_pulo')} | Backtrack Steps: {val('recuo_pulo')}\n"
+                    )
+                    f.write(
+                        f"# Crit. Numerator Idx: {val('idx_crit_num')} | Crit. Denominator Idx: {val('idx_crit_den')}\n"
+                    )
+
                     f.write("#\n# [ 4. EXOPLANET & HABITABILITY ]\n")
                     f.write(f"# Exoplanet Simulated: {val('habitabilidade')}\n")
-                    f.write(f"# Exoplanet Name: {val('exoplanet_name')} | Orbital Dist [AU]: {val('Dorb')}\n")
-                    f.write(f"# Eccentricity: {val('e')} | Bond Albedo: {val('Ab')} | Planet Radius [Rearth]: {val('Rplan')}\n")
-                    f.write(f"# Dipole Moment [Am2]: {val('Mmag')} | Magnetospheric compression factor (f0): {val('f0')}\n")
-                    f.write(f"# Kopparapu Inner Edge: {val('d_int')} | Kopparapu Outer Edge: {val('d_ext')}\n")
-                    f.write(f"# Classic Inner Edge: {val('dc_int')} | Classic Outer Edge: {val('dc_ext')}\n")
-                    
+                    f.write(
+                        f"# Exoplanet Name: {val('exoplanet_name')} | Orbital Dist [AU]: {val('Dorb')}\n"
+                    )
+                    f.write(
+                        f"# Eccentricity: {val('e')} | Bond Albedo: {val('Ab')} | Planet Radius [Rearth]: {val('Rplan')}\n"
+                    )
+                    f.write(
+                        f"# Dipole Moment [Am2]: {val('Mmag')} | Magnetospheric compression factor (f0): {val('f0')}\n"
+                    )
+                    f.write(
+                        f"# Kopparapu Inner Edge: {val('d_int')} | Kopparapu Outer Edge: {val('d_ext')}\n"
+                    )
+                    f.write(
+                        f"# Classic Inner Edge: {val('dc_int')} | Classic Outer Edge: {val('dc_ext')}\n"
+                    )
+
                     f.write("#\n# [ 5. PLOTTING PREFERENCES ]\n")
-                    f.write(f"# X-Scale: {val('x_scale')} | Y-Scale: {val('y_scale')}\n")
-                    f.write(f"# Ref Distances: {val('x_ref')} | Ref Names: {val('nome_ref')} | Ref Colors: {val('color_ref')}\n")
-                    f.write(f"# Sigma From: {val('sigmas_ref')} | Sigma Name: {val('sigmas_nome_ref')}\n")
+                    f.write(
+                        f"# X-Scale: {val('x_scale')} | Y-Scale: {val('y_scale')}\n"
+                    )
+                    f.write(
+                        f"# Ref Distances: {val('x_ref')} | Ref Names: {val('nome_ref')} | Ref Colors: {val('color_ref')}\n"
+                    )
+                    f.write(
+                        f"# Sigma From: {val('sigmas_ref')} | Sigma Name: {val('sigmas_nome_ref')}\n"
+                    )
                     f.write("# " + "=" * 60 + "\n")
 
                     # =======================================================
                     # Lógica inteligente para as colunas matriciais
                     # =======================================================
                     colunas_possiveis = [
-                        "x_tot", "y_tot", "va_total", "cs", "rho_total", "phi_total", 
-                        "deltav2_total", "dmdt_total", "P_din", "Rmag", 
-                        "num_alpha_array", "den_alpha_array"
+                        "x_tot",
+                        "y_tot",
+                        "va_total",
+                        "cs",
+                        "rho_total",
+                        "phi_total",
+                        "deltav2_total",
+                        "dmdt_total",
+                        "P_din",
+                        "Rmag",
+                        "num_alpha_array",
+                        "den_alpha_array",
                     ]
-                    
+
                     colunas_validas = []
                     arrays_para_empilhar = []
-                    
+
                     # O x_tot dita o tamanho que as arrays da malha principal devem ter
                     tamanho_alvo = len(dados["x_tot"]) if "x_tot" in dados else 0
-                    
+
                     for k in colunas_possiveis:
                         if k in dados:
                             v = dados[k]
@@ -410,7 +455,7 @@ class ConfigPage(ctk.CTkScrollableFrame):
                             if isinstance(v, np.ndarray) and v.size == tamanho_alvo:
                                 colunas_validas.append(k)
                                 arrays_para_empilhar.append(v)
-                                
+
                     # Escreve o cabeçalho das colunas separadas por vírgula
                     f.write(",".join(colunas_validas) + "\n")
 
@@ -420,18 +465,26 @@ class ConfigPage(ctk.CTkScrollableFrame):
                         np.savetxt(f, matriz, delimiter=",", fmt="%.8e")
 
                 # Devolve o controlo à thread principal da Interface para mostrar o aviso
-                self.after(0, lambda: messagebox.showinfo(
-                    "Export Success", f"Dataset successfully exported to:\n{export_path}"
-                ))
+                self.after(
+                    0,
+                    lambda: messagebox.showinfo(
+                        "Export Success",
+                        f"Dataset successfully exported to:\n{export_path}",
+                    ),
+                )
             except Exception as e:
-                self.after(0, lambda: messagebox.showerror(
-                    "Export Failed", f"An error occurred during extraction:\n{e}"
-                ))
+                self.after(
+                    0,
+                    lambda: messagebox.showerror(
+                        "Export Failed", f"An error occurred during extraction:\n{e}"
+                    ),
+                )
             finally:
                 self.after(0, lambda: self.btn_export.configure(state="normal"))
 
         # Inicia o processo isolado para não congelar o programa
         import threading
+
         threading.Thread(target=tarefa_exportacao, daemon=True).start()
 
     # * ============================================
@@ -454,6 +507,7 @@ class ConfigPage(ctk.CTkScrollableFrame):
                     "Mstar": self.app_state.Mstar.get(),
                     "Rstar": self.app_state.Rstar.get(),
                     "Teff": self.app_state.Teff.get(),
+                    "Lstar": self.app_state.Lstar.get(),
                     "T": self.app_state.T.get(),
                     "rho0": self.app_state.rho0.get(),
                     "B0": self.app_state.B0.get(),
@@ -465,6 +519,7 @@ class ConfigPage(ctk.CTkScrollableFrame):
                     "phi0": self.app_state.phi0.get(),
                     "L0": self.app_state.L0.get(),
                     "cte": self.app_state.cte.get(),
+                    "parker": self.app_state.parker.get(),
                 },
                 "numeric": {
                     "x_sim": self.app_state.x_sim.get(),
@@ -527,8 +582,8 @@ class ConfigPage(ctk.CTkScrollableFrame):
                 data = json.load(f)
 
             mapping = {
-                "star": ["nome", "Mstar", "Rstar", "Teff", "T", "rho0", "B0", "mu"],
-                "wave": ["S_divergencia", "deltav0", "phi0", "L0", "cte"],
+                "star": ["nome", "Mstar", "Rstar", "Teff", "Lstar","T", "rho0", "B0", "mu"],
+                "wave": ["S_divergencia", "deltav0", "phi0", "L0", "cte", "parker"],
                 "numeric": [
                     "x_sim",
                     "h_rk",
@@ -653,26 +708,47 @@ class ConfigPage(ctk.CTkScrollableFrame):
         ctk.CTkLabel(aba, text="Damping Model:", font=fonte, text_color="#E5C07B").grid(
             row=6, column=0, padx=20, pady=15, sticky="w"
         )
-        
+
+        # Função para distribuir os valores booleanos com base na escolha
+        def on_combo_change(choice):
+            if choice == "Ressonant":
+                self.app_state.cte.set(False)
+                self.app_state.parker.set(False)
+            elif choice == "Constant":
+                self.app_state.cte.set(True)
+                self.app_state.parker.set(False)
+            elif choice == "Undamped (Parker)":
+                self.app_state.cte.set(False)
+                self.app_state.parker.set(True)
+
         combo_damping = ctk.CTkComboBox(
             aba,
-            values=["Ressonant", "Constant"],
+            values=["Ressonant", "Constant", "Undamped (Parker)"],
             font=fonte_var,
             state="readonly",
-            # Atualiza o booleano 'cte' por trás dos panos quando o usuário seleciona
-            command=lambda choice: self.app_state.cte.set(True if choice == "Constant" else False)
+            command=on_combo_change,
         )
         combo_damping.grid(row=6, column=1, padx=(10, 0), pady=15, sticky="sw")
-        
+
         # Sincroniza a interface caso você use o botão "Load Profile" (.json)
         def sync_combo_damping(*args):
             try:
-                combo_damping.set("Constant" if self.app_state.cte.get() else "Ressonant")
+                is_cte = self.app_state.cte.get()
+                is_parker = self.app_state.parker.get()
+
+                if is_parker:
+                    combo_damping.set("Undamped (Parker)")
+                elif is_cte:
+                    combo_damping.set("Constant")
+                else:
+                    combo_damping.set("Ressonant")
             except Exception:
                 pass
-                
+
+        # Adiciona rastreio a ambas as variáveis para reverter a UI num load
         self.app_state.cte.trace_add("write", sync_combo_damping)
-        sync_combo_damping() # Chama a primeira vez para iniciar com o valor correto
+        self.app_state.parker.trace_add("write", sync_combo_damping)
+        sync_combo_damping()  # Chama a primeira vez para iniciar com o valor correto
 
     def _construir_aba_numerico(self, aba):
         aba.grid_columnconfigure(0, weight=1)

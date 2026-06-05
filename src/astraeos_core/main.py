@@ -58,6 +58,7 @@ def main(
     Mmag,
     Dorb,
     Rplan,
+    parker,
     show_progress=True,
     **kwargs,
 ):
@@ -135,61 +136,92 @@ def main(
     def cb_int(pct):
         print(f"___INT_PROGRESS___|{pct}", flush=True)
 
-    # ? --- Busca por Velocidade Inicial ---
-    sy.status("Searching for base velocity and critical point...", flush=True)
-    time.sleep(1)
+    if not parker:
+        # ? --- Busca por Velocidade Inicial ---
+        sy.status("Searching for base velocity and critical point...", flush=True)
+        time.sleep(1)
 
-    u0, x_crit, y_crit, r_crit, x_append, y_append, vetor = jl.busca_u0(
-        vT,
-        [B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S_divergencia, 0.0, phi0],
-        u0_step,
-        u0_ini,
-        cte,
-        cb_u0,
-    )
+        u0, x_crit, y_crit, r_crit, x_append, y_append, vetor = jl.busca_u0(
+            vT,
+            [B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S_divergencia, 0.0, phi0],
+            u0_step,
+            u0_ini,
+            cte,
+            cb_u0,
+        )
 
-    sy.param(
-        ("Base Velocity", u0 * ve0 / 1e5, "km/s"),
-        ("Normalized Base Velocity", u0, "ve0"),
-        ("Critical Point Distance", x_crit, "r0"),
-        ("Critical Velocity", y_crit, "ve0"),
-        ("Critical Topology Slope (du/dx)", r_crit, "adm"),
-        flush=True,
-    )
+        sy.param(
+            ("Base Velocity", u0 * ve0 / 1e5, "km/s"),
+            ("Normalized Base Velocity", u0, "ve0"),
+            ("Critical Point Distance", x_crit, "r0"),
+            ("Critical Velocity", y_crit, "ve0"),
+            ("Critical Topology Slope (du/dx)", r_crit, "adm"),
+            flush=True,
+        )
 
-    # ? --- Integração do Perfil de Velocidade ---
-    sy.status("Integrating wind velocity profile...", flush=True)
-    time.sleep(1)
+        # ? --- Integração do Perfil de Velocidade ---
+        sy.status("Integrating wind velocity profile...", flush=True)
+        time.sleep(1)
 
-    (
-        x0n,
-        y0,
-        x_int,
-        y_int,
-        x_ext,
-        y_ext,
-        num_alpha_list,
-        den_alpha_list,
-        vA_total,
-        rho_total,
-        phi_total,
-        deltav2_total,
-        dmdt_total,
-    ) = jl.integra_perfil(
-        u0,
-        x_crit,
-        y_crit,
-        vetor,
-        x_append,
-        y_append,
-        x_t,
-        recuo_pulo,
-        tamanho_pulo,
-        h_rk,
-        cte,
-        x_sim,
-        cb_int,
-    )
+        (
+            x0n,
+            y0,
+            x_int,
+            y_int,
+            x_ext,
+            y_ext,
+            num_alpha_list,
+            den_alpha_list,
+            vA_total,
+            rho_total,
+            phi_total,
+            deltav2_total,
+            dmdt_total,
+        ) = jl.integra_perfil(
+            u0,
+            x_crit,
+            y_crit,
+            vetor,
+            x_append,
+            y_append,
+            x_t,
+            recuo_pulo,
+            tamanho_pulo,
+            h_rk,
+            cte,
+            x_sim,
+            cb_int,
+        )
+    else:
+        sy.status("Integrating wind velocity profile...", flush=True)
+        time.sleep(1)
+        (
+            u0,
+            x_crit,
+            y_crit,
+            x_int,
+            y_int,
+            x_ext,
+            y_ext,
+            num_alpha_list,
+            den_alpha_list,
+            vA_total,
+            rho_total,
+            phi_total,
+            deltav2_total,
+            dmdt_total,
+        ) = jl.integra_perfil_parker(cs, G, M, ve0, r0, rho0, x_sim, h_rk, rsun)
+
+        r_crit = 1.0
+
+        sy.param(
+            ("Base Velocity", u0 * ve0 / 1e5, "km/s"),
+            ("Normalized Base Velocity", u0, "ve0"),
+            ("Critical Point Distance", x_crit, "r0"),
+            ("Critical Velocity", y_crit, "ve0"),
+            ("Critical Topology Slope (du/dx)", r_crit, "adm"),
+            flush=True,
+        )
 
     x_tot, y_tot, num_alpha_array, den_alpha_array, idx_crit_num, idx_crit_den = (
         zerosND(x_int, y_int, x_ext, y_ext, num_alpha_list, den_alpha_list)
@@ -291,6 +323,7 @@ def main(
         dc_ext=dc_ext,
         P_din=P_din,
         Rmag=Rmag,
+        parker=parker,
     )
 
     if show_progress:
@@ -434,5 +467,6 @@ if __name__ == "__main__":
         Mmag=Mmag_,
         Dorb=Dorb_,
         Rplan=Rplan_,
+        parker=parker_,
         show_progress=False,
     )

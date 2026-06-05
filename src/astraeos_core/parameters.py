@@ -27,6 +27,7 @@ phi0_ = 5e7  # Fluxo inicial de ondas Alfvén [erg /cm²/s] #? Livre
 L0_ = 1  # Comprimento de amortecimento [unidades de r0] #? Livre
 deltav0_ = 0.12851  # Amplitude de onda inicial [ve0²] #? Livre
 cte_ = False  # Usar ou não amortecimento constante
+parker_ = False  # Usar ou não o modelo de Parker
 
 
 # ? --- Ajustes de Integração | Alteração pode Ocasionar em Instabilidade ---

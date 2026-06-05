@@ -30,6 +30,7 @@ class AppState:
         self.recuo_pulo = ctk.StringVar(value="484")
         self.tamanho_pulo = ctk.StringVar(value="0.1")
         self.cte = ctk.BooleanVar(value=False)
+        self.parker = ctk.BooleanVar(value=False)
 
         # ? --- Variáveis de Habitabilidade e Exoplanetas ---
         self.habitabilidade = ctk.BooleanVar(value=False)
@@ -120,6 +121,7 @@ class AppState:
             "Mmag": float(self.Mmag.get()),
             "Dorb": float(self.Dorb.get()),
             "Rplan": float(self.Rplan.get()),
+            "parker": self.parker.get(),
         }
 
     def parameters_plot(self):

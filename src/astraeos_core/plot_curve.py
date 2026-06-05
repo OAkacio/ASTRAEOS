@@ -183,12 +183,21 @@ def plot_curve_analis(tamanho_pulo, recuo_pulo, L0, deltav0, S_divergencia, cte)
     fig = gp.plot(
         title=f"{nome} - Critical Topology",
         x_data=[x_tot] * 4,
-        y_data=[
-            den_alpha_array[:, 0],
-            num_alpha_array[:, 0],
-            y_tot,
-            num_alpha_array[:, 0] / den_alpha_array[:, 0],
-        ],
+        y_data=(
+            [
+                den_alpha_array[:, 0],
+                num_alpha_array[:, 0],
+                y_tot,
+                [1] * x_tot,
+            ]
+            if den_alpha_array[0][0] == 0
+            else [
+                den_alpha_array[:, 0],
+                num_alpha_array[:, 0],
+                y_tot,
+                num_alpha_array[:, 0] / den_alpha_array[:, 0],
+            ]
+        ),
         show_plot=False,
         x_label=r"$r/r_{0}$",
         y_label="Equation Terms",
@@ -433,8 +442,8 @@ def plot_plasmaprop(
 
     rho_norm = rho / rho[0]
     phi_norm = phi if phi[0] == 0 else phi / phi[0]
-    deltav2_norm = deltav2 / deltav2[0]
-    dmdt_norm = dmdt / dmdt[0]
+    deltav2_norm = deltav2 if deltav2[0] == 0 else deltav2 / deltav2[0]
+    dmdt_norm = dmdt if dmdt[0] == 0 else dmdt / dmdt[0]
     u_norm = y_tot / y_tot[0]
 
     # ? --- Lógica do Limite Inferior Dinâmico ---

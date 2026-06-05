@@ -387,10 +387,116 @@ function integra_perfil(u0_final, x_crit, y_crit, vetor_final, x_append_final, y
         push!(phi_total, phi_M)
         push!(dmdt_total, dmdt)
     end
-    limiar_brisa = 0.1 
+    limiar_brisa = 0.1
     if y_total[end] < limiar_brisa
         error("BREEZE_STATE: The terminal velocity is too low, indicating insufficient u0 precision.")
     end
 
     return x0n, y0, x_int, y_int, x_ext, y_ext, num_alpha_list, den_alpha_list, vA_total, rho_total, phi_total, deltav2_total, dmdt_total
+end
+
+function integra_perfil_parker(cs, G, M, ve0, R, rho0, x_sim, h_rk, rsun)
+    # Raio crítico em CGS
+    rc = (G * M) / (2 * cs^2)
+
+    function parker_root(x, guess)
+        v = guess
+        for _ in 1:100
+            # f(v) = v^2 - log(v^2) - 4*log(x) - 4/x + 3
+            f = v^2 - log(v^2) - 4.0 * log(x) - 4.0 / x + 3.0
+            # f'(v) = 2v - 2/v
+            df = 2.0 * v - 2.0 / v
+
+            v_next = v - f / df
+
+            # Evita que o palpite caia em números negativos (log de negativo)
+            if v_next <= 0.0
+                v_next = v / 2.0
+            end
+
+            if abs(v_next - v) < 1e-8
+                return v_next
+            end
+            v = v_next
+        end
+        return v
+    end
+
+    # Definição do domínio radial 
+    r_min = R
+    r_max = x_sim * rsun
+    pontos = round(Int, x_sim / (100 * h_rk))
+
+    # --- Ramo Subsônico (Cálculos em CGS) ---
+    x_int_cgs = collect(range(r_min, stop=rc * 0.999, length=pontos))
+    y_int_cgs = zeros(pontos)
+    v_guess_int = 0.01
+
+    for i in 1:pontos
+        x_norm = x_int_cgs[i] / rc
+        v_ans = parker_root(x_norm, v_guess_int)
+        y_int_cgs[i] = v_ans * cs
+        v_guess_int = v_ans
+    end
+
+    # --- Ramo Supersônico (Cálculos em CGS) ---
+    x_ext_cgs = collect(range(rc * 1.001, stop=r_max, length=pontos))
+    y_ext_cgs = zeros(pontos)
+    v_guess_ext = 1.01
+
+    for i in 1:pontos
+        x_norm = x_ext_cgs[i] / rc
+        v_ans = parker_root(x_norm, v_guess_ext)
+        y_ext_cgs[i] = v_ans * cs
+        v_guess_ext = v_ans
+    end
+
+    # Velocidade na base em CGS
+    u0_cgs = y_int_cgs[1]
+
+    # --- Preenchimento de Variáveis Auxiliares (rho e dmdt) ---
+    len_total = length(x_int_cgs) + length(x_ext_cgs)
+
+    # Preenchimento com [0.0, 0.0] para evitar o IndexError no Python ([:, 0])
+    num_alpha_list = [[0.0, 0.0] for _ in 1:len_total]
+    den_alpha_list = [[0.0, 0.0] for _ in 1:len_total]
+
+    vA_total = zeros(len_total)
+    phi_total = zeros(len_total)
+    deltav2_total = zeros(len_total)
+
+    # Arrays reais para os cálculos de massa
+    rho_total = zeros(len_total)
+    dmdt_total = zeros(len_total)
+
+    # Concatenação para iterar sobre todo o vento de uma vez
+    x_total_cgs = vcat(x_int_cgs, x_ext_cgs)
+    y_total_cgs = vcat(y_int_cgs, y_ext_cgs)
+
+    # Constante de perda de massa na base (CGS)
+    dmdt0 = rho0 * u0_cgs * R^2
+
+    for i in 1:len_total
+        r_cgs = x_total_cgs[i]
+        u_cgs = y_total_cgs[i]
+
+        # Física: A conservação estrita impõe que rho = (rho0 * u0 * R^2) / (r^2 * u)
+        rho_cgs = (rho0 * u0_cgs * R^2) / (r_cgs^2 * u_cgs)
+        dmdt_cgs = rho_cgs * u_cgs * r_cgs^2
+
+        # Salvando as normalizações (rho/rho0 e dmdt/dmdt0)
+        rho_total[i] = rho_cgs / rho0
+        dmdt_total[i] = dmdt_cgs / dmdt0
+    end
+
+    # --- Normalização Final das Saídas ---
+    u0 = u0_cgs / ve0
+    x_crit = rc / R
+    y_crit = cs / ve0
+    x_int = x_int_cgs ./ R
+    y_int = y_int_cgs ./ ve0
+    x_ext = x_ext_cgs ./ R
+    y_ext = y_ext_cgs ./ ve0
+
+    return u0, x_crit, y_crit, x_int, y_int, x_ext, y_ext, num_alpha_list, den_alpha_list, vA_total, rho_total, phi_total, deltav2_total, dmdt_total
 end
