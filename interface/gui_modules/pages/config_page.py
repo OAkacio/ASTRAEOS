@@ -105,6 +105,7 @@ class ConfigPage(ctk.CTkScrollableFrame):
         self.on_simulate_exo_click = on_simulate_exo_click
         self.assets_path = assets_path
         self.exo_inputs = []  # Lista para guardar os widgets do exoplaneta
+        self.parker_disabled_inputs = []  # Lista para guardar caixas do Parker
 
         # ? --- Configuração de Layout Principal ---
         self.grid_columnconfigure(0, weight=1)
@@ -582,7 +583,17 @@ class ConfigPage(ctk.CTkScrollableFrame):
                 data = json.load(f)
 
             mapping = {
-                "star": ["nome", "Mstar", "Rstar", "Teff", "Lstar","T", "rho0", "B0", "mu"],
+                "star": [
+                    "nome",
+                    "Mstar",
+                    "Rstar",
+                    "Teff",
+                    "Lstar",
+                    "T",
+                    "rho0",
+                    "B0",
+                    "mu",
+                ],
                 "wave": ["S_divergencia", "deltav0", "phi0", "L0", "cte", "parker"],
                 "numeric": [
                     "x_sim",
@@ -663,9 +674,14 @@ class ConfigPage(ctk.CTkScrollableFrame):
             ctk.CTkLabel(aba, text=texto, font=fonte, text_color="#E5C07B").grid(
                 row=linha, column=0, padx=20, pady=5, sticky="w"
             )
-            ctk.CTkEntry(aba, textvariable=var, font=fonte_var).grid(
-                row=linha, column=1, padx=(10, 0), pady=5, sticky="sw"
-            )
+
+            entry = ctk.CTkEntry(aba, textvariable=var, font=fonte_var)
+            entry.grid(row=linha, column=1, padx=(10, 0), pady=5, sticky="sw")
+
+            # Captura a caixa B0 para ser desativada pelo Parker Wind
+            if var == self.app_state.B0:
+                self.parker_disabled_inputs.append(entry)
+
             ctk.CTkLabel(aba, text=uni, font=fonte_uni, text_color="#8b949e").grid(
                 row=linha, column=2, padx=(0, 50), pady=5, sticky="w"
             )
@@ -696,20 +712,22 @@ class ConfigPage(ctk.CTkScrollableFrame):
             ctk.CTkLabel(aba, text=texto, font=fonte, text_color="#E5C07B").grid(
                 row=linha, column=0, padx=20, pady=5, sticky="w"
             )
-            ctk.CTkEntry(aba, textvariable=var, font=fonte_var).grid(
-                row=linha, column=1, padx=(10, 0), pady=5, sticky="sw"
-            )
+
+            entry = ctk.CTkEntry(aba, textvariable=var, font=fonte_var)
+            entry.grid(row=linha, column=1, padx=(10, 0), pady=5, sticky="sw")
+
+            # Todos os campos desta aba são inativados pelo modelo Parker
+            self.parker_disabled_inputs.append(entry)
+
             ctk.CTkLabel(aba, text=uni, font=fonte_uni, text_color="#8b949e").grid(
                 row=linha, column=2, padx=(0, 50), pady=5, sticky="w"
             )
             aba.grid_rowconfigure(len(campos), weight=1, minsize=10)
 
-        # ? --- NOVA LÓGICA: ComboBox de Damping ---
         ctk.CTkLabel(aba, text="Damping Model:", font=fonte, text_color="#E5C07B").grid(
             row=6, column=0, padx=20, pady=15, sticky="w"
         )
 
-        # Função para distribuir os valores booleanos com base na escolha
         def on_combo_change(choice):
             if choice == "Ressonant":
                 self.app_state.cte.set(False)
@@ -730,7 +748,6 @@ class ConfigPage(ctk.CTkScrollableFrame):
         )
         combo_damping.grid(row=6, column=1, padx=(10, 0), pady=15, sticky="sw")
 
-        # Sincroniza a interface caso você use o botão "Load Profile" (.json)
         def sync_combo_damping(*args):
             try:
                 is_cte = self.app_state.cte.get()
@@ -738,17 +755,19 @@ class ConfigPage(ctk.CTkScrollableFrame):
 
                 if is_parker:
                     combo_damping.set("Undamped (Parker)")
+                    self.set_parker_inputs_state("disabled")
                 elif is_cte:
                     combo_damping.set("Constant")
+                    self.set_parker_inputs_state("normal")
                 else:
                     combo_damping.set("Ressonant")
+                    self.set_parker_inputs_state("normal")
             except Exception:
                 pass
 
-        # Adiciona rastreio a ambas as variáveis para reverter a UI num load
         self.app_state.cte.trace_add("write", sync_combo_damping)
         self.app_state.parker.trace_add("write", sync_combo_damping)
-        sync_combo_damping()  # Chama a primeira vez para iniciar com o valor correto
+        sync_combo_damping()
 
     def _construir_aba_numerico(self, aba):
         aba.grid_columnconfigure(0, weight=1)
@@ -1145,7 +1164,7 @@ class ConfigPage(ctk.CTkScrollableFrame):
 
         ctk.CTkLabel(
             aba,
-            text="Magnetospheric Compression Factor ( f0 ) :",
+            text="Chapman-Ferraro Factor ( f0 ) :",
             font=fonte,
             text_color="#E5C07B",
         ).grid(row=2, column=0, padx=20, pady=5, sticky="w")
@@ -1159,38 +1178,43 @@ class ConfigPage(ctk.CTkScrollableFrame):
     # * ============================================
     # * Lógica Dinâmica da Interface
     # * ============================================
+    def _alterar_visual_widget(self, widget, state_str):
+        """Função auxiliar para aplicar cores baseadas no estado."""
+        widget.configure(state=state_str)
+        if isinstance(widget, ctk.CTkEntry):
+            if state_str == "disabled":
+                widget.configure(
+                    text_color="#3c4044",
+                    border_color="#282C34",
+                    fg_color="#1E1E1E",
+                )
+            else:
+                widget.configure(
+                    text_color="white",
+                    border_color="#565b5e",
+                    fg_color="#343638",
+                )
+        elif isinstance(widget, ctk.CTkSlider):
+            if state_str == "disabled":
+                widget.configure(
+                    button_color="#282C34",
+                    progress_color="#282C34",
+                    button_hover_color="#282C34",
+                )
+            else:
+                widget.configure(
+                    button_color="#61AFEF",
+                    progress_color="#1F618D",
+                    button_hover_color="#56B6C2",
+                )
+
     def set_exoplanet_state(self, state_str):
         for widget in self.exo_inputs:
-            widget.configure(state=state_str)
+            self._alterar_visual_widget(widget, state_str)
 
-            # ? --- Feedback Visual de Bloqueio/Desbloqueio ---
-            if isinstance(widget, ctk.CTkEntry):
-                if state_str == "disabled":
-                    widget.configure(
-                        text_color="#3c4044",  # Texto fantasma (cinza escuro)
-                        border_color="#282C34",  # Borda ofuscada
-                        fg_color="#1E1E1E",  # Fundo fundido com o painel
-                    )
-                else:
-                    widget.configure(
-                        text_color="white",  # Texto ativo (padrão)
-                        border_color="#565b5e",  # Borda ativa
-                        fg_color="#343638",  # Fundo ativo
-                    )
-
-            elif isinstance(widget, ctk.CTkSlider):
-                if state_str == "disabled":
-                    widget.configure(
-                        button_color="#282C34",  # Botão cinza escuro
-                        progress_color="#282C34",  # Trilha cinza escuro
-                        button_hover_color="#282C34",
-                    )
-                else:
-                    widget.configure(
-                        button_color="#61AFEF",  # Azul ASTRAEOS (ativo)
-                        progress_color="#1F618D",  # Trilha preenchida
-                        button_hover_color="#56B6C2",
-                    )
+    def set_parker_inputs_state(self, state_str):
+        for widget in self.parker_disabled_inputs:
+            self._alterar_visual_widget(widget, state_str)
 
     def _alternar_parametros_dv2(self):
         estado_ativo = self.app_state.searchdv2.get()

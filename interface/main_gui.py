@@ -269,7 +269,7 @@ class AppWindow(ctk.CTk):
                     pass
             toolbar.update()
             tk_widget.pack(side="top", fill="both", expand=True)
-            plt.close(figura_matplotlib) 
+            plt.close(figura_matplotlib)
 
         except Exception as e:
             self.set_status(f"Error rendering interactive plot: {e}", "#E06C75")
