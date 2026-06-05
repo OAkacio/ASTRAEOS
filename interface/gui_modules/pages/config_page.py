@@ -84,7 +84,7 @@ class ToolTip:
 # * ============================================
 # * Classe Principal: Página de Configuração
 # * ============================================
-class ConfigPage(ctk.CTkScrollableFrame):
+class ConfigPage(ctk.CTkFrame):  # <-- ALTERADO: Agora é um Frame fixo raiz
     def __init__(
         self,
         master,
@@ -109,8 +109,16 @@ class ConfigPage(ctk.CTkScrollableFrame):
 
         # ? --- Configuração de Layout Principal ---
         self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=1) # Permite à área de scroll expandir
+        self.grid_rowconfigure(1, weight=0) # O rodapé usa apenas o espaço necessário
 
-        self.header_frame = ctk.CTkFrame(self, fg_color="transparent")
+        # ? --- NOVA ÁREA INTERNA DE SCROLL ---
+        self.scroll_area = ctk.CTkScrollableFrame(self, fg_color="transparent")
+        self.scroll_area.grid(row=0, column=0, sticky="nsew")
+        self.scroll_area.grid_columnconfigure(0, weight=1)
+
+        # Todos os elementos passam a usar self.scroll_area como master
+        self.header_frame = ctk.CTkFrame(self.scroll_area, fg_color="transparent")
         self.header_frame.grid(row=0, column=0, pady=(10, 2), sticky="ew", padx=20)
         self.header_frame.grid_columnconfigure(0, weight=1)
 
@@ -195,7 +203,7 @@ class ConfigPage(ctk.CTkScrollableFrame):
             "About ASTRAEOS\nObjective, Architecture, and Acknowledgments.",
         )
 
-        self.tabview = ctk.CTkTabview(self, height=250)
+        self.tabview = ctk.CTkTabview(self.scroll_area, height=250)
         self.tabview.grid(row=1, column=0, padx=20, pady=5, sticky="nsew")
 
         aba_astro = self.tabview.add("Star & Corona")
@@ -211,13 +219,13 @@ class ConfigPage(ctk.CTkScrollableFrame):
         self._construir_aba_more(aba_more)
 
         self.lbl_exo = ctk.CTkLabel(
-            self,
+            self.scroll_area,
             text="Exoplanet Settings",
             font=("Consolas", 18, "bold"),
         )
         self.lbl_exo.grid(row=2, column=0, pady=(15, 2), sticky="w", padx=20)
 
-        self.tabview_exo = ctk.CTkTabview(self, height=180)
+        self.tabview_exo = ctk.CTkTabview(self.scroll_area, height=180)
         self.tabview_exo.grid(row=3, column=0, padx=20, pady=5, sticky="nsew")
 
         aba_orbita = self.tabview_exo.add("Orbit & Habitability")
@@ -227,7 +235,7 @@ class ConfigPage(ctk.CTkScrollableFrame):
         self._construir_aba_magnet(aba_magnet)
 
         self.btn_sim_exo = ctk.CTkButton(
-            self,
+            self.scroll_area,
             text="Simulate Exoplanet",
             command=self.iniciar_sim_exo,
             fg_color="#627683",
@@ -238,9 +246,9 @@ class ConfigPage(ctk.CTkScrollableFrame):
         )
         self.btn_sim_exo.grid(row=4, column=0, padx=20, pady=(5, 20), sticky="ew")
 
-        # ? --- Rodapé e Botões de Controle da Estrela ---
+        # ? --- Rodapé Fixo (Fora do Scroll, colado no 'self') ---
         self.frame_rodape = ctk.CTkFrame(self, fg_color="transparent")
-        self.frame_rodape.grid(row=5, column=0, padx=20, pady=(10, 20), sticky="ew")
+        self.frame_rodape.grid(row=1, column=0, padx=20, pady=(10, 20), sticky="ew")
         self.frame_rodape.grid_columnconfigure(0, weight=1)
         self.frame_rodape.grid_columnconfigure(1, weight=1)
 
@@ -1184,28 +1192,20 @@ class ConfigPage(ctk.CTkScrollableFrame):
         if isinstance(widget, ctk.CTkEntry):
             if state_str == "disabled":
                 widget.configure(
-                    text_color="#3c4044",
-                    border_color="#282C34",
-                    fg_color="#1E1E1E",
+                    text_color="#3c4044",  border_color="#282C34", fg_color="#1E1E1E",
                 )
             else:
                 widget.configure(
-                    text_color="white",
-                    border_color="#565b5e",
-                    fg_color="#343638",
+                    text_color="white", border_color="#565b5e", fg_color="#343638",
                 )
         elif isinstance(widget, ctk.CTkSlider):
             if state_str == "disabled":
                 widget.configure(
-                    button_color="#282C34",
-                    progress_color="#282C34",
-                    button_hover_color="#282C34",
+                    button_color="#282C34", progress_color="#282C34", button_hover_color="#282C34",
                 )
             else:
                 widget.configure(
-                    button_color="#61AFEF",
-                    progress_color="#1F618D",
-                    button_hover_color="#56B6C2",
+                    button_color="#61AFEF", progress_color="#1F618D", button_hover_color="#56B6C2",
                 )
 
     def set_exoplanet_state(self, state_str):
