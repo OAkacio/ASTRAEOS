@@ -5,7 +5,8 @@ import tkinter as tk
 import customtkinter as ctk
 import json
 import os
-from tkinter import filedialog
+import numpy as np
+from tkinter import filedialog, messagebox
 from PIL import Image
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -88,6 +89,7 @@ class ConfigPage(ctk.CTkScrollableFrame):
         )
         self.lbl_titulo.grid(row=0, column=0, sticky="w")
 
+        # Tentativa de carregamento dos assets de botões
         try:
             img_load = ctk.CTkImage(
                 Image.open(os.path.join(self.assets_path, "load.png")), size=(18, 18)
@@ -95,9 +97,15 @@ class ConfigPage(ctk.CTkScrollableFrame):
             img_save = ctk.CTkImage(
                 Image.open(os.path.join(self.assets_path, "save.png")), size=(18, 18)
             )
+            img_export = ctk.CTkImage(
+                Image.open(os.path.join(self.assets_path, "database.png")),
+                size=(18, 18),
+            )
+            img_about = ctk.CTkImage(
+                Image.open(os.path.join(self.assets_path, "about.png")), size=(18, 18)
+            )
         except Exception:
-            img_load = None
-            img_save = None
+            img_load, img_save, img_export, img_about = None, None, None, None
 
         self.btn_load_prof = ctk.CTkButton(
             self.header_frame,
@@ -110,7 +118,7 @@ class ConfigPage(ctk.CTkScrollableFrame):
             command=self.load_profile,
         )
         self.btn_load_prof.grid(row=0, column=1, padx=(0, 5), sticky="e")
-        ToolTip(self.btn_load_prof, "Load Input Profile (*.json)")
+        ToolTip(self.btn_load_prof, "Load Profile")
 
         self.btn_save_prof = ctk.CTkButton(
             self.header_frame,
@@ -122,8 +130,34 @@ class ConfigPage(ctk.CTkScrollableFrame):
             hover_color="#404C55",
             command=self.save_profile,
         )
-        self.btn_save_prof.grid(row=0, column=2, sticky="e")
-        ToolTip(self.btn_save_prof, "Save Input Profile (*.json)")
+        self.btn_save_prof.grid(row=0, column=2, padx=(0, 5), sticky="e")
+        ToolTip(self.btn_save_prof, "Save Profile")
+
+        self.btn_export = ctk.CTkButton(
+            self.header_frame,
+            text="" if img_export else "E",
+            image=img_export,
+            width=28,
+            height=28,
+            fg_color="#282C34",
+            hover_color="#404C55",
+            command=self.export_data,
+        )
+        self.btn_export.grid(row=0, column=3, padx=(0, 5), sticky="e")
+        ToolTip(self.btn_export, "Export Data")
+
+        self.btn_about = ctk.CTkButton(
+            self.header_frame,
+            text="" if img_about else "A",
+            image=img_about,
+            width=28,
+            height=28,
+            fg_color="#282C34",
+            hover_color="#404C55",
+            command=self.show_about,
+        )
+        self.btn_about.grid(row=0, column=4, sticky="e")
+        ToolTip(self.btn_about, "About")
 
         self.tabview = ctk.CTkTabview(self, height=250)
         self.tabview.grid(row=1, column=0, padx=20, pady=5, sticky="nsew")
@@ -196,6 +230,120 @@ class ConfigPage(ctk.CTkScrollableFrame):
             state="disabled",
         )
         self.btn_abort.grid(row=0, column=1, sticky="ew", padx=(5, 0))
+
+    # * ============================================
+    # * Ferramentas de Dados (Export & About)
+    # * ============================================
+    def show_about(self):
+        about_win = ctk.CTkToplevel(self)
+        about_win.title("About ASTRAEOS")
+        about_win.geometry("500x420")
+        about_win.resizable(False, False)
+        about_win.attributes("-topmost", True)
+
+        txt = ctk.CTkTextbox(
+            about_win,
+            wrap="word",
+            font=("Roboto", 13),
+            fg_color="#1E1E1E",
+            text_color="#ABB2BF",
+        )
+        txt.pack(fill="both", expand=True, padx=20, pady=20)
+
+        conteudo = (
+            "ASTRAEOS - Astrophysical Stellar Wind and Exoplanet Environment Simulator\n"
+            "Version: v0.1.0\n"
+            "Developer: Victor M. Acacio\n\n"
+            "■ Objective:\n"
+            "A highly customizable suite for Magnetohydrodynamic (MHD) modeling of stellar winds "
+            "in late-type stars (e.g., M-dwarfs) and analyzing their direct impact on exoplanet habitability "
+            "and magnetospheric boundaries.\n\n"
+            "■ Methods & Framework:\n"
+            "Powered by a robust Runge-Kutta (RK4) integrator coupled with dynamic critical point topology resolution "
+            "(L'Hôpital limits) in Julia. The software incorporates classical and Kopparapu habitable zones, "
+            "alongside Chapman-Ferraro standoff calculations.\n\n"
+            "■ Open Science & Reproducibility:\n"
+            "ASTRAEOS is built with a strong commitment to open reproducible research. All arrays and variables "
+            "are fully exportable for independent statistical analysis and plotting via external engines like R or Python.\n\n"
+            "■ Acknowledgments:\n"
+            "Developed at the Institute of Astronomy, Geophysics and Atmospheric Sciences (IAG/USP). "
+            "Special thanks to the academic guidance of Profa. Dra. Vera Jatenco Silva Pereira."
+        )
+        txt.insert("0.0", conteudo)
+        txt.configure(state="disabled")
+
+    def export_data(self):
+        cte = self.app_state.cte.get()
+        filepath_npz = os.path.join(os.getcwd(), "data", f"curve_{cte}.npz")
+
+        if not os.path.exists(filepath_npz):
+            messagebox.showerror(
+                "Export Error",
+                "No simulation data found in memory. Please 'Run Star Simulation' first.",
+            )
+            return
+
+        export_path = filedialog.asksaveasfilename(
+            initialdir=os.path.join(os.getcwd(), "data"),
+            title="Export Scientific Data",
+            defaultextension=".csv",
+            filetypes=[
+                ("CSV Data File", "*.csv"),
+                ("Text File", "*.txt"),
+                ("All Files", "*.*"),
+            ],
+        )
+        if not export_path:
+            return
+
+        try:
+            dados = np.load(filepath_npz)
+            with open(export_path, "w", encoding="utf-8") as f:
+                # Cabeçalho Físico Analítico
+                f.write("# ASTRAEOS - RAW SCIENTIFIC DATA EXPORT\n")
+                f.write(f"# Target Designation: {self.app_state.nome.get()}\n")
+                f.write(f"# Stellar Mass [Msun]: {self.app_state.Mstar.get()}\n")
+                f.write(f"# Stellar Radius [Rsun]: {self.app_state.Rstar.get()}\n")
+                f.write(f"# Effective Temp [K]: {self.app_state.Teff.get()}\n")
+                f.write(f"# Coronal Temp [K]: {self.app_state.T.get()}\n")
+                f.write(f"# Base Density [g/cm3]: {self.app_state.rho0.get()}\n")
+                f.write(f"# Magnetic Field [G]: {self.app_state.B0.get()}\n")
+                f.write(
+                    f"# Expansion Factor (S): {self.app_state.S_divergencia.get()}\n"
+                )
+                f.write(f"# Initial Wave Amp (dv0^2): {self.app_state.deltav0.get()}\n")
+                f.write(f"# Initial Flux (phi0): {self.app_state.phi0.get()}\n")
+                f.write(f"# Damping Length (L0): {self.app_state.L0.get()}\n")
+                f.write("#" + "=" * 60 + "\n")
+
+                # Colunas Disponíveis no NPZ
+                colunas_npz = [
+                    "x_tot",
+                    "y_tot",
+                    "rho_total",
+                    "va_total",
+                    "deltav2_total",
+                    "phi_total",
+                    "dmdt_total",
+                ]
+                colunas_validas = [k for k in colunas_npz if k in dados]
+
+                f.write(",".join(colunas_validas) + "\n")
+
+                # Despejo Matricial
+                if colunas_validas:
+                    tamanho_malha = len(dados[colunas_validas[0]])
+                    for i in range(tamanho_malha):
+                        linha = [str(dados[k][i]) for k in colunas_validas]
+                        f.write(",".join(linha) + "\n")
+
+            messagebox.showinfo(
+                "Export Success", f"Dataset successfully exported to:\n{export_path}"
+            )
+        except Exception as e:
+            messagebox.showerror(
+                "Export Failed", f"An error occurred during extraction:\n{e}"
+            )
 
     # * ============================================
     # * Gestão Dinâmica de Perfis (JSON)
@@ -683,12 +831,21 @@ class ConfigPage(ctk.CTkScrollableFrame):
         )
         entry_dorb.grid(row=1, column=1, padx=(10, 5), pady=5, sticky="w")
 
+        try:
+            valor_minimo = float(self.app_state.Rstar.get()) * rsunAU
+            valor_maximo = (
+                float(self.app_state.x_sim.get())
+                * float(self.app_state.Rstar.get())
+                * rsunAU
+            )
+        except ValueError:
+            valor_minimo = 0.001
+            valor_maximo = 0.100
+
         self.slider_dorb = ctk.CTkSlider(
             aba,
-            from_=float(self.app_state.Rstar.get()) * rsunAU,
-            to=float(self.app_state.x_sim.get())
-            * float(self.app_state.Rstar.get())
-            * rsunAU,
+            from_=valor_minimo,
+            to=valor_maximo,
             height=8,
             button_length=12,
             button_color="#61AFEF",
