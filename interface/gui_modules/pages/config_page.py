@@ -649,9 +649,30 @@ class ConfigPage(ctk.CTkScrollableFrame):
             )
             aba.grid_rowconfigure(len(campos), weight=1, minsize=10)
 
-        ctk.CTkCheckBox(
-            aba, text="Use Constant Damping (Non-Resonant)", variable=self.app_state.cte
-        ).grid(row=6, column=0, columnspan=3, pady=15)
+        # ? --- NOVA LÓGICA: ComboBox de Damping ---
+        ctk.CTkLabel(aba, text="Damping Model:", font=fonte, text_color="#E5C07B").grid(
+            row=6, column=0, padx=20, pady=15, sticky="w"
+        )
+        
+        combo_damping = ctk.CTkComboBox(
+            aba,
+            values=["Ressonant", "Constant"],
+            font=fonte_var,
+            state="readonly",
+            # Atualiza o booleano 'cte' por trás dos panos quando o usuário seleciona
+            command=lambda choice: self.app_state.cte.set(True if choice == "Constant" else False)
+        )
+        combo_damping.grid(row=6, column=1, padx=(10, 0), pady=15, sticky="sw")
+        
+        # Sincroniza a interface caso você use o botão "Load Profile" (.json)
+        def sync_combo_damping(*args):
+            try:
+                combo_damping.set("Constant" if self.app_state.cte.get() else "Ressonant")
+            except Exception:
+                pass
+                
+        self.app_state.cte.trace_add("write", sync_combo_damping)
+        sync_combo_damping() # Chama a primeira vez para iniciar com o valor correto
 
     def _construir_aba_numerico(self, aba):
         aba.grid_columnconfigure(0, weight=1)
@@ -1048,7 +1069,7 @@ class ConfigPage(ctk.CTkScrollableFrame):
 
         ctk.CTkLabel(
             aba,
-            text="Chapman-Ferraro Factor ( f0 ) :",
+            text="Magnetospheric Compression Factor ( f0 ) :",
             font=fonte,
             text_color="#E5C07B",
         ).grid(row=2, column=0, padx=20, pady=5, sticky="w")
