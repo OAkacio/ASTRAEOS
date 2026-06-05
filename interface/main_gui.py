@@ -251,6 +251,8 @@ class AppWindow(ctk.CTk):
         if container is None:
             container = self.tab_velocity
         try:
+            import matplotlib.pyplot as plt
+
             for widget in container.winfo_children():
                 widget.destroy()
             canvas = FigureCanvasTkAgg(figura_matplotlib, master=container)
@@ -267,6 +269,8 @@ class AppWindow(ctk.CTk):
                     pass
             toolbar.update()
             tk_widget.pack(side="top", fill="both", expand=True)
+            plt.close(figura_matplotlib) 
+
         except Exception as e:
             self.set_status(f"Error rendering interactive plot: {e}", "#E06C75")
 

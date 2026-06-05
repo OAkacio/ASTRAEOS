@@ -8,6 +8,7 @@ import os
 import numpy as np
 from tkinter import filedialog, messagebox
 from PIL import Image
+import threading
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC_PATH = os.path.join(BASE_DIR, "src")
@@ -333,54 +334,105 @@ class ConfigPage(ctk.CTkScrollableFrame):
         if not export_path:
             return
 
-        try:
-            dados = np.load(filepath_npz)
-            with open(export_path, "w", encoding="utf-8") as f:
-                # Cabeçalho Físico Analítico
-                f.write("# ASTRAEOS - RAW SCIENTIFIC DATA EXPORT\n")
-                f.write(f"# Target Designation: {self.app_state.nome.get()}\n")
-                f.write(f"# Stellar Mass [Msun]: {self.app_state.Mstar.get()}\n")
-                f.write(f"# Stellar Radius [Rsun]: {self.app_state.Rstar.get()}\n")
-                f.write(f"# Effective Temp [K]: {self.app_state.Teff.get()}\n")
-                f.write(f"# Coronal Temp [K]: {self.app_state.T.get()}\n")
-                f.write(f"# Base Density [g/cm3]: {self.app_state.rho0.get()}\n")
-                f.write(f"# Magnetic Field [G]: {self.app_state.B0.get()}\n")
-                f.write(
-                    f"# Expansion Factor (S): {self.app_state.S_divergencia.get()}\n"
-                )
-                f.write(f"# Initial Wave Amp (dv0^2): {self.app_state.deltav0.get()}\n")
-                f.write(f"# Initial Flux (phi0): {self.app_state.phi0.get()}\n")
-                f.write(f"# Damping Length (L0): {self.app_state.L0.get()}\n")
-                f.write("#" + "=" * 60 + "\n")
+        self.btn_export.configure(state="disabled")
 
-                # Colunas Disponíveis no NPZ
-                colunas_npz = [
-                    "x_tot",
-                    "y_tot",
-                    "rho_total",
-                    "va_total",
-                    "deltav2_total",
-                    "phi_total",
-                    "dmdt_total",
-                ]
-                colunas_validas = [k for k in colunas_npz if k in dados]
+        def tarefa_exportacao():
+            try:
+                # allow_pickle=True é essencial para carregar strings/listas salvas no npz
+                dados = np.load(filepath_npz, allow_pickle=True)
+                
+                # Função auxiliar para extrair escalares com segurança
+                def val(key):
+                    if key in dados:
+                        v = dados[key]
+                        if isinstance(v, np.ndarray) and v.size == 1:
+                            return v.item()
+                        return v
+                    return "N/A"
 
-                f.write(",".join(colunas_validas) + "\n")
+                with open(export_path, "w", encoding="utf-8") as f:
+                    # =======================================================
+                    # Cabeçalho Físico Analítico (Incluindo TODOS os metadados)
+                    # =======================================================
+                    f.write("# " + "=" * 60 + "\n")
+                    f.write("# ASTRAEOS - SCIENTIFIC DATA EXPORT\n")
+                    f.write("# " + "=" * 60 + "\n")
+                    f.write("# [ 1. STAR & CORONA ]\n")
+                    f.write(f"# Target Name: {val('nome')}\n")
+                    f.write(f"# Stellar Mass [Msun]: {val('Mstar')} | Stellar Radius [Rsun]: {val('Rstar')} | Stellar Luminosity [Lsun]: {val('Lstar')}\n")
+                    f.write(f"# Effective Temp [K]: {val('Teff')} | Coronal Temp [K]: {val('T')}\n")
+                    f.write(f"# Base Density [g/cm3]: {val('rho0')} | Surface B-Field [G]: {val('B0')} | Mean Mol. Weight: {val('mu')}\n")
+                    
+                    f.write("#\n# [ 2. WIND & WAVES ]\n")
+                    f.write(f"# Expansion Factor (S): {val('S_divergencia')} | Initial Wave Amp (dv0^2): {val('deltav0')}\n")
+                    f.write(f"# Initial Flux (phi0): {val('phi0')} | Damping Length (L0): {val('L0')} | Constant Damping: {val('cte')}\n")
+                    
+                    f.write("#\n# [ 3. NUMERICAL SETUP & TOPOLOGY ]\n")
+                    f.write(f"# Simulation Dist: {val('x_sim')} | Step (h_rk): {val('h_rk')} | ve0: {val('ve0')}\n")
+                    f.write(f"# Search Lower Limit: {val('u0_ini')} | Search Step: {val('u0_step')} | Final Base Vel (u0): {val('u0')}\n")
+                    f.write(f"# Critical Point (x_crit): {val('x_crit')} | Velocity at Crit (y_crit): {val('y_crit')} | Alfvén Point (x_t): {val('x_t')}\n")
+                    f.write(f"# Critical Jump Size: {val('tamanho_pulo')} | Backtrack Steps: {val('recuo_pulo')}\n")
+                    f.write(f"# Crit. Numerator Idx: {val('idx_crit_num')} | Crit. Denominator Idx: {val('idx_crit_den')}\n")
+                    
+                    f.write("#\n# [ 4. EXOPLANET & HABITABILITY ]\n")
+                    f.write(f"# Exoplanet Simulated: {val('habitabilidade')}\n")
+                    f.write(f"# Exoplanet Name: {val('exoplanet_name')} | Orbital Dist [AU]: {val('Dorb')}\n")
+                    f.write(f"# Eccentricity: {val('e')} | Bond Albedo: {val('Ab')} | Planet Radius [Rearth]: {val('Rplan')}\n")
+                    f.write(f"# Dipole Moment [Am2]: {val('Mmag')} | Magnetospheric compression factor (f0): {val('f0')}\n")
+                    f.write(f"# Kopparapu Inner Edge: {val('d_int')} | Kopparapu Outer Edge: {val('d_ext')}\n")
+                    f.write(f"# Classic Inner Edge: {val('dc_int')} | Classic Outer Edge: {val('dc_ext')}\n")
+                    
+                    f.write("#\n# [ 5. PLOTTING PREFERENCES ]\n")
+                    f.write(f"# X-Scale: {val('x_scale')} | Y-Scale: {val('y_scale')}\n")
+                    f.write(f"# Ref Distances: {val('x_ref')} | Ref Names: {val('nome_ref')} | Ref Colors: {val('color_ref')}\n")
+                    f.write(f"# Sigma From: {val('sigmas_ref')} | Sigma Name: {val('sigmas_nome_ref')}\n")
+                    f.write("# " + "=" * 60 + "\n")
 
-                # Despejo Matricial
-                if colunas_validas:
-                    tamanho_malha = len(dados[colunas_validas[0]])
-                    for i in range(tamanho_malha):
-                        linha = [str(dados[k][i]) for k in colunas_validas]
-                        f.write(",".join(linha) + "\n")
+                    # =======================================================
+                    # Lógica inteligente para as colunas matriciais
+                    # =======================================================
+                    colunas_possiveis = [
+                        "x_tot", "y_tot", "va_total", "cs", "rho_total", "phi_total", 
+                        "deltav2_total", "dmdt_total", "P_din", "Rmag", 
+                        "num_alpha_array", "den_alpha_array"
+                    ]
+                    
+                    colunas_validas = []
+                    arrays_para_empilhar = []
+                    
+                    # O x_tot dita o tamanho que as arrays da malha principal devem ter
+                    tamanho_alvo = len(dados["x_tot"]) if "x_tot" in dados else 0
+                    
+                    for k in colunas_possiveis:
+                        if k in dados:
+                            v = dados[k]
+                            # Se for uma array exatamente com o tamanho da malha de simulação, é coluna!
+                            if isinstance(v, np.ndarray) and v.size == tamanho_alvo:
+                                colunas_validas.append(k)
+                                arrays_para_empilhar.append(v)
+                                
+                    # Escreve o cabeçalho das colunas separadas por vírgula
+                    f.write(",".join(colunas_validas) + "\n")
 
-            messagebox.showinfo(
-                "Export Success", f"Dataset successfully exported to:\n{export_path}"
-            )
-        except Exception as e:
-            messagebox.showerror(
-                "Export Failed", f"An error occurred during extraction:\n{e}"
-            )
+                    # Despejo Matricial ultrarrápido
+                    if arrays_para_empilhar:
+                        matriz = np.column_stack(arrays_para_empilhar)
+                        np.savetxt(f, matriz, delimiter=",", fmt="%.8e")
+
+                # Devolve o controlo à thread principal da Interface para mostrar o aviso
+                self.after(0, lambda: messagebox.showinfo(
+                    "Export Success", f"Dataset successfully exported to:\n{export_path}"
+                ))
+            except Exception as e:
+                self.after(0, lambda: messagebox.showerror(
+                    "Export Failed", f"An error occurred during extraction:\n{e}"
+                ))
+            finally:
+                self.after(0, lambda: self.btn_export.configure(state="normal"))
+
+        # Inicia o processo isolado para não congelar o programa
+        import threading
+        threading.Thread(target=tarefa_exportacao, daemon=True).start()
 
     # * ============================================
     # * Gestão Dinâmica de Perfis (JSON)

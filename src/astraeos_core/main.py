@@ -222,6 +222,8 @@ def main(
             cte,
             exoplanet_name,
         )
+    else:
+        d_int, d_ext, dc_int, dc_ext, P_din, Rmag = 0, 0, 0, 0, 0, 0
 
     # ? --- Processamento e Salvamento de Dados ---
     os.makedirs("data", exist_ok=True)
@@ -283,12 +285,12 @@ def main(
         phi_total=phi_total,
         deltav2_total=deltav2_total,
         dmdt_total=dmdt_total,
-        d_int=d_int if habitabilidade else np.nan,
-        d_ext=d_ext if habitabilidade else np.nan,
-        dc_int=dc_int if habitabilidade else np.nan,
-        dc_ext=dc_ext if habitabilidade else np.nan,
-        P_din=P_din if habitabilidade else np.nan,
-        Rmag=Rmag if habitabilidade else np.nan,
+        d_int=d_int,
+        d_ext=d_ext,
+        dc_int=dc_int,
+        dc_ext=dc_ext,
+        P_din=P_din,
+        Rmag=Rmag,
     )
 
     if show_progress:

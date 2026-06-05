@@ -39,7 +39,7 @@ def main_hab(
         ("Bond Albedo", Ab, "adm"),
         ("Planetary Radius", Rplan, "Rearth"),
         ("Magnetic Dipole Moment", Mmag, "Am²"),
-        ("Chapman-Ferraro Form Factor", f0, "adm"),
+        ("Magnetospheric Compression Factor", f0, "adm"),
         flush=True,
     )
     sy.status("Calculating habitable zone distances...", flush=True)
@@ -53,7 +53,7 @@ def main_hab(
         ("Kopparapu Inner Edge", d_int, "r0"),
         ("Kopparapu Outer Edge", d_ext, "r0"),
         ("Classic Inner Edge", dc_int, "r0"),
-        ("CClassic Outer Edge", dc_ext, "r0"),
+        ("Classic Outer Edge", dc_ext, "r0"),
         flush=True,
     )
     time.sleep(1)
