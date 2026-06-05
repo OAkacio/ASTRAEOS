@@ -26,12 +26,12 @@ class ToolTip:
         self.widget.bind("<Leave>", self.ocultar_tooltip)
 
     def mostrar_tooltip(self, event):
-        x = event.x_root + 15
-        y = event.y_root + 15
+        if self.tooltip_window or not self.text:
+            return
 
         self.tooltip_window = tk.Toplevel(self.widget)
         self.tooltip_window.wm_overrideredirect(True)
-        self.tooltip_window.wm_geometry(f"+{x}+{y}")
+        self.tooltip_window.attributes("-alpha", 0.0)
 
         label = tk.Label(
             self.tooltip_window,
@@ -46,6 +46,33 @@ class ToolTip:
             justify="left",
         )
         label.pack()
+
+        self.tooltip_window.wm_geometry(f"+{event.x_root}+{event.y_root}")
+        self.tooltip_window.update_idletasks()
+
+        tooltip_width = self.tooltip_window.winfo_reqwidth()
+        tooltip_height = self.tooltip_window.winfo_reqheight()
+
+        screen_width = self.tooltip_window.winfo_screenwidth()
+        screen_height = self.tooltip_window.winfo_screenheight()
+
+        offset_x = 15
+        offset_y = 15
+        x = event.x_root + offset_x
+        y = event.y_root + offset_y
+
+        if x + tooltip_width > screen_width:
+            x = event.x_root - tooltip_width - offset_x
+
+        if y + tooltip_height > screen_height:
+            y = event.y_root - tooltip_height - offset_y
+
+        x = max(0, x)
+        y = max(0, y)
+
+        self.tooltip_window.wm_geometry(f"+{x}+{y}")
+        self.tooltip_window.attributes("-topmost", True)
+        self.tooltip_window.attributes("-alpha", 1.0)
 
     def ocultar_tooltip(self, event=None):
         if self.tooltip_window:
@@ -76,6 +103,7 @@ class ConfigPage(ctk.CTkScrollableFrame):
         self.on_abort_click = on_abort_click
         self.on_simulate_exo_click = on_simulate_exo_click
         self.assets_path = assets_path
+        self.exo_inputs = []  # Lista para guardar os widgets do exoplaneta
 
         # ? --- Configuração de Layout Principal ---
         self.grid_columnconfigure(0, weight=1)
@@ -118,7 +146,7 @@ class ConfigPage(ctk.CTkScrollableFrame):
             command=self.load_profile,
         )
         self.btn_load_prof.grid(row=0, column=1, padx=(0, 5), sticky="e")
-        ToolTip(self.btn_load_prof, "Load Profile")
+        ToolTip(self.btn_load_prof, "Load Input Profile (*.json)")
 
         self.btn_save_prof = ctk.CTkButton(
             self.header_frame,
@@ -131,7 +159,7 @@ class ConfigPage(ctk.CTkScrollableFrame):
             command=self.save_profile,
         )
         self.btn_save_prof.grid(row=0, column=2, padx=(0, 5), sticky="e")
-        ToolTip(self.btn_save_prof, "Save Profile")
+        ToolTip(self.btn_save_prof, "Save Input Profile (*.json)")
 
         self.btn_export = ctk.CTkButton(
             self.header_frame,
@@ -144,7 +172,10 @@ class ConfigPage(ctk.CTkScrollableFrame):
             command=self.export_data,
         )
         self.btn_export.grid(row=0, column=3, padx=(0, 5), sticky="e")
-        ToolTip(self.btn_export, "Export Data")
+        ToolTip(
+            self.btn_export,
+            "Export Data for Analysis\nGenerates a raw scientific dataset (*.csv) from the current simulation.",
+        )
 
         self.btn_about = ctk.CTkButton(
             self.header_frame,
@@ -157,7 +188,10 @@ class ConfigPage(ctk.CTkScrollableFrame):
             command=self.show_about,
         )
         self.btn_about.grid(row=0, column=4, sticky="e")
-        ToolTip(self.btn_about, "About")
+        ToolTip(
+            self.btn_about,
+            "About ASTRAEOS\nObjective, Architecture, and Acknowledgments.",
+        )
 
         self.tabview = ctk.CTkTabview(self, height=250)
         self.tabview.grid(row=1, column=0, padx=20, pady=5, sticky="nsew")
@@ -230,6 +264,9 @@ class ConfigPage(ctk.CTkScrollableFrame):
             state="disabled",
         )
         self.btn_abort.grid(row=0, column=1, sticky="ew", padx=(5, 0))
+
+        # Força os inputs do exoplaneta a começarem bloqueados
+        self.set_exoplanet_state("disabled")
 
     # * ============================================
     # * Ferramentas de Dados (Export & About)
@@ -508,10 +545,11 @@ class ConfigPage(ctk.CTkScrollableFrame):
             (1, "Stellar Mass ( M ) :", self.app_state.Mstar, "[ Msun ]"),
             (2, "Stellar Radius ( R ) :", self.app_state.Rstar, "[ Rsun ]"),
             (3, "Effective Temperature ( Teff ) :", self.app_state.Teff, "[ K ]"),
-            (4, "Coronal Temperature ( T ) :", self.app_state.T, "[ K ]"),
-            (5, "Coronal Base Density ( rho0 ) :", self.app_state.rho0, "[ g/cm³ ]"),
-            (6, "Surface Magnetic Field ( B0 ) :", self.app_state.B0, "[ G ]"),
-            (7, "Mean Molecular Weight ( mu ) :", self.app_state.mu, "[ adm ]"),
+            (4, "Stellar Luminosity ( L ) :", self.app_state.Lstar, "[ Lsun ]"),
+            (5, "Coronal Temperature ( T ) :", self.app_state.T, "[ K ]"),
+            (6, "Coronal Base Density ( rho0 ) :", self.app_state.rho0, "[ g/cm³ ]"),
+            (7, "Surface Magnetic Field ( B0 ) :", self.app_state.B0, "[ G ]"),
+            (8, "Mean Molecular Weight ( mu ) :", self.app_state.mu, "[ adm ]"),
         ]
 
         for linha, texto, var, uni in campos:
@@ -819,9 +857,13 @@ class ConfigPage(ctk.CTkScrollableFrame):
         ctk.CTkLabel(
             aba, text="Exoplanet Designation:", font=fonte, text_color="#E5C07B"
         ).grid(row=0, column=0, padx=20, pady=5, sticky="w")
-        ctk.CTkEntry(
+        entry_nome_exo = ctk.CTkEntry(
             aba, textvariable=self.app_state.exoplanet_name, font=fonte_var
-        ).grid(row=0, column=1, columnspan=2, padx=(10, 0), pady=5, sticky="we")
+        )
+        entry_nome_exo.grid(
+            row=0, column=1, columnspan=2, padx=(10, 0), pady=5, sticky="we"
+        )
+        self.exo_inputs.append(entry_nome_exo)
 
         ctk.CTkLabel(
             aba, text="Orbital Distance ( Dorb ) :", font=fonte, text_color="#E5C07B"
@@ -830,6 +872,7 @@ class ConfigPage(ctk.CTkScrollableFrame):
             aba, textvariable=self.app_state.Dorb, font=fonte_var, width=80
         )
         entry_dorb.grid(row=1, column=1, padx=(10, 5), pady=5, sticky="w")
+        self.exo_inputs.append(entry_dorb)
 
         try:
             valor_minimo = float(self.app_state.Rstar.get()) * rsunAU
@@ -854,6 +897,8 @@ class ConfigPage(ctk.CTkScrollableFrame):
             command=lambda v: self.app_state.Dorb.set(f"{v:.5f}"),
         )
         self.slider_dorb.grid(row=1, column=2, padx=(5, 10), pady=5, sticky="we")
+        self.exo_inputs.append(self.slider_dorb)
+
         ctk.CTkLabel(aba, text=" [ AU ]", font=fonte_uni, text_color="#8b949e").grid(
             row=1, column=3, padx=(0, 20), pady=5, sticky="w"
         )
@@ -870,9 +915,9 @@ class ConfigPage(ctk.CTkScrollableFrame):
         ctk.CTkLabel(
             aba, text="Orbital Eccentricity ( e ) :", font=fonte, text_color="#E5C07B"
         ).grid(row=2, column=0, padx=20, pady=5, sticky="w")
-        ctk.CTkEntry(aba, textvariable=self.app_state.e, font=fonte_var).grid(
-            row=2, column=1, columnspan=2, padx=(10, 0), pady=5, sticky="we"
-        )
+        entry_e = ctk.CTkEntry(aba, textvariable=self.app_state.e, font=fonte_var)
+        entry_e.grid(row=2, column=1, columnspan=2, padx=(10, 0), pady=5, sticky="we")
+        self.exo_inputs.append(entry_e)
         ctk.CTkLabel(aba, text="  [ adm ]", font=fonte_uni, text_color="#8b949e").grid(
             row=2, column=3, padx=(0, 20), pady=5, sticky="w"
         )
@@ -880,9 +925,9 @@ class ConfigPage(ctk.CTkScrollableFrame):
         ctk.CTkLabel(
             aba, text="Bond Albedo ( Ab ) :", font=fonte, text_color="#E5C07B"
         ).grid(row=3, column=0, padx=20, pady=5, sticky="w")
-        ctk.CTkEntry(aba, textvariable=self.app_state.Ab, font=fonte_var).grid(
-            row=3, column=1, columnspan=2, padx=(10, 0), pady=5, sticky="we"
-        )
+        entry_ab = ctk.CTkEntry(aba, textvariable=self.app_state.Ab, font=fonte_var)
+        entry_ab.grid(row=3, column=1, columnspan=2, padx=(10, 0), pady=5, sticky="we")
+        self.exo_inputs.append(entry_ab)
         ctk.CTkLabel(aba, text="  [ adm ]", font=fonte_uni, text_color="#8b949e").grid(
             row=3, column=3, padx=(0, 20), pady=5, sticky="w"
         )
@@ -900,9 +945,13 @@ class ConfigPage(ctk.CTkScrollableFrame):
         ctk.CTkLabel(
             aba, text="Planetary Radius ( Rplan ) :", font=fonte, text_color="#E5C07B"
         ).grid(row=0, column=0, padx=20, pady=5, sticky="w")
-        ctk.CTkEntry(aba, textvariable=self.app_state.Rplan, font=fonte_var).grid(
+        entry_rplan = ctk.CTkEntry(
+            aba, textvariable=self.app_state.Rplan, font=fonte_var
+        )
+        entry_rplan.grid(
             row=0, column=1, columnspan=2, padx=(10, 0), pady=5, sticky="we"
         )
+        self.exo_inputs.append(entry_rplan)
         ctk.CTkLabel(
             aba, text="  [ Rearth ]", font=fonte_uni, text_color="#8b949e"
         ).grid(row=0, column=3, padx=(0, 20), pady=5, sticky="w")
@@ -917,6 +966,7 @@ class ConfigPage(ctk.CTkScrollableFrame):
             aba, textvariable=self.app_state.Mmag, font=fonte_var, width=80
         )
         entry_mmag.grid(row=1, column=1, padx=(10, 5), pady=5, sticky="w")
+        self.exo_inputs.append(entry_mmag)
 
         slider_mmag = ctk.CTkSlider(
             aba,
@@ -930,6 +980,7 @@ class ConfigPage(ctk.CTkScrollableFrame):
             command=lambda v: self.app_state.Mmag.set(f"{v:.2e}"),
         )
         slider_mmag.grid(row=1, column=2, padx=(5, 10), pady=5, sticky="we")
+        self.exo_inputs.append(slider_mmag)
         ctk.CTkLabel(aba, text="  [ Am² ]", font=fonte_uni, text_color="#8b949e").grid(
             row=1, column=3, padx=(0, 20), pady=5, sticky="w"
         )
@@ -949,9 +1000,9 @@ class ConfigPage(ctk.CTkScrollableFrame):
             font=fonte,
             text_color="#E5C07B",
         ).grid(row=2, column=0, padx=20, pady=5, sticky="w")
-        ctk.CTkEntry(aba, textvariable=self.app_state.f0, font=fonte_var).grid(
-            row=2, column=1, columnspan=2, padx=(10, 0), pady=5, sticky="we"
-        )
+        entry_f0 = ctk.CTkEntry(aba, textvariable=self.app_state.f0, font=fonte_var)
+        entry_f0.grid(row=2, column=1, columnspan=2, padx=(10, 0), pady=5, sticky="we")
+        self.exo_inputs.append(entry_f0)
         ctk.CTkLabel(aba, text="  [ adm ]", font=fonte_uni, text_color="#8b949e").grid(
             row=2, column=3, padx=(0, 20), pady=5, sticky="w"
         )
@@ -959,6 +1010,39 @@ class ConfigPage(ctk.CTkScrollableFrame):
     # * ============================================
     # * Lógica Dinâmica da Interface
     # * ============================================
+    def set_exoplanet_state(self, state_str):
+        for widget in self.exo_inputs:
+            widget.configure(state=state_str)
+
+            # ? --- Feedback Visual de Bloqueio/Desbloqueio ---
+            if isinstance(widget, ctk.CTkEntry):
+                if state_str == "disabled":
+                    widget.configure(
+                        text_color="#3c4044",  # Texto fantasma (cinza escuro)
+                        border_color="#282C34",  # Borda ofuscada
+                        fg_color="#1E1E1E",  # Fundo fundido com o painel
+                    )
+                else:
+                    widget.configure(
+                        text_color="white",  # Texto ativo (padrão)
+                        border_color="#565b5e",  # Borda ativa
+                        fg_color="#343638",  # Fundo ativo
+                    )
+
+            elif isinstance(widget, ctk.CTkSlider):
+                if state_str == "disabled":
+                    widget.configure(
+                        button_color="#282C34",  # Botão cinza escuro
+                        progress_color="#282C34",  # Trilha cinza escuro
+                        button_hover_color="#282C34",
+                    )
+                else:
+                    widget.configure(
+                        button_color="#61AFEF",  # Azul ASTRAEOS (ativo)
+                        progress_color="#1F618D",  # Trilha preenchida
+                        button_hover_color="#56B6C2",
+                    )
+
     def _alternar_parametros_dv2(self):
         estado_ativo = self.app_state.searchdv2.get()
         if estado_ativo:

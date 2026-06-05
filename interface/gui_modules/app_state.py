@@ -14,6 +14,7 @@ class AppState:
         self.Mstar = ctk.StringVar(value="0.0898")
         self.Rstar = ctk.StringVar(value="0.1192")
         self.Teff = ctk.StringVar(value="2566.0")
+        self.Lstar = ctk.StringVar(value="5.2e-4")
         self.B0 = ctk.StringVar(value="600.0")
         self.rho0 = ctk.StringVar(value="5e-14")
         self.T = ctk.StringVar(value="2.0e6")
@@ -33,7 +34,6 @@ class AppState:
         # ? --- Variáveis de Habitabilidade e Exoplanetas ---
         self.habitabilidade = ctk.BooleanVar(value=False)
         self.exoplanet_name = ctk.StringVar(value="TRAPPIST-1f")
-        self.Lstar = ctk.StringVar(value="5.2e-4")
         self.e = ctk.StringVar(value="0.0056")
         self.Ab = ctk.StringVar(value="0.3")
         self.f0 = ctk.StringVar(value="1.16")
@@ -96,6 +96,7 @@ class AppState:
             "Mstar": float(self.Mstar.get()),
             "Rstar": float(self.Rstar.get()),
             "Teff": float(self.Teff.get()),
+            "Lstar": float(self.Lstar.get()),
             "T": float(self.T.get()),
             "mu": float(self.mu.get()),
             "rho0": float(self.rho0.get()),
@@ -113,7 +114,6 @@ class AppState:
             "x_sim": float(self.x_sim.get()),
             "habitabilidade": self.habitabilidade.get(),
             "exoplanet_name": self.exoplanet_name.get(),
-            "Lstar": float(self.Lstar.get()),
             "e": float(self.e.get()),
             "Ab": float(self.Ab.get()),
             "f0": float(self.f0.get()),

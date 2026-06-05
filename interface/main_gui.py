@@ -297,6 +297,7 @@ class AppWindow(ctk.CTk):
                 state="disabled", text="Simulating..."
             )
             self.pagina_atual.btn_abort.configure(state="normal")
+            self.pagina_atual.set_exoplanet_state("disabled")
 
             self.set_status(
                 "Starting Exoplanet Simulation... Check the console.", "#E5C07B"
@@ -328,6 +329,7 @@ class AppWindow(ctk.CTk):
             state="normal", text="Simulate Exoplanet"
         )
         self.pagina_atual.btn_abort.configure(state="disabled")
+        self.pagina_atual.set_exoplanet_state("normal")
 
         p = self.app_state.parameters_plot()
         i = self.app_state.parameters_input()
@@ -428,24 +430,6 @@ class AppWindow(ctk.CTk):
                 )
                 self.exibir_grafico(figura_plasmaprop, self.tab_plasmaprop)
 
-                if i["habitabilidade"]:
-                    figura_radar = plot_habitability_radar(
-                        cte=i["cte"],
-                        Dorb=i["Dorb"],
-                        e=i["e"],
-                        Rstar=i["Rstar"],
-                        exoplanet_name=i["exoplanet_name"],
-                    )
-                    self.exibir_grafico(figura_radar, self.tab_zh)
-
-                if i["habitabilidade"]:
-                    figura_mag = plot_magnetosphere_shield(
-                        cte=i["cte"],
-                        Rplan=i["Rplan"],
-                        exoplanet_name=i["exoplanet_name"],
-                    )
-                    self.exibir_grafico(figura_mag, self.tab_magnetospheric)
-
             self.set_status("Plot updated successfully!", "#98C379")
 
         except Exception as e:
@@ -495,6 +479,7 @@ class AppWindow(ctk.CTk):
 
         self.pagina_atual.btn_update_plot.configure(state="disabled")
         self.pagina_atual.btn_sim_exo.configure(state="disabled")
+        self.pagina_atual.set_exoplanet_state("disabled")
 
         if parametros_more["multicurve"]:
             parametros_completos["script_type"] = "multicurve"
@@ -562,11 +547,13 @@ class AppWindow(ctk.CTk):
             self.pagina_atual.btn_sim_exo.configure(
                 state="normal", text="Simulate Exoplanet"
             )
+            self.pagina_atual.set_exoplanet_state("normal")
         else:
             self.pagina_atual.btn_update_plot.configure(state="disabled")
             self.pagina_atual.btn_sim_exo.configure(
                 state="disabled", text="Simulate Exoplanet"
             )
+            self.pagina_atual.set_exoplanet_state("disabled")
 
         self.set_status("Simulation aborted successfully.", "#E06C75")
         self.progressbar.pack_forget()
@@ -586,6 +573,61 @@ class AppWindow(ctk.CTk):
     # * ============================================
     # * Callbacks e Sinais em Tempo Real
     # * ============================================
+    def _classificar_erro_fisico(self, erro_str):
+        erro_str_lower = erro_str.lower()
+
+        if "domainerror" in erro_str_lower or "complex result" in erro_str_lower:
+            return (
+                "DomainError (Negative Velocity)",
+                "Stellar free-fall. Gravity overcame the pressure gradient mid-flight.",
+                "Provide more lift/energy to the flow so it doesn't decelerate.",
+                "Increase T (Coronal Temp), phi0, or modify Expansion Factor (S).",
+            )
+        elif (
+            "maximum number of evaluations" in erro_str_lower
+            or "quadgk" in erro_str_lower
+        ):
+            return (
+                "QuadGK MaxEval (Convergence Failure)",
+                "Wave damping is too abrupt (stiff equation), causing an infinite loop in the integrator.",
+                "Smooth the energy dissipation curve along the corona.",
+                "Increase L0 (Damping Length) or reduce deltav0.",
+            )
+        elif (
+            "nan" in erro_str_lower
+            or "inf" in erro_str_lower
+            or "singular" in erro_str_lower
+        ):
+            return (
+                "NaN/Inf in RK4 (Choked Flow)",
+                "Integration hit the mathematical singularity without crossing it perfectly. Acceleration blew up.",
+                "Refine the search grid or widen the jump over the singularity.",
+                "Reduce u0_step, or slightly adjust Critical Point Jump Size.",
+            )
+        elif "u0_collapse" in erro_str_lower:
+            return (
+                "Search Collapse (Base Velocity = 0)",
+                "Star lacks thermodynamic/magnetic energy to launch a continuous wind.",
+                "Inject more energy at the base or reduce stellar weight.",
+                "Increase T, deltav0, or reduce Stellar Mass.",
+            )
+        elif "u0_limit" in erro_str_lower:
+            return (
+                "Search Boundary Hit",
+                "The required initial velocity is lower than the search grid allows.",
+                "Expand the search grid to lower values.",
+                "Reduce Base Velocity Search - Lower Limit.",
+            )
+        elif "breeze_state" in erro_str_lower:
+            return (
+                "Breeze State (Sub-Alfvénic Collapse)",
+                "The flow failed to accelerate properly and collapsed into a slow breeze. The initial velocity (u0) lacked the precision to perfectly thread the critical point.",
+                "Increase the numerical precision of the initial velocity search.",
+                "Reduce Base Velocity Search - Step (u0_step).",
+            )
+
+        return None
+
     def ao_terminar_com_sucesso(self):
         self.after(0, self._atualizar_ui_sucesso)
 
@@ -597,6 +639,7 @@ class AppWindow(ctk.CTk):
         self.pagina_atual.btn_sim_exo.configure(
             state="normal", text="Simulate Exoplanet"
         )
+        self.pagina_atual.set_exoplanet_state("normal")
 
         self.pagina_atual.btn_abort.configure(state="disabled", text="Abort")
         self.progressbar.pack_forget()
@@ -606,7 +649,7 @@ class AppWindow(ctk.CTk):
         i = self.app_state.parameters_input()
         m = self.app_state.parameters_more_options()
 
-        limite_au = float(i["x_sim"]) * float(i["Rstar"]) * rsunAU
+        limite_au = float(i["x_sim"]) * float(i["Rstar"]) * 0.0046504
         self.pagina_atual.slider_dorb.configure(to=limite_au)
 
         try:
@@ -687,77 +730,14 @@ class AppWindow(ctk.CTk):
     def ao_dar_erro(self, mensagem_erro):
         self.after(0, self._atualizar_ui_erro, mensagem_erro)
 
-    # * ============================================
-    # * Motor de Diagnóstico Físico
-    # * ============================================
-    def _classificar_erro_fisico(self, erro_str):
-        erro_str_lower = erro_str.lower()
-
-        if "domainerror" in erro_str_lower or "complex result" in erro_str_lower:
-            return (
-                "DomainError (Negative Velocity)",
-                "Stellar free-fall. Gravity overcame the pressure gradient mid-flight.",
-                "Provide more lift/energy to the flow so it doesn't decelerate.",
-                "Increase T (Coronal Temp), phi0, or modify Expansion Factor (S).",
-            )
-        elif (
-            "maximum number of evaluations" in erro_str_lower
-            or "quadgk" in erro_str_lower
-        ):
-            return (
-                "QuadGK MaxEval (Convergence Failure)",
-                "Wave damping is too abrupt (stiff equation), causing an infinite loop in the integrator.",
-                "Smooth the energy dissipation curve along the corona.",
-                "Increase L0 (Damping Length) or reduce deltav0.",
-            )
-        elif (
-            "nan" in erro_str_lower
-            or "inf" in erro_str_lower
-            or "singular" in erro_str_lower
-        ):
-            return (
-                "NaN/Inf in RK4 (Choked Flow)",
-                "Integration hit the mathematical singularity without crossing it perfectly. Acceleration blew up.",
-                "Refine the search grid or widen the jump over the singularity.",
-                "Reduce u0_step, or slightly adjust Critical Point Jump Size.",
-            )
-        # NOTA: Se no futuro você quiser forçar o Julia a ejetar erro quando u0 == 0 ou u0 == u0_ini,
-        # basta o Julia fazer: error("U0_COLLAPSE") ou error("U0_LOWER_LIMIT"). O Python vai capturar aqui:
-        elif "u0_collapse" in erro_str_lower:
-            return (
-                "Search Collapse (Base Velocity = 0)",
-                "Star lacks thermodynamic/magnetic energy to launch a continuous wind.",
-                "Inject more energy at the base or reduce stellar weight.",
-                "Increase T, deltav0, or reduce Stellar Mass.",
-            )
-        elif "u0_limit" in erro_str_lower:
-            return (
-                "Search Boundary Hit",
-                "The required initial velocity is lower than the search grid allows.",
-                "Expand the search grid to lower values.",
-                "Reduce Base Velocity Search - Lower Limit.",
-            )
-        elif "breeze_state" in erro_str_lower:
-            return (
-                "Breeze State (Sub-Alfvénic Collapse)",
-                "The flow failed to accelerate properly and collapsed into a slow breeze. The initial velocity (u0) lacked the precision to perfectly thread the critical point.",
-                "Increase the numerical precision of the initial velocity search.",
-                "Reduce Base Velocity Search - Step (u0_step).",
-            )
-
-        return None
-
     def _atualizar_ui_erro(self, erro):
         diagnostico = self._classificar_erro_fisico(str(erro))
 
-        # Se for um erro de física conhecido, montamos o relatório
         if diagnostico:
             tipo, significado, solucao, parametro = diagnostico
 
-            # Feedback Curto na Status Bar
             self.set_status(f"Physics Error: {tipo} | Tweak: {parametro}", "#E06C75")
 
-            # Relatório Completo no Console
             msg_console = (
                 f"\n\x1b[31m[!] PHYSICS INTEGRATION ERROR\x1b[0m\n"
                 f"► \x1b[37mPresentation:\x1b[0m {tipo}\n"
@@ -767,12 +747,10 @@ class AppWindow(ctk.CTk):
             )
             self.escrever_console(msg_console)
 
-        # Se for um erro de sistema (bug de Python/Julia não listado)
         else:
             self.set_status("System execution error. Check console.", "#E06C75")
             self.escrever_console(f"\n\x1b[31m[!] SYSTEM ERROR:\x1b[0m\n{erro}\n\n")
 
-        # Libera os botões de execução
         self.pagina_atual.btn_run.configure(state="normal", text="Run Star Simulation")
 
         i = self.app_state.parameters_input()
@@ -781,11 +759,13 @@ class AppWindow(ctk.CTk):
             self.pagina_atual.btn_sim_exo.configure(
                 state="normal", text="Simulate Exoplanet"
             )
+            self.pagina_atual.set_exoplanet_state("normal")
         else:
             self.pagina_atual.btn_update_plot.configure(state="disabled")
             self.pagina_atual.btn_sim_exo.configure(
                 state="disabled", text="Simulate Exoplanet"
             )
+            self.pagina_atual.set_exoplanet_state("disabled")
 
         self.pagina_atual.btn_abort.configure(state="disabled", text="Abort")
         self.progressbar.pack_forget()
