@@ -7,7 +7,7 @@ import json
 import os
 from tkinter import filedialog
 from PIL import Image
-from astropy import constants as const
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC_PATH = os.path.join(BASE_DIR, "src")
 from astraeos_core.utils import *
@@ -683,10 +683,12 @@ class ConfigPage(ctk.CTkScrollableFrame):
         )
         entry_dorb.grid(row=1, column=1, padx=(10, 5), pady=5, sticky="w")
 
-        slider_dorb = ctk.CTkSlider(
+        self.slider_dorb = ctk.CTkSlider(
             aba,
             from_=float(self.app_state.Rstar.get()) * rsunAU,
-            to=500*float(self.app_state.Rstar.get()) * rsunAU,
+            to=float(self.app_state.x_sim.get())
+            * float(self.app_state.Rstar.get())
+            * rsunAU,
             height=8,
             button_length=12,
             button_color="#61AFEF",
@@ -694,14 +696,14 @@ class ConfigPage(ctk.CTkScrollableFrame):
             progress_color="#1F618D",
             command=lambda v: self.app_state.Dorb.set(f"{v:.5f}"),
         )
-        slider_dorb.grid(row=1, column=2, padx=(5, 10), pady=5, sticky="we")
+        self.slider_dorb.grid(row=1, column=2, padx=(5, 10), pady=5, sticky="we")
         ctk.CTkLabel(aba, text=" [ AU ]", font=fonte_uni, text_color="#8b949e").grid(
             row=1, column=3, padx=(0, 20), pady=5, sticky="w"
         )
 
         def update_dorb_slider(*args):
             try:
-                slider_dorb.set(float(self.app_state.Dorb.get()))
+                self.slider_dorb.set(float(self.app_state.Dorb.get()))
             except ValueError:
                 pass
 

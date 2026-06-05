@@ -19,6 +19,7 @@ caminho_icone = os.path.join(ASSETS_PATH, "icon.ico")
 from gui_modules.app_state import AppState
 from gui_modules.pages.config_page import ConfigPage
 from gui_modules.runner_thread import run
+from astraeos_core.utils import *
 from astraeos_core.plot_curve import (
     plot_perfil_output,
     plot_multicurve,
@@ -605,6 +606,9 @@ class AppWindow(ctk.CTk):
         i = self.app_state.parameters_input()
         m = self.app_state.parameters_more_options()
 
+        limite_au = float(i["x_sim"]) * float(i["Rstar"]) * rsunAU
+        self.pagina_atual.slider_dorb.configure(to=limite_au)
+
         try:
             if m["multicurve"]:
                 figura_inicial = plot_multicurve(
@@ -688,27 +692,34 @@ class AppWindow(ctk.CTk):
     # * ============================================
     def _classificar_erro_fisico(self, erro_str):
         erro_str_lower = erro_str.lower()
-        
+
         if "domainerror" in erro_str_lower or "complex result" in erro_str_lower:
             return (
                 "DomainError (Negative Velocity)",
                 "Stellar free-fall. Gravity overcame the pressure gradient mid-flight.",
                 "Provide more lift/energy to the flow so it doesn't decelerate.",
-                "Increase T (Coronal Temp), phi0, or modify Expansion Factor (S)."
+                "Increase T (Coronal Temp), phi0, or modify Expansion Factor (S).",
             )
-        elif "maximum number of evaluations" in erro_str_lower or "quadgk" in erro_str_lower:
+        elif (
+            "maximum number of evaluations" in erro_str_lower
+            or "quadgk" in erro_str_lower
+        ):
             return (
                 "QuadGK MaxEval (Convergence Failure)",
                 "Wave damping is too abrupt (stiff equation), causing an infinite loop in the integrator.",
                 "Smooth the energy dissipation curve along the corona.",
-                "Increase L0 (Damping Length) or reduce deltav0."
+                "Increase L0 (Damping Length) or reduce deltav0.",
             )
-        elif "nan" in erro_str_lower or "inf" in erro_str_lower or "singular" in erro_str_lower:
+        elif (
+            "nan" in erro_str_lower
+            or "inf" in erro_str_lower
+            or "singular" in erro_str_lower
+        ):
             return (
                 "NaN/Inf in RK4 (Choked Flow)",
                 "Integration hit the mathematical singularity without crossing it perfectly. Acceleration blew up.",
                 "Refine the search grid or widen the jump over the singularity.",
-                "Reduce u0_step, or slightly adjust Critical Point Jump Size."
+                "Reduce u0_step, or slightly adjust Critical Point Jump Size.",
             )
         # NOTA: Se no futuro você quiser forçar o Julia a ejetar erro quando u0 == 0 ou u0 == u0_ini,
         # basta o Julia fazer: error("U0_COLLAPSE") ou error("U0_LOWER_LIMIT"). O Python vai capturar aqui:
@@ -717,35 +728,35 @@ class AppWindow(ctk.CTk):
                 "Search Collapse (Base Velocity = 0)",
                 "Star lacks thermodynamic/magnetic energy to launch a continuous wind.",
                 "Inject more energy at the base or reduce stellar weight.",
-                "Increase T, deltav0, or reduce Stellar Mass."
+                "Increase T, deltav0, or reduce Stellar Mass.",
             )
         elif "u0_limit" in erro_str_lower:
             return (
                 "Search Boundary Hit",
                 "The required initial velocity is lower than the search grid allows.",
                 "Expand the search grid to lower values.",
-                "Reduce Base Velocity Search - Lower Limit."
+                "Reduce Base Velocity Search - Lower Limit.",
             )
         elif "breeze_state" in erro_str_lower:
             return (
                 "Breeze State (Sub-Alfvénic Collapse)",
                 "The flow failed to accelerate properly and collapsed into a slow breeze. The initial velocity (u0) lacked the precision to perfectly thread the critical point.",
                 "Increase the numerical precision of the initial velocity search.",
-                "Reduce Base Velocity Search - Step (u0_step)."
+                "Reduce Base Velocity Search - Step (u0_step).",
             )
-            
+
         return None
 
     def _atualizar_ui_erro(self, erro):
         diagnostico = self._classificar_erro_fisico(str(erro))
-        
+
         # Se for um erro de física conhecido, montamos o relatório
         if diagnostico:
             tipo, significado, solucao, parametro = diagnostico
-            
+
             # Feedback Curto na Status Bar
             self.set_status(f"Physics Error: {tipo} | Tweak: {parametro}", "#E06C75")
-            
+
             # Relatório Completo no Console
             msg_console = (
                 f"\n\x1b[31m[!] PHYSICS INTEGRATION ERROR\x1b[0m\n"
@@ -755,7 +766,7 @@ class AppWindow(ctk.CTk):
                 f"► \x1b[37mParameter to tweak:\x1b[0m \x1b[33m{parametro}\x1b[0m\n\n"
             )
             self.escrever_console(msg_console)
-            
+
         # Se for um erro de sistema (bug de Python/Julia não listado)
         else:
             self.set_status("System execution error. Check console.", "#E06C75")
