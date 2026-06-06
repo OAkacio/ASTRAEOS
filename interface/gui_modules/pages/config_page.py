@@ -668,14 +668,14 @@ class ConfigPage(ctk.CTkFrame):  # <-- ALTERADO: Agora é um Frame fixo raiz
 
         campos = [
             (0, "Target Name:", self.app_state.nome, ""),
-            (1, "Stellar Mass ( M ) :", self.app_state.Mstar, "[ Msun ]"),
-            (2, "Stellar Radius ( R ) :", self.app_state.Rstar, "[ Rsun ]"),
+            (1, "Stellar Mass ( M★ ) :", self.app_state.Mstar, "[ M⊙ ]"),
+            (2, "Stellar Radius ( R★ ) :", self.app_state.Rstar, "[ R⊙ ]"),
             (3, "Effective Temperature ( Teff ) :", self.app_state.Teff, "[ K ]"),
-            (4, "Stellar Luminosity ( L ) :", self.app_state.Lstar, "[ Lsun ]"),
+            (4, "Stellar Luminosity ( L★ ) :", self.app_state.Lstar, "[ L⊙ ]"),
             (5, "Coronal Temperature ( T ) :", self.app_state.T, "[ K ]"),
-            (6, "Coronal Base Density ( rho0 ) :", self.app_state.rho0, "[ g/cm³ ]"),
-            (7, "Surface Magnetic Field ( B0 ) :", self.app_state.B0, "[ G ]"),
-            (8, "Mean Molecular Weight ( mu ) :", self.app_state.mu, "[ adm ]"),
+            (6, "Coronal Base Density ( ρ₀ ) :", self.app_state.rho0, "[ g/cm³ ]"),
+            (7, "Surface Magnetic Field ( B₀ ) :", self.app_state.B0, "[ G ]"),
+            (8, "Mean Molecular Weight ( μ ) :", self.app_state.mu, "[ adm ]"),
         ]
 
         for linha, texto, var, uni in campos:
@@ -708,12 +708,12 @@ class ConfigPage(ctk.CTkFrame):  # <-- ALTERADO: Agora é um Frame fixo raiz
             (0, "Expansion Factor ( S ) :", self.app_state.S_divergencia, "[ adm ]"),
             (
                 1,
-                "Initial Wave Amplitude ( DeltaV0² ) :",
+                "Initial Wave Amplitude ( Δv₀² ) :",
                 self.app_state.deltav0,
                 "[ ve0² ]",
             ),
-            (2, "Initial Alfvén Flux ( phi0 ) :", self.app_state.phi0, "[ erg/cm²/s ]"),
-            (3, "Damping Length ( L0 ) :", self.app_state.L0, "[ r0 ]"),
+            (2, "Initial Alfvén Flux ( φ₀ ) :", self.app_state.phi0, "[ erg/cm²/s ]"),
+            (3, "Damping Length ( L₀ ) :", self.app_state.L0, "[ R★ ]"),
         ]
 
         for linha, texto, var, uni in campos:
@@ -787,8 +787,8 @@ class ConfigPage(ctk.CTkFrame):  # <-- ALTERADO: Agora é um Frame fixo raiz
         fonte_uni = ctk.CTkFont(family="Roboto", size=12, weight="normal")
 
         campos = [
-            (0, "Simulation Distance :", self.app_state.x_sim, "[ Rstar ]"),
-            (1, "Integration Step :", self.app_state.h_rk, "[ Rstar ]"),
+            (0, "Simulation Distance :", self.app_state.x_sim, "[ R★ ]"),
+            (1, "Integration Step :", self.app_state.h_rk, "[ R★ ]"),
             (
                 2,
                 "Base Velocity Search - Lower Limit :",
@@ -796,12 +796,12 @@ class ConfigPage(ctk.CTkFrame):  # <-- ALTERADO: Agora é um Frame fixo raiz
                 "[ ve0 ]",
             ),
             (3, "Base Velocity Search - Step :", self.app_state.u0_step, "[ ve0 ]"),
-            (4, "Critical Point Jump Size :", self.app_state.tamanho_pulo, "[ Rstar ]"),
+            (4, "Critical Point Jump Size :", self.app_state.tamanho_pulo, "[ R★ ]"),
             (
                 5,
                 "Topology Backtrack Steps :",
                 self.app_state.recuo_pulo,
-                "[ 1e-5 Rstar ]",
+                "[ 1e-5 R★ ]",
             ),
         ]
 
@@ -821,7 +821,7 @@ class ConfigPage(ctk.CTkFrame):  # <-- ALTERADO: Agora é um Frame fixo raiz
         fonte = ctk.CTkFont(family="Roboto", size=13, weight="normal")
         fonte_var = ctk.CTkFont(family="Roboto", size=12, weight="normal")
 
-        headers = ["Distance [r0]", "Label", "Color [Hex]", "Line Style"]
+        headers = ["Distance [R★]", "Label", "Color [Hex]", "Line Style"]
         for col, text in enumerate(headers):
             aba.grid_columnconfigure(col, weight=1)
             ctk.CTkLabel(aba, text=text, font=fonte, text_color="#E5C07B").grid(
@@ -1119,7 +1119,7 @@ class ConfigPage(ctk.CTkFrame):  # <-- ALTERADO: Agora é um Frame fixo raiz
         fonte_uni = ctk.CTkFont(family="Roboto", size=12, weight="normal")
 
         ctk.CTkLabel(
-            aba, text="Planetary Radius ( Rplan ) :", font=fonte, text_color="#E5C07B"
+            aba, text="Planetary Radius ( Rₚ ) :", font=fonte, text_color="#E5C07B"
         ).grid(row=0, column=0, padx=20, pady=5, sticky="w")
         entry_rplan = ctk.CTkEntry(
             aba, textvariable=self.app_state.Rplan, font=fonte_var
@@ -1129,7 +1129,7 @@ class ConfigPage(ctk.CTkFrame):  # <-- ALTERADO: Agora é um Frame fixo raiz
         )
         self.exo_inputs.append(entry_rplan)
         ctk.CTkLabel(
-            aba, text="  [ Rearth ]", font=fonte_uni, text_color="#8b949e"
+            aba, text="  [ R⊕ ]", font=fonte_uni, text_color="#8b949e"
         ).grid(row=0, column=3, padx=(0, 20), pady=5, sticky="w")
 
         ctk.CTkLabel(
@@ -1172,7 +1172,7 @@ class ConfigPage(ctk.CTkFrame):  # <-- ALTERADO: Agora é um Frame fixo raiz
 
         ctk.CTkLabel(
             aba,
-            text="Chapman-Ferraro Factor ( f0 ) :",
+            text="Chapman-Ferraro Factor ( f₀ ) :",
             font=fonte,
             text_color="#E5C07B",
         ).grid(row=2, column=0, padx=20, pady=5, sticky="w")
