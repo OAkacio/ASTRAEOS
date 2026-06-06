@@ -57,6 +57,7 @@ def main_sd(
     Mmag,
     Dorb,
     Rplan,
+    parker,
     min_dv2,
     max_dv2,
     step_dv2,
@@ -119,6 +120,10 @@ def main_sd(
                 Mmag=Mmag_,
                 Dorb=Dorb_,
                 Rplan=Rplan_,
+                parker=parker_,
+                min_dv2=min_dv2_,
+                max_dv2=max_dv2_,
+                step_dv2=step_dv2_,
                 show_progress=False,
             )
 
@@ -180,7 +185,7 @@ if __name__ == "__main__":
         sigmas_nome_ref=sigmas_nome_ref_,
         x_scale=x_scale_,
         y_scale=y_scale_,
-        habitabilidade=True,
+        habitabilidade=False,
         exoplanet_name=exoplanet_name_,
         Lstar=Lstar_,
         e=e_,
@@ -189,8 +194,9 @@ if __name__ == "__main__":
         Mmag=Mmag_,
         Dorb=Dorb_,
         Rplan=Rplan_,
-        show_progress=True,
+        parker=parker_,
         min_dv2=min_dv2_,
         max_dv2=max_dv2_,
         step_dv2=step_dv2_,
+        show_progress=False,
     )
