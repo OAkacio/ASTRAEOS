@@ -162,7 +162,7 @@ class ConfigPage(ctk.CTkFrame):
             command=self.load_profile,
         )
         self.btn_load_prof.grid(row=0, column=1, padx=(0, 5), sticky="e")
-        ToolTip(self.btn_load_prof, "Load Input Profile (*.json)")
+        ToolTip(self.btn_load_prof, "Load Profile")
 
         self.btn_save_prof = ctk.CTkButton(
             self.header_frame,
@@ -175,7 +175,7 @@ class ConfigPage(ctk.CTkFrame):
             command=self.save_profile,
         )
         self.btn_save_prof.grid(row=0, column=2, padx=(0, 5), sticky="e")
-        ToolTip(self.btn_save_prof, "Save Input Profile (*.json)")
+        ToolTip(self.btn_save_prof, "Save Profile")
 
         self.btn_export = ctk.CTkButton(
             self.header_frame,
@@ -190,7 +190,7 @@ class ConfigPage(ctk.CTkFrame):
         self.btn_export.grid(row=0, column=3, padx=(0, 5), sticky="e")
         ToolTip(
             self.btn_export,
-            "Export Data for Analysis\nGenerates a raw scientific dataset (*.csv) from the current simulation.",
+            "Export Data",
         )
 
         self.btn_about = ctk.CTkButton(
@@ -206,7 +206,7 @@ class ConfigPage(ctk.CTkFrame):
         self.btn_about.grid(row=0, column=4, sticky="e")
         ToolTip(
             self.btn_about,
-            "About ASTRAEOS\nObjective, Architecture, and Acknowledgments.",
+            "About",
         )
 
         self.tabview = ctk.CTkTabview(self.scroll_area, height=250)
