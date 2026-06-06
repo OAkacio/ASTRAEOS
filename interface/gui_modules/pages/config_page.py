@@ -48,7 +48,15 @@ class ToolTip:
         )
         label.pack()
 
-        self.tooltip_window.wm_geometry(f"+{event.x_root}+{event.y_root}")
+        # Define os recuos logo no início
+        offset_x = 15
+        offset_y = 15
+
+        # Faz a janela nascer já com o recuo para nunca tocar no ponteiro do rato!
+        x_inicial = event.x_root + offset_x
+        y_inicial = event.y_root + offset_y
+        self.tooltip_window.wm_geometry(f"+{x_inicial}+{y_inicial}")
+        
         self.tooltip_window.update_idletasks()
 
         tooltip_width = self.tooltip_window.winfo_reqwidth()
@@ -57,8 +65,6 @@ class ToolTip:
         screen_width = self.tooltip_window.winfo_screenwidth()
         screen_height = self.tooltip_window.winfo_screenheight()
 
-        offset_x = 15
-        offset_y = 15
         x = event.x_root + offset_x
         y = event.y_root + offset_y
 
