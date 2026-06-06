@@ -42,10 +42,10 @@ end
 # ? --- Derivadas da Velocidade do Vento ---
 function derivada_velocidade_vento(x, y, vetor)
     B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S, alpha, phi0 = vetor
-    
+
     # [!] INJEÇÃO DE SEGURANÇA: Previne singularidade e força topologia puramente radial
     x_t = (S == 2.0) ? Inf : 10.0^(1.0 / (S - 2.0))
-    
+
     Ma0 = alpha / vA0
 
     if x <= x_t
@@ -77,10 +77,10 @@ end
 
 function derivada_velocidade_ventoRES(x, y, vetor)
     B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S, alpha, phi0 = vetor
-    
+
     # [!] INJEÇÃO DE SEGURANÇA
     x_t = (S == 2.0) ? Inf : 10.0^(1.0 / (S - 2.0))
-    
+
     Ma0 = alpha / vA0
 
     if x <= x_t
@@ -113,10 +113,10 @@ end
 # ? --- Topologia do Ponto Crítico ---
 function analisa_singularidade_vento(x, y, vetor)
     B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S, alpha, phi0 = vetor
-    
+
     # [!] INJEÇÃO DE SEGURANÇA
     x_t = (S == 2.0) ? Inf : 10.0^(1.0 / (S - 2.0))
-    
+
     Ma0 = alpha / vA0
 
     if x <= x_t
@@ -148,10 +148,10 @@ end
 
 function analisa_singularidade_ventoRES(x, y, vetor)
     B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S, alpha, phi0 = vetor
-    
+
     # [!] INJEÇÃO DE SEGURANÇA
     x_t = (S == 2.0) ? Inf : 10.0^(1.0 / (S - 2.0))
-    
+
     Ma0 = alpha / vA0
 
     if x <= x_t
