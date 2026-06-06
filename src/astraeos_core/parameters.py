@@ -42,8 +42,10 @@ h_rk_ = 5e-4  # Passo de integração [Rstar]
 
 
 # ? --- Referências e Personalização ---
-x_scale_ = "log"
-y_scale_ = "log"
+x_scale_ = "log"  # Define a escala do eixo x
+y_scale_ = "log"  # Define a escala do eixo y
+x_un_ = "r/r0"  # Define a unidade do eixo x (Normalizada: <r/r0> ou Unidades Astronomicas: <r>)
+y_un_ = "u/ve0"  # Define a unidade do eixo y (Normalizada: <u/ve0> ou km/s: <u>)
 
 
 x_ref_ = 37.0, 49.0, 63.0, 77.0  # Distância de referência [Rstar]

@@ -77,6 +77,10 @@ class AppState:
             "X Axis": ctk.StringVar(value="log"),
             "Y Axis": ctk.StringVar(value="log"),
         }
+        self.units = {
+            "x_un": ctk.StringVar(value="r/r0"),
+            "y_un": ctk.StringVar(value="u/ve0"),
+        }
 
         # ? --- Variáveis de Scripts Avançados ---
         self.multicurve = ctk.BooleanVar(value=False)
@@ -131,7 +135,7 @@ class AppState:
             if val_x:
                 x_ref.append(float(val_x))
                 nome_bruto = ref["nome"].get()
-                nome_ref.append(rf"{nome_bruto} ; ${round(float(val_x), 1)}$ $r_0$")
+                nome_ref.append(rf"{nome_bruto} ; ${round(float(val_x), 1)}$ $R★$")
                 color_ref.append(ref["cor"].get())
                 linestyle_ref.append(ref["estilo"].get())
 
@@ -154,6 +158,8 @@ class AppState:
             "sigmas_nome_ref": sigmas_nome_ref,
             "x_scale": self.axis["X Axis"].get(),
             "y_scale": self.axis["Y Axis"].get(),
+            "x_un": self.units["x_un"].get(),
+            "y_un": self.units["y_un"].get(),
         }
 
     def parameters_more_options(self):

@@ -84,7 +84,7 @@ class ToolTip:
 # * ============================================
 # * Classe Principal: Página de Configuração
 # * ============================================
-class ConfigPage(ctk.CTkFrame):  # <-- ALTERADO: Agora é um Frame fixo raiz
+class ConfigPage(ctk.CTkFrame):
     def __init__(
         self,
         master,
@@ -109,8 +109,8 @@ class ConfigPage(ctk.CTkFrame):  # <-- ALTERADO: Agora é um Frame fixo raiz
 
         # ? --- Configuração de Layout Principal ---
         self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(0, weight=1) # Permite à área de scroll expandir
-        self.grid_rowconfigure(1, weight=0) # O rodapé usa apenas o espaço necessário
+        self.grid_rowconfigure(0, weight=1)  # Permite à área de scroll expandir
+        self.grid_rowconfigure(1, weight=0)  # O rodapé usa apenas o espaço necessário
 
         # ? --- NOVA ÁREA INTERNA DE SCROLL ---
         self.scroll_area = ctk.CTkScrollableFrame(self, fg_color="transparent")
@@ -423,7 +423,7 @@ class ConfigPage(ctk.CTkFrame):  # <-- ALTERADO: Agora é um Frame fixo raiz
 
                     f.write("#\n# [ 5. PLOTTING PREFERENCES ]\n")
                     f.write(
-                        f"# X-Scale: {val('x_scale')} | Y-Scale: {val('y_scale')}\n"
+                        f"# X-Scale: {val('x_scale')} | Y-Scale: {val('y_scale')} | X-units: {val('x_un')} | Y-units: {val('y_un')}\n"
                     )
                     f.write(
                         f"# Ref Distances: {val('x_ref')} | Ref Names: {val('nome_ref')} | Ref Colors: {val('color_ref')}\n"
@@ -561,6 +561,8 @@ class ConfigPage(ctk.CTkFrame):  # <-- ALTERADO: Agora é um Frame fixo raiz
                     "sigma_cor": self.app_state.sigma_cor.get(),
                     "axis_x": self.app_state.axis["X Axis"].get(),
                     "axis_y": self.app_state.axis["Y Axis"].get(),
+                    "x_un": self.app_state.units["x_un"].get(),
+                    "y_un": self.app_state.units["y_un"].get(),
                     "refs": [
                         {
                             "x": r["x"].get(),
@@ -643,6 +645,10 @@ class ConfigPage(ctk.CTkFrame):  # <-- ALTERADO: Agora é um Frame fixo raiz
                     self.app_state.axis["X Axis"].set(p["axis_x"])
                 if "axis_y" in p:
                     self.app_state.axis["Y Axis"].set(p["axis_y"])
+                if "x_un" in p:
+                    self.app_state.units["x_un"].set(p["x_un"])
+                if "y_un" in p:
+                    self.app_state.units["y_un"].set(p["y_un"])
                 if "refs" in p:
                     for i, r in enumerate(p["refs"]):
                         if i < len(self.app_state.refs):
@@ -915,6 +921,62 @@ class ConfigPage(ctk.CTkFrame):  # <-- ALTERADO: Agora é um Frame fixo raiz
             state="readonly",
         ).grid(row=0, column=3, padx=5)
 
+        # ? --- NOVA LÓGICA: Axis Units ---
+        row_offset += 2
+        ctk.CTkLabel(aba, text="Axis Units", font=fonte, text_color="#E5C07B").grid(
+            row=row_offset, column=0, columnspan=4, pady=(10, 5)
+        )
+
+        frame_units = ctk.CTkFrame(aba, fg_color="transparent")
+        frame_units.grid(row=row_offset + 1, column=0, columnspan=4, pady=5)
+
+        ctk.CTkLabel(frame_units, text="X Axis Unit:").grid(row=0, column=0, padx=5)
+
+        def on_x_unit_change(choice):
+            self.app_state.units["x_un"].set("r" if choice == "AU" else "r/r0")
+
+        combo_x_unit = ctk.CTkComboBox(
+            frame_units,
+            values=["Normalized", "AU"],
+            font=fonte_var,
+            width=120,
+            state="readonly",
+            command=on_x_unit_change,
+        )
+        combo_x_unit.grid(row=0, column=1, padx=5)
+
+        ctk.CTkLabel(frame_units, text="Y Axis Unit:").grid(
+            row=0, column=2, padx=(30, 5)
+        )
+
+        def on_y_unit_change(choice):
+            self.app_state.units["y_un"].set("u" if choice == "km/s" else "u/ve0")
+
+        combo_y_unit = ctk.CTkComboBox(
+            frame_units,
+            values=["Normalized", "km/s"],
+            font=fonte_var,
+            width=120,
+            state="readonly",
+            command=on_y_unit_change,
+        )
+        combo_y_unit.grid(row=0, column=3, padx=5)
+
+        def sync_combo_units(*args):
+            try:
+                x_val = self.app_state.units["x_un"].get()
+                y_val = self.app_state.units["y_un"].get()
+
+                combo_x_unit.set("AU" if x_val == "r" else "Normalized")
+                combo_y_unit.set("km/s" if y_val == "u" else "Normalized")
+            except Exception:
+                pass
+
+        self.app_state.units["x_un"].trace_add("write", sync_combo_units)
+        self.app_state.units["y_un"].trace_add("write", sync_combo_units)
+        sync_combo_units()
+        # ? -------------------------------
+
         row_offset += 2
         self.btn_update_plot = ctk.CTkButton(
             aba,
@@ -1128,9 +1190,9 @@ class ConfigPage(ctk.CTkFrame):  # <-- ALTERADO: Agora é um Frame fixo raiz
             row=0, column=1, columnspan=2, padx=(10, 0), pady=5, sticky="we"
         )
         self.exo_inputs.append(entry_rplan)
-        ctk.CTkLabel(
-            aba, text="  [ R⊕ ]", font=fonte_uni, text_color="#8b949e"
-        ).grid(row=0, column=3, padx=(0, 20), pady=5, sticky="w")
+        ctk.CTkLabel(aba, text="  [ R⊕ ]", font=fonte_uni, text_color="#8b949e").grid(
+            row=0, column=3, padx=(0, 20), pady=5, sticky="w"
+        )
 
         ctk.CTkLabel(
             aba,
@@ -1192,20 +1254,28 @@ class ConfigPage(ctk.CTkFrame):  # <-- ALTERADO: Agora é um Frame fixo raiz
         if isinstance(widget, ctk.CTkEntry):
             if state_str == "disabled":
                 widget.configure(
-                    text_color="#3c4044",  border_color="#282C34", fg_color="#1E1E1E",
+                    text_color="#3c4044",
+                    border_color="#282C34",
+                    fg_color="#1E1E1E",
                 )
             else:
                 widget.configure(
-                    text_color="white", border_color="#565b5e", fg_color="#343638",
+                    text_color="white",
+                    border_color="#565b5e",
+                    fg_color="#343638",
                 )
         elif isinstance(widget, ctk.CTkSlider):
             if state_str == "disabled":
                 widget.configure(
-                    button_color="#282C34", progress_color="#282C34", button_hover_color="#282C34",
+                    button_color="#282C34",
+                    progress_color="#282C34",
+                    button_hover_color="#282C34",
                 )
             else:
                 widget.configure(
-                    button_color="#61AFEF", progress_color="#1F618D", button_hover_color="#56B6C2",
+                    button_color="#61AFEF",
+                    progress_color="#1F618D",
+                    button_hover_color="#56B6C2",
                 )
 
     def set_exoplanet_state(self, state_str):

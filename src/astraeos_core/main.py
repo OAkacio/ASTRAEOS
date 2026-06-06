@@ -59,6 +59,8 @@ def main(
     Dorb,
     Rplan,
     parker,
+    x_un,
+    y_un,
     show_progress=True,
     **kwargs,
 ):
@@ -121,7 +123,7 @@ def main(
         ("Normalized Alfvén Velocity", vA0, "ve0"),
         ("Alfvén Velocity (vA0)", vA0 * ve0 / 1e5, "km/s"),
         ("Thermal Velocity (vT)", vT, "ve0"),
-        ("Sound Speed (cs)", cs, "cm/s"),
+        ("Sound Speed (cs)", cs / 1e5, "km/s"),
         ("Alfvén Radius (x_t)", x_t, "r0"),
         flush=True,
     )
@@ -324,6 +326,8 @@ def main(
         P_din=P_din,
         Rmag=Rmag,
         parker=parker,
+        x_un=x_un,
+        y_un=y_un,
     )
 
     if show_progress:
@@ -360,6 +364,8 @@ def main(
         x_scale,
         y_scale,
         cte,
+        x_un,
+        y_un,
     )
 
     plot_curve_analis(tamanho_pulo, recuo_pulo, L0, deltav0, S_divergencia, cte)
@@ -468,5 +474,7 @@ if __name__ == "__main__":
         Dorb=Dorb_,
         Rplan=Rplan_,
         parker=parker_,
+        x_un=x_un_,
+        y_un=y_un_,
         show_progress=False,
     )

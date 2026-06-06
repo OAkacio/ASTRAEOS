@@ -393,6 +393,8 @@ class AppWindow(ctk.CTk):
                     x_scale=p["x_scale"],
                     y_scale=p["y_scale"],
                     cte=i["cte"],
+                    x_un=p["x_un"],
+                    y_un=p["y_un"],
                 )
                 self.exibir_grafico(figura_inicial, self.tab_velocity)
 
@@ -459,6 +461,8 @@ class AppWindow(ctk.CTk):
                 x_scale=p["x_scale"],
                 y_scale=p["y_scale"],
                 cte=i["cte"],
+                x_un=p["x_un"],
+                y_un=p["y_un"],
             )
             self.exibir_grafico(figura_parcial, self.tab_velocity)
         except Exception:
@@ -682,6 +686,8 @@ class AppWindow(ctk.CTk):
                     x_scale=p["x_scale"],
                     y_scale=p["y_scale"],
                     cte=i["cte"],
+                    x_un=p["x_un"],
+                    y_un=p["y_un"],
                 )
                 self.exibir_grafico(figura_inicial, self.tab_velocity)
 

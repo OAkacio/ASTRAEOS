@@ -3,8 +3,10 @@
 # * ============================================
 try:
     from .lib import *
+    from .utils import *
 except ImportError:
     from lib import *
+    from utils import *
 
 
 # * ============================================
@@ -21,6 +23,8 @@ def plot_perfil_output(
     x_scale,
     y_scale,
     cte,
+    x_un,
+    y_un,
 ):
     # ? --- Carregamento de Dados ---
     dados = np.load(f"data/curve_{cte}.npz")
@@ -32,15 +36,16 @@ def plot_perfil_output(
     ve0 = dados["ve0"].item()
     x_sim = dados["x_sim"].item()
     nome = str(dados["nome"])
+    r0 = float(dados["Rstar"].item()) * rsunAU
 
     # ? --- Renderização do Gráfico Limpo ---
     fig = gp.plot(
         title=nome,
-        x_data=[x_tot],
-        y_data=[list(np.array(y_tot) * ve0 / 1e5)],
+        x_data=[x_tot] if x_un == "r/r0" else [list(np.array(x_tot) * r0)],
+        y_data=[y_tot] if y_un == "u/ve0" else [list(np.array(y_tot) * ve0 / 1e5)],
         show_plot=False,
-        x_label=r"$r/r_{0}$",
-        y_label=r"$u$ (km/s)",
+        x_label=r"$r/r_{0}$" if x_un == "r/r0" else r"$r$ (AU)",
+        y_label=r"$u/ve0$" if y_un == "u/ve0" else r"$u$ (km/s)",
         x_scale=x_scale,
         y_scale=y_scale,
         linewidth=2.5,
@@ -54,29 +59,55 @@ def plot_perfil_output(
         save_fig=True,
         file_format="png",
         filename="output",
-        vlines=[x_t, *x_ref],
+        vlines=(
+            [x_t, *x_ref] if x_un == "r/r0" else [x_t * r0, *list(np.array(x_ref) * r0)]
+        ),
         v_colors=["#C678DD", *color_ref],
         v_linewidth=1.5,
         v_alpha=0.8,
         v_linestyle=["--", *linestyle_ref],
-        v_labels=[rf"$r_t$ ; ${x_t}$ $r_0$", *nome_ref],
-        curve_names=[
-            rf"Velocity Profile ; $u_\infty = {y_tot[-1] * ve0 / 1e5:0.2f}$ km/s"
-        ],
+        v_labels=(
+            [rf"$r_t$ ; ${round(x_t,1)}$ $R★$", *nome_ref]
+            if x_un == "r/r0"
+            else [rf"$r_t$ ; ${round(x_t * r0,3)}$ $AU$", *nome_ref]
+        ),
+        curve_names=(
+            [rf"Velocity Profile ; $u_\infty = {y_tot[-1]:0.2f}$ ve0"]
+            if y_un == "u/ve0"
+            else [rf"Velocity Profile ; $u_\infty = {y_tot[-1] * ve0 / 1e5:0.2f}$ km/s"]
+        ),
         figure_dpi=100,
         fig_width=10.0,
         fig_height=5.0,
-        x_lim=[1, x_sim],
+        x_lim=[1, x_sim] if x_un == "r/r0" else [1 * r0, x_sim * r0],
         legend_box=False,
-        highlight_point=[x_crit, y_crit * ve0 / 1e5],
+        highlight_point=(
+            [x_crit, y_crit]
+            if x_un == "r/r0" and y_un == "u/ve0"
+            else (
+                [x_crit * r0, y_crit]
+                if x_un == "r" and y_un == "u/ve0"
+                else (
+                    [x_crit, y_crit * ve0 / 1e5]
+                    if x_un == "r/r0" and y_un == "u"
+                    else [x_crit * r0, y_crit * ve0 / 1e5]
+                )
+            )
+        ),
         highlight_color="#E06C75",
         highlight_size=50,
         highlight_marker="o",
         highlight_label=r"$P_{crit}$",
         legend_fontsize=9,
-        y_lim=[None, 1500],
+        y_lim=(
+            [None, max(y_tot) + 1]
+            if y_un == "u/ve0"
+            else [None, max(y_tot) * ve0 / 1e5 + 1]
+        ),
         block_tick=False,
-        sigma_intervals=sigmas_ref,
+        sigma_intervals=(
+            sigmas_ref if x_un == "r/r0" else list(np.array(sigmas_ref) * r0)
+        ),
         sigma_linestyle="",
         sigma_labels=sigmas_nome_ref,
         sigma_colors=sigmas_color_ref,
