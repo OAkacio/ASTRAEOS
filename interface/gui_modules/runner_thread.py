@@ -100,8 +100,8 @@ def motor_isolado(parametros, fila_de_mensagens, fila_de_logs):
 
         fila_de_mensagens.put({"success": True})
 
-    except Exception as e:
-        fila_de_mensagens.put({"success": False, "error": str(e)})
+    except Exception as err:
+        fila_de_mensagens.put({"success": False, "error": str(err)})
 
 
 # * ============================================

@@ -271,8 +271,8 @@ class AppWindow(ctk.CTk):
             tk_widget.pack(side="top", fill="both", expand=True)
             plt.close(figura_matplotlib)
 
-        except Exception as e:
-            self.set_status(f"Error rendering interactive plot: {e}", "#E06C75")
+        except Exception as err:
+            self.set_status(f"Error rendering interactive plot: {err}", "#E06C75")
 
     def limpar_aba_grafico(self, container):
         for widget in container.winfo_children():
@@ -319,8 +319,8 @@ class AppWindow(ctk.CTk):
                 callback_log=self.ao_receber_log,
             )
 
-        except Exception as e:
-            self.set_status(f"Error starting exoplanet simulation: {e}", "#E06C75")
+        except Exception as err:
+            self.set_status(f"Error starting exoplanet simulation: {err}", "#E06C75")
 
     def ao_terminar_sim_exo_sucesso(self):
         self.after(0, self._atualizar_ui_sim_exo_sucesso)
@@ -354,8 +354,8 @@ class AppWindow(ctk.CTk):
             self.exibir_grafico(figura_radar, self.tab_zh)
             self.exibir_grafico(figura_mag, self.tab_magnetospheric)
             self.painel_graficos.set("Habitable Zone")
-        except Exception as e:
-            self.set_status(f"Error drawing exoplanet radar: {e}", "#E06C75")
+        except Exception as err:
+            self.set_status(f"Error drawing exoplanet radar: {err}", "#E06C75")
 
     # * ============================================
     # * Atualização de UI Geral
@@ -436,8 +436,8 @@ class AppWindow(ctk.CTk):
 
             self.set_status("Plot updated successfully!", "#98C379")
 
-        except Exception as e:
-            self.set_status(f"Error updating plot: {e}", "#E06C75")
+        except Exception as err:
+            self.set_status(f"Error updating plot: {err}", "#E06C75")
         finally:
             self.pagina_atual.btn_update_plot.configure(
                 state="normal", text="Update Plot"
@@ -728,8 +728,8 @@ class AppWindow(ctk.CTk):
                 "Error: Multicurve analysis requires prior runs with 'Constant Damping' toggled ON and OFF!",
                 "#E06C75",
             )
-        except Exception as e:
-            self.set_status(f"Error building final plot: {e}", "#E06C75")
+        except Exception as err:
+            self.set_status(f"Error building final plot: {err}", "#E06C75")
 
     def ao_dar_erro(self, mensagem_erro):
         self.after(0, self._atualizar_ui_erro, mensagem_erro)

@@ -20,49 +20,12 @@ from astraeos_core.lib import *
 # * Rotina de Otimização e Busca de DeltaV0²
 # * ============================================
 def main_sd(
-    nome,
-    Mstar,
-    Rstar,
-    Teff,
-    T,
-    mu,
-    rho0,
-    B0,
-    phi0,
-    u0_step,
-    u0_ini,
-    h_rk,
-    deltav0,
-    S_divergencia,
-    recuo_pulo,
-    tamanho_pulo,
-    cte,
-    L0,
-    x_sim,
-    x_ref,
-    linestyle_ref,
-    color_ref,
-    nome_ref,
-    sigmas_ref,
-    sigmas_color_ref,
-    sigmas_nome_ref,
-    x_scale,
-    y_scale,
-    habitabilidade,
-    exoplanet_name,
-    Lstar,
-    e,
-    Ab,
-    f0,
-    Mmag,
-    Dorb,
-    Rplan,
-    parker,
-    min_dv2,
-    max_dv2,
-    step_dv2,
-    show_progress=True,
-    **kwargs,
+    nome, Mstar, Rstar, Teff, T, mu, rho0, B0, phi0, u0_step, u0_ini,
+    h_rk, deltav0, S_divergencia, recuo_pulo, tamanho_pulo, cte, L0,
+    x_sim, x_ref, linestyle_ref, color_ref, nome_ref, sigmas_ref,
+    sigmas_color_ref, sigmas_nome_ref, x_scale, y_scale, habitabilidade,
+    exoplanet_name, Lstar, e, Ab, f0, Mmag, Dorb, Rplan, parker,
+    min_dv2, max_dv2, step_dv2, show_progress=True, **kwargs,
 ):
     # ? --- Inicialização de Varredura ---
     search = [min_dv2, max_dv2]
@@ -82,59 +45,59 @@ def main_sd(
             progresso_atual = (i - 1) / total_runs
             print(f"___PROGRESS___|{progresso_atual}", flush=True)
 
+            # ! CORREÇÃO: Remoção dos "_" variáveis e inserção da varredura "idv2"
             x_tot, y_tot, x_crit, y_crit, x_t, ve0, *_ = main(
-                nome=nome_,
-                Mstar=Mstar_,
-                Rstar=Rstar_,
-                Teff=Teff_,
-                T=T_,
-                mu=mu_,
-                rho0=rho0_,
-                B0=B0_,
-                phi0=phi0_,
-                u0_step=u0_step_,
-                u0_ini=u0_ini_,
-                h_rk=h_rk_,
-                deltav0=idv2,
-                S_divergencia=S_divergencia_,
-                recuo_pulo=recuo_pulo_,
-                tamanho_pulo=tamanho_pulo_,
-                cte=cte_,
-                L0=L0_,
-                x_sim=x_sim_,
-                x_ref=x_ref_,
-                linestyle_ref=linestyle_ref_,
-                color_ref=color_ref_,
-                nome_ref=nome_ref_,
-                sigmas_ref=sigmas_ref_,
-                sigmas_color_ref=sigmas_color_ref_,
-                sigmas_nome_ref=sigmas_nome_ref_,
-                x_scale=x_scale_,
-                y_scale=y_scale_,
-                habitabilidade=False,
-                exoplanet_name=exoplanet_name_,
-                Lstar=Lstar_,
-                e=e_,
-                Ab=Ab_,
-                f0=f0_,
-                Mmag=Mmag_,
-                Dorb=Dorb_,
-                Rplan=Rplan_,
-                parker=parker_,
-                min_dv2=min_dv2_,
-                max_dv2=max_dv2_,
-                step_dv2=step_dv2_,
+                nome=nome,
+                Mstar=Mstar,
+                Rstar=Rstar,
+                Teff=Teff,
+                T=T,
+                mu=mu,
+                rho0=rho0,
+                B0=B0,
+                phi0=phi0,
+                u0_step=u0_step,
+                u0_ini=u0_ini,
+                h_rk=h_rk,
+                deltav0=idv2,  # <--- O SEGREDO ESTÁ AQUI: O deltav0 assume o valor do loop!
+                S_divergencia=S_divergencia,
+                recuo_pulo=recuo_pulo,
+                tamanho_pulo=tamanho_pulo,
+                cte=cte,
+                L0=L0,
+                x_sim=x_sim,
+                x_ref=x_ref,
+                linestyle_ref=linestyle_ref,
+                color_ref=color_ref,
+                nome_ref=nome_ref,
+                sigmas_ref=sigmas_ref,
+                sigmas_color_ref=sigmas_color_ref,
+                sigmas_nome_ref=sigmas_nome_ref,
+                x_scale=x_scale,
+                y_scale=y_scale,
+                habitabilidade=False, # Otimização: desliga a zona habitável durante as várias passagens para ser mais rápido
+                exoplanet_name=exoplanet_name,
+                Lstar=Lstar,
+                e=e,
+                Ab=Ab,
+                f0=f0,
+                Mmag=Mmag,
+                Dorb=Dorb,
+                Rplan=Rplan,
+                parker=parker,
                 show_progress=False,
             )
 
+            # Só salva se a velocidade terminal for razoável (evita soluções colapsadas na tabela)
             if y_tot[-1] > 0.2:
                 idv2_salvos.append(idv2)
                 uinf_salvos.append(y_tot[-1])
 
+            # Envia o gatilho assíncrono para a GUI atualizar o gráfico com esta iteração
             print("___UPDATE_PLOT___", flush=True)
 
-        except Exception as e:
-            sy.ok(f"Falha na tentativa {i}! Erro: {e}", False)
+        except Exception as err:
+            sy.ok(f"Falha na tentativa {i}! Erro: {err}", False)
 
         idv2 += step_dv2
         i += 1
@@ -143,60 +106,10 @@ def main_sd(
 
     sy.status("Displaying successfully integrated parameters...", flush=True)
     sy.table(
-        ("Initial Amplitude [ ve0 ]", *idv2_salvos),
+        ("Initial Amplitude [ ve0^2 ]", *idv2_salvos),
         ("Terminal Velocity [ ve0 ]", *uinf_salvos),
         mode="column",
         flush=True,
     )
     sy.fim("SEARCH COMPLETED", flush=True)
     return None
-
-
-# * ============================================
-# * Execução em Linha de Comando
-# * ============================================
-if __name__ == "__main__":
-    main_sd(
-        nome=nome_,
-        Mstar=Mstar_,
-        Rstar=Rstar_,
-        Teff=Teff_,
-        T=T_,
-        mu=mu_,
-        rho0=rho0_,
-        B0=B0_,
-        phi0=phi0_,
-        u0_step=u0_step_,
-        u0_ini=u0_ini_,
-        h_rk=h_rk_,
-        deltav0=deltav0_,
-        S_divergencia=S_divergencia_,
-        recuo_pulo=recuo_pulo_,
-        tamanho_pulo=tamanho_pulo_,
-        cte=cte_,
-        L0=L0_,
-        x_sim=x_sim_,
-        x_ref=x_ref_,
-        linestyle_ref=linestyle_ref_,
-        color_ref=color_ref_,
-        nome_ref=nome_ref_,
-        sigmas_ref=sigmas_ref_,
-        sigmas_color_ref=sigmas_color_ref_,
-        sigmas_nome_ref=sigmas_nome_ref_,
-        x_scale=x_scale_,
-        y_scale=y_scale_,
-        habitabilidade=False,
-        exoplanet_name=exoplanet_name_,
-        Lstar=Lstar_,
-        e=e_,
-        Ab=Ab_,
-        f0=f0_,
-        Mmag=Mmag_,
-        Dorb=Dorb_,
-        Rplan=Rplan_,
-        parker=parker_,
-        min_dv2=min_dv2_,
-        max_dv2=max_dv2_,
-        step_dv2=step_dv2_,
-        show_progress=False,
-    )
