@@ -1,0 +1,81 @@
+{
+    "star": {
+        "nome": "TRAPPIST 1a",
+        "Mstar": "0.0898",
+        "Rstar": "0.1192",
+        "Teff": "2566.0",
+        "Lstar": "5.2e-4",
+        "T": "2.0e6",
+        "rho0": "5e-14",
+        "B0": "600.0",
+        "mu": "0.6"
+    },
+    "wave": {
+        "S_divergencia": "2.5",
+        "deltav0": "0.12851",
+        "phi0": "5e7",
+        "L0": "1.0",
+        "cte": false,
+        "parker": false
+    },
+    "numeric": {
+        "x_sim": "500.0",
+        "h_rk": "5e-4",
+        "u0_ini": "0.201",
+        "u0_step": "5e-4",
+        "tamanho_pulo": "0.1",
+        "recuo_pulo": "484"
+    },
+    "exoplanet": {
+        "exoplanet_name": "TRAPPIST-1f",
+        "Dorb": "0.03849",
+        "e": "0.0056",
+        "Ab": "0.3",
+        "Rplan": "1.045",
+        "Mmag": "8e22",
+        "f0": "1.16"
+    },
+    "advanced": {
+        "multicurve": false,
+        "searchdv2": false,
+        "ldv2": "0.001",
+        "hdv2": "0.010",
+        "stepdv2": "0.001"
+    },
+    "plot": {
+        "sigma_ini": "39.7",
+        "sigma_fim": "84.7",
+        "sigma_nome": "ZH",
+        "sigma_cor": "#8FFF81",
+        "axis_x": "log",
+        "axis_y": "log",
+        "x_un": "r/r0",
+        "y_un": "u/ve0",
+        "refs": [
+            {
+                "x": "37.0",
+                "nome": "1d",
+                "cor": "#922424",
+                "estilo": ":"
+            },
+            {
+                "x": "49.0",
+                "nome": "1e",
+                "cor": "#926224",
+                "estilo": ":"
+            },
+            {
+                "x": "63.0",
+                "nome": "1f",
+                "cor": "#927824",
+                "estilo": ":"
+            },
+            {
+                "x": "77.0",
+                "nome": "1g",
+                "cor": "#439224",
+                "estilo": ":"
+            }
+        ]
+    }
+}
