@@ -20,9 +20,9 @@ au_cgs = const.au.cgs.value  # Distância Astronômica em centímetros [cm]
 
 
 # * ============================================
-# * Constantes de Zona Habitável
+# * Constantes de Zona Habitável (Interna)
 # * ============================================
-# ? --- Borda Interna (Recent Venus) ---
+# ? --- Borda Interna (Recent Venus) --- [empirico/otimista: Fluxo de energia recebida por Vênus no momento que 'morreu']
 Seff_sun_int = (
     1.7763  # Fluxo solar efetivo [Lsol/AU²]
 )
@@ -31,7 +31,7 @@ b_int = 3.3954e-9  # Coeficiente b [adm]
 c_int = -7.6364e-12  # Coeficiente c [adm]
 d_int = -1.1950e-15  # Coeficiente d [adm]
 
-# ? --- Borda Interna (Runaway Greenhouse) ---
+# ? --- Borda Interna (Runaway Greenhouse) --- [teórico: Efeito estufa descontrolado]
 Seff_sun_int = (
     1.7763  # Fluxo solar efetivo [Lsol/AU²]
 )
@@ -40,7 +40,7 @@ b_int = 1.4612e-8  # Coeficiente b [adm]
 c_int = -7.6345e-12  # Coeficiente c [adm]
 d_int = -1.7511e-15  # Coeficiente d [adm]
 
-# ? --- Borda Interna (Moist Greenhouse) ---
+# ? --- Borda Interna (Moist Greenhouse) --- [teórico/conservador: Atmosfera saturada de vapos d'água]
 Seff_sun_int = (
     1.0146  # Fluxo solar efetivo [Lsol/AU²]
 )
@@ -49,7 +49,10 @@ b_int = 1.9394e-9  # Coeficiente b [adm]
 c_int = -4.3618e-12  # Coeficiente c [adm]
 d_int = -6.8260e-16  # Coeficiente d [adm]
 
-# ? --- Borda Externa (Maximum Greenhouse) ---
+# * ============================================
+# * Constantes de Zona Habitável (Externa)
+# * ============================================
+# ? --- Borda Externa (Maximum Greenhouse) --- [teórico/conservador: saturação atmosférica de CO2 (biológico) para o aquecimento causando intenso efeito Rayleigh e esfriando mais o planeta ao invés de aquecer]
 Seff_sun_ext = (
     0.3507  # Fluxo solar efetivo [Lsol/AU²]
 )
@@ -58,7 +61,7 @@ b_ext = 1.6707e-9  # Coeficiente b [adm]
 c_ext = -3.0058e-12  # Coeficiente c [adm]
 d_ext = -5.1925e-16  # Coeficiente d [adm]
 
-# ? --- Borda Externa (Early Mars) ---
+# ? --- Borda Externa (Early Mars) --- [empirico/otimista: Fluxo de energia recebida por Marte no momento que 'morreu']
 Seff_sun_ext = (
     0.3207  # Fluxo solar efetivo [Lsol/AU²]
 )
