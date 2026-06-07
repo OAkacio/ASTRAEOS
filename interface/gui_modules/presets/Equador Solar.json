@@ -1,0 +1,81 @@
+{
+    "star": {
+        "nome": "Equador Solar",
+        "Mstar": "1",
+        "Rstar": "1",
+        "Teff": "5780",
+        "Lstar": "1",
+        "T": "0.9e6",
+        "rho0": "2e-16",
+        "B0": "2.5",
+        "mu": "0.6"
+    },
+    "wave": {
+        "S_divergencia": "2",
+        "deltav0": "0.005",
+        "phi0": "1e5",
+        "L0": "0.1",
+        "cte": false,
+        "parker": false
+    },
+    "numeric": {
+        "x_sim": "500.0",
+        "h_rk": "5e-4",
+        "u0_ini": "0.001",
+        "u0_step": "1e-6",
+        "tamanho_pulo": "0.1",
+        "recuo_pulo": "484"
+    },
+    "exoplanet": {
+        "exoplanet_name": "Terra",
+        "Dorb": "1",
+        "e": "0.0167",
+        "Ab": "0.3",
+        "Rplan": "1",
+        "Mmag": "8e22",
+        "f0": "1.16"
+    },
+    "advanced": {
+        "multicurve": false,
+        "searchdv2": false,
+        "ldv2": "0.001",
+        "hdv2": "0.010",
+        "stepdv2": "0.001"
+    },
+    "plot": {
+        "sigma_ini": "213.49",
+        "sigma_fim": "363.13",
+        "sigma_nome": "ZH",
+        "sigma_cor": "#8FFF81",
+        "axis_x": "log",
+        "axis_y": "log",
+        "x_un": "r/r0",
+        "y_un": "u/ve0",
+        "refs": [
+            {
+                "x": "215",
+                "nome": "Terra",
+                "cor": "#922424",
+                "estilo": ":"
+            },
+            {
+                "x": "155.4",
+                "nome": "Venus",
+                "cor": "#926224",
+                "estilo": ":"
+            },
+            {
+                "x": "327.7",
+                "nome": "Marte",
+                "cor": "#927824",
+                "estilo": ":"
+            },
+            {
+                "x": "83.2",
+                "nome": "Merc\u00fario",
+                "cor": "#439224",
+                "estilo": ":"
+            }
+        ]
+    }
+}

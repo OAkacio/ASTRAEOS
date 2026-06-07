@@ -580,7 +580,7 @@ class ConfigPage(ctk.CTkFrame):
                     ],
                 },
             }
-            with open(filepath, "w") as f:
+            with open(filepath, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=4)
         except Exception as e:
             print(f"Error saving profile: {e}")
@@ -593,9 +593,12 @@ class ConfigPage(ctk.CTkFrame):
         )
         if not filepath:
             return
+        self._load_from_filepath(filepath)
 
+    def _load_from_filepath(self, filepath):
+        """Função auxiliar unificada para carregar profiles a partir de um ficheiro json"""
         try:
-            with open(filepath, "r") as f:
+            with open(filepath, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
             mapping = {
@@ -705,7 +708,74 @@ class ConfigPage(ctk.CTkFrame):
             ctk.CTkLabel(aba, text=uni, font=fonte_uni, text_color="#8b949e").grid(
                 row=linha, column=2, padx=(0, 50), pady=5, sticky="w"
             )
-            aba.grid_rowconfigure(len(campos), weight=1, minsize=10)
+            
+        linha_atual = len(campos)
+
+        # ? --- NOVA LÓGICA: Bibliotecas de Presets Estelares ---
+        linha_atual += 1
+        ctk.CTkLabel(
+            aba, 
+            text="Stellar Catalog (Presets)", 
+            font=ctk.CTkFont(family="Consolas", size=14, weight="bold"), 
+            text_color="#E5C07B"
+        ).grid(row=linha_atual, column=0, columnspan=3, pady=(25, 5), sticky="w", padx=20)
+
+        # Garante que o diretório base existe
+        presets_dir = os.path.join(BASE_DIR, "presets")
+        os.makedirs(presets_dir, exist_ok=True)
+
+        arquivos_json = [f for f in os.listdir(presets_dir) if f.endswith(".json")]
+
+        if not arquivos_json:
+            linha_atual += 1
+            ctk.CTkLabel(
+                aba, 
+                text="No .json presets found in 'presets/' folder.", 
+                font=fonte_var, 
+                text_color="#5c6269"
+            ).grid(row=linha_atual, column=0, columnspan=3, padx=30, pady=5, sticky="w")
+        else:
+            for arquivo in arquivos_json:
+                linha_atual += 1
+                nome_preset = arquivo.replace(".json", "")
+                
+                # Container invisível para agrupar o nome e o botão perfeitamente alinhados
+                frame_preset = ctk.CTkFrame(aba, fg_color="transparent")
+                frame_preset.grid(row=linha_atual, column=0, columnspan=3, sticky="ew", padx=30, pady=2)
+                frame_preset.grid_columnconfigure(1, weight=1)
+                
+                # Indicador elegante
+                lbl_seta = ctk.CTkLabel(frame_preset, text="➤", font=fonte_var, text_color="#61AFEF")
+                lbl_seta.grid(row=0, column=0, sticky="w", padx=(0, 10))
+                
+                # Nome do arquivo
+                lbl_nome = ctk.CTkLabel(frame_preset, text=nome_preset, font=fonte_var, text_color="#ABB2BF")
+                lbl_nome.grid(row=0, column=1, sticky="w")
+                
+                caminho_completo = os.path.join(presets_dir, arquivo)
+                
+                # Função isolada para capturar a variável correta dentro do loop
+                def carregar(caminho=caminho_completo):
+                    self._load_from_filepath(caminho)
+                
+                # Botão de Load estético
+                btn_load = ctk.CTkButton(
+                    frame_preset,
+                    text="Load",
+                    width=50,
+                    height=24,
+                    fg_color="#282C34",
+                    hover_color="#1F618D",
+                    border_width=1,
+                    border_color="#61AFEF",
+                    text_color="#61AFEF",
+                    font=fonte_var,
+                    command=carregar
+                )
+                btn_load.grid(row=0, column=2, sticky="e")
+
+        # Configura a última linha do container para empurrar tudo para cima ordenadamente
+        aba.grid_rowconfigure(linha_atual + 1, weight=1, minsize=10)
 
     def _construir_aba_onda(self, aba):
         aba.grid_columnconfigure(0, weight=1)
@@ -945,7 +1015,7 @@ class ConfigPage(ctk.CTkFrame):
             frame_units,
             values=["Normalized", "AU"],
             font=fonte_var,
-            width=120,
+            width=130,
             state="readonly",
             command=on_x_unit_change,
         )
@@ -962,7 +1032,7 @@ class ConfigPage(ctk.CTkFrame):
             frame_units,
             values=["Normalized", "km/s"],
             font=fonte_var,
-            width=120,
+            width=130,
             state="readonly",
             command=on_y_unit_change,
         )
@@ -1196,9 +1266,9 @@ class ConfigPage(ctk.CTkFrame):
             row=0, column=1, columnspan=2, padx=(10, 0), pady=5, sticky="we"
         )
         self.exo_inputs.append(entry_rplan)
-        ctk.CTkLabel(aba, text="  [ R⊕ ]", font=fonte_uni, text_color="#8b949e").grid(
-            row=0, column=3, padx=(0, 20), pady=5, sticky="w"
-        )
+        ctk.CTkLabel(
+            aba, text="  [ R⊕ ]", font=fonte_uni, text_color="#8b949e"
+        ).grid(row=0, column=3, padx=(0, 20), pady=5, sticky="w")
 
         ctk.CTkLabel(
             aba,
@@ -1260,28 +1330,20 @@ class ConfigPage(ctk.CTkFrame):
         if isinstance(widget, ctk.CTkEntry):
             if state_str == "disabled":
                 widget.configure(
-                    text_color="#3c4044",
-                    border_color="#282C34",
-                    fg_color="#1E1E1E",
+                    text_color="#3c4044",  border_color="#282C34", fg_color="#1E1E1E",
                 )
             else:
                 widget.configure(
-                    text_color="white",
-                    border_color="#565b5e",
-                    fg_color="#343638",
+                    text_color="white", border_color="#565b5e", fg_color="#343638",
                 )
         elif isinstance(widget, ctk.CTkSlider):
             if state_str == "disabled":
                 widget.configure(
-                    button_color="#282C34",
-                    progress_color="#282C34",
-                    button_hover_color="#282C34",
+                    button_color="#282C34", progress_color="#282C34", button_hover_color="#282C34",
                 )
             else:
                 widget.configure(
-                    button_color="#61AFEF",
-                    progress_color="#1F618D",
-                    button_hover_color="#56B6C2",
+                    button_color="#61AFEF", progress_color="#1F618D", button_hover_color="#56B6C2",
                 )
 
     def set_exoplanet_state(self, state_str):

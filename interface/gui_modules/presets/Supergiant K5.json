@@ -1,0 +1,81 @@
+{
+    "star": {
+        "nome": "Supergiant K5",
+        "Mstar": "16",
+        "Rstar": "400",
+        "Teff": "3750",
+        "Lstar": "28400",
+        "T": "1e4",
+        "rho0": "1.07e-13",
+        "B0": "10",
+        "mu": "0.667"
+    },
+    "wave": {
+        "S_divergencia": "5.3",
+        "deltav0": "0.0422",
+        "phi0": "3.36e6",
+        "L0": "0.3",
+        "cte": false,
+        "parker": false
+    },
+    "numeric": {
+        "x_sim": "500.0",
+        "h_rk": "5e-6",
+        "u0_ini": "0.028472",
+        "u0_step": "1e-8",
+        "tamanho_pulo": "0.1",
+        "recuo_pulo": "484"
+    },
+    "exoplanet": {
+        "exoplanet_name": "Planeta Hipot\u00e9tico",
+        "Dorb": "307.97388",
+        "e": "0.0167",
+        "Ab": "0.3",
+        "Rplan": "1",
+        "Mmag": "8e22",
+        "f0": "1.16"
+    },
+    "advanced": {
+        "multicurve": false,
+        "searchdv2": false,
+        "ldv2": "0.040",
+        "hdv2": "0.044",
+        "stepdv2": "0.0001"
+    },
+    "plot": {
+        "sigma_ini": "96",
+        "sigma_fim": "180",
+        "sigma_nome": "ZH",
+        "sigma_cor": "#8FFF81",
+        "axis_x": "log",
+        "axis_y": "log",
+        "x_un": "r/r0",
+        "y_un": "u/ve0",
+        "refs": [
+            {
+                "x": "170",
+                "nome": "Planeta Hipot\u00e9tico",
+                "cor": "red",
+                "estilo": ":"
+            },
+            {
+                "x": "",
+                "nome": "",
+                "cor": "",
+                "estilo": ":"
+            },
+            {
+                "x": "",
+                "nome": "",
+                "cor": "",
+                "estilo": ":"
+            },
+            {
+                "x": "",
+                "nome": "",
+                "cor": "",
+                "estilo": ":"
+            }
+        ]
+    }
+}
