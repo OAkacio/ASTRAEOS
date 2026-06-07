@@ -2416,13 +2416,15 @@ def radar(
 def magnetosphere(
     R_m,
     R_p=1.0,
+    cme_factor=100.0,
+    show_cme=True,
     x_range=None,
     y_range=None,
     grid_density=200,
     wind_velocity=1.0,
     title="Magnetospheric Standoff & Bow Shock",
-    x_label="Distance [$R_{planet}$]",
-    y_label="Distance [$R_{planet}$]",
+    x_label=r"Distance [$R_{planet}$]",
+    y_label=r"Distance [$R_{planet}$]",
     background_color="white",
     stream_color="#1f77b4",
     stream_density=1.5,
@@ -2432,11 +2434,15 @@ def magnetosphere(
     planet_edgecolor="white",
     planet_linewidth=1.5,
     shield_color="red",
-    shield_linestyle="--",
+    shield_linestyle="-",
     shield_linewidth=2.0,
     shield_alpha=0.8,
     safe_zone_color="blue",
     safe_zone_alpha=0.1,
+    cme_color="#E06C75",
+    cme_linestyle=":",
+    cme_linewidth=2.0,
+    cme_alpha=0.9,
     show_grid=True,
     show_box=True,
     remove_borders=False,
@@ -2460,63 +2466,10 @@ def magnetosphere(
     show_plot=True,
     theme=None,
 ):
-    """
-    Gera um gráfico 2D do escoamento do vento estelar colidindo com a magnetosfera de um exoplaneta,
-    utilizando a solução geométrica do corpo de Rankine para as linhas de fluxo e a magnetopausa parabólica.
-
-    Args:
-        R_m (float): Raio de standoff da magnetopausa (distância do choque).
-        R_p (float, optional): Raio do planeta.
-        x_range (tuple, optional): Limites do eixo X.
-        y_range (tuple, optional): Limites do eixo Y.
-        grid_density (int, optional): Densidade da malha do campo vetorial.
-        wind_velocity (float, optional): Velocidade base do vento estelar.
-        title (str, optional): Título do gráfico.
-        x_label (str, optional): Rótulo do eixo X.
-        y_label (str, optional): Rótulo do eixo Y.
-        background_color (str, optional): Cor de fundo do gráfico.
-        stream_color (str, optional): Cor das linhas de fluxo de vento.
-        stream_density (float, optional): Densidade visual das linhas de fluxo.
-        stream_linewidth (float, optional): Espessura das linhas de fluxo.
-        stream_arrowsize (float, optional): Tamanho das setas indicativas do fluxo.
-        planet_color (str, optional): Cor de preenchimento do planeta central.
-        planet_edgecolor (str, optional): Cor da borda do planeta.
-        planet_linewidth (float, optional): Espessura da borda do planeta.
-        shield_color (str, optional): Cor da linha parabólica da magnetopausa.
-        shield_linestyle (str, optional): Estilo da linha da magnetopausa.
-        shield_linewidth (float, optional): Espessura da linha da magnetopausa.
-        shield_alpha (float, optional): Opacidade da linha da magnetopausa.
-        safe_zone_color (str, optional): Cor da zona protegida (interior da parábola).
-        safe_zone_alpha (float, optional): Opacidade da zona protegida.
-        show_grid (bool, optional): Ativa grade no gráfico.
-        show_box (bool, optional): Mantém a caixa em volta do gráfico.
-        remove_borders (bool, optional): Remove bordas superior e direita.
-        grid_color (str, optional): Cor da grade.
-        grid_alpha (float, optional): Opacidade da grade.
-        grid_linewidth (float, optional): Espessura da grade.
-        grid_linestyle (str, optional): Estilo de linha da grade.
-        title_fontsize (int, optional): Tamanho do título.
-        axis_fontsize (int, optional): Tamanho dos eixos.
-        title_pad (float, optional): Espaçamento do título.
-        label_pad (float, optional): Espaçamento dos rótulos.
-        fig_width (float, optional): Largura da figura.
-        fig_height (float, optional): Altura da figura.
-        figure_dpi (int, optional): Resolução de exibição da figura.
-        top_right_ticks (bool, optional): Marcações no canto superior e direito.
-        tick_direction (str, optional): Direção das marcações ('in' ou 'out').
-        save_fig (bool, optional): Salva em disco.
-        dpi (int, optional): Resolução do salvamento.
-        file_format (str, optional): Formato salvo.
-        filename (str, optional): Nome do arquivo salvo.
-        show_plot (bool, optional): Exibe a interface gráfica.
-        theme (str, optional): Tema do gráfico ('dark' ou None).
-
-    Returns:
-        Figure: Objeto de figura do Matplotlib contendo a simulação aerodinâmica.
-    """
     import numpy as np
     import matplotlib.pyplot as plt
     from matplotlib.patches import Circle
+    import matplotlib.colors as mcolors
 
     if theme == "dark":
         text_color = "#ABB2BF"
@@ -2526,14 +2479,17 @@ def magnetosphere(
         if stream_color == "#1f77b4":
             stream_color = "#61AFEF"
         if shield_color == "red":
-            shield_color = "#E06C75"
+            shield_color = "#00D8FF"
         if safe_zone_color == "blue":
-            safe_zone_color = "#98C379"
+            safe_zone_color = "#00D8FF"
         if planet_color == "black":
             planet_color = "#1E1E1E"
     else:
         text_color = "black"
         edge_color = "black"
+
+    # Aplica transparência elegante diretamente aos vetores de fluxo do vento (30% opacidade)
+    stream_rgba = mcolors.to_rgba(stream_color, alpha=0.3)
 
     plt.rcParams.update(
         {
@@ -2562,63 +2518,94 @@ def magnetosphere(
     y_min = y_range[0] if y_range else -R_m * 3.0
     y_max = y_range[1] if y_range else R_m * 3.0
 
+    # ? --- Malha Espacial e Solução Analítica da Gota ---
     x = np.linspace(x_min, x_max, grid_density)
     y = np.linspace(y_min, y_max, grid_density)
     X, Y = np.meshgrid(x, y)
 
+    Theta_mesh = np.arctan2(np.abs(Y), -X)
+    Theta_mesh = np.where(Theta_mesh == 0, 1e-10, Theta_mesh)
+
+    R_boundary = R_m * np.sqrt(Theta_mesh / np.sin(Theta_mesh))
+    R_mesh = np.sqrt(X**2 + Y**2)
+    inside = R_mesh <= R_boundary
+
+    # ? --- Campo de Escoamento Estelar ---
     r_sq = X**2 + Y**2
     r_sq[r_sq == 0] = 1e-10
 
     U = wind_velocity * (1 + R_m * X / r_sq)
-    V = wind_velocity * (R_m * Y / r_sq)
+    V_flow = wind_velocity * (R_m * Y / r_sq)
 
-    parabola_x = (Y**2) / (4 * R_m) - R_m
-    inside = X >= parabola_x
     U[inside] = np.nan
-    V[inside] = np.nan
+    V_flow[inside] = np.nan
 
     ax.streamplot(
-        X,
-        Y,
-        U,
-        V,
-        color=stream_color,
+        X, Y, U, V_flow,
+        color=stream_rgba,
         density=stream_density,
         linewidth=stream_linewidth,
         arrowsize=stream_arrowsize,
     )
 
-    y_line = np.linspace(y_min, y_max, 500)
-    x_line = (y_line**2) / (4 * R_m) - R_m
-    valid = (x_line >= x_min) & (x_line <= x_max)
+    # ? --- Máscaras Ocultas e Traçado Principal ---
+    theta_line = np.linspace(1e-4, np.pi - 1e-4, 1000)
+    r_line = R_m * np.sqrt(theta_line / np.sin(theta_line))
+    x_line_top = -r_line * np.cos(theta_line)
+    y_line_top = r_line * np.sin(theta_line)
+
+    # Corta a linha na extremidade da tela para não quebrar a geometria do preenchimento
+    valid_top = (x_line_top <= x_max * 1.2)
+    x_top_crop = x_line_top[valid_top]
+    y_top_crop = y_line_top[valid_top]
+
+    x_poly = np.concatenate([[x_max * 1.2], x_top_crop[::-1], x_top_crop, [x_max * 1.2]])
+    y_poly = np.concatenate([[-y_top_crop[-1]], -y_top_crop[::-1], y_top_crop, [y_top_crop[-1]]])
+
+    # O SEGREDO DA CAUDA LÍMPIDA: Preenche o fundo com cor sólida para "apagar" o vento que cruzou as malhas!
+    ax.fill(x_poly, y_poly, color=background_color, alpha=1.0, zorder=2)
+    
+    # Aplica o tom de escudo (azul) por cima
+    ax.fill(x_poly, y_poly, color=safe_zone_color, alpha=safe_zone_alpha, zorder=3)
+
+    # Traço da fronteira visível
+    x_line = np.concatenate([x_line_top[::-1], x_line_top])
+    y_line = np.concatenate([-y_line_top[::-1], y_line_top])
+    valid_plot = (x_line >= x_min) & (x_line <= x_max) & (y_line >= y_min) & (y_line <= y_max)
 
     ax.plot(
-        x_line[valid],
-        y_line[valid],
-        color=shield_color,
-        linestyle=shield_linestyle,
-        linewidth=shield_linewidth,
-        alpha=shield_alpha,
-        zorder=3,
+        x_line[valid_plot], y_line[valid_plot],
+        color=shield_color, linestyle=shield_linestyle,
+        linewidth=shield_linewidth, alpha=shield_alpha, zorder=4,
     )
 
-    ax.fill_betweenx(
-        y_line[valid],
-        x_line[valid],
-        x_max,
-        color=safe_zone_color,
-        alpha=safe_zone_alpha,
-        zorder=2,
-    )
+    # ? --- Traçado do Evento de CME ---
+    if show_cme:
+        R_m_cme = R_m * (cme_factor ** (-1/6))
+        r_cme = R_m_cme * np.sqrt(theta_line / np.sin(theta_line))
+        x_cme_top = -r_cme * np.cos(theta_line)
+        y_cme_top = r_cme * np.sin(theta_line)
 
-    planet = Circle(
-        (0, 0),
-        R_p,
-        color=planet_color,
-        ec=planet_edgecolor,
-        lw=planet_linewidth,
-        zorder=4,
-    )
+        x_cme = np.concatenate([x_cme_top[::-1], x_cme_top])
+        y_cme = np.concatenate([-y_cme_top[::-1], y_cme_top])
+        valid_cme = (x_cme >= x_min) & (x_cme <= x_max) & (y_cme >= y_min) & (y_cme <= y_max)
+
+        ax.plot(
+            x_cme[valid_cme], y_cme[valid_cme],
+            color=cme_color, linestyle=cme_linestyle,
+            linewidth=cme_linewidth, alpha=cme_alpha, zorder=5,
+        )
+        
+        valid_cme_top = (x_cme_top <= x_max * 1.2)
+        x_cme_top_crop = x_cme_top[valid_cme_top]
+        y_cme_top_crop = y_cme_top[valid_cme_top]
+        
+        x_poly_cme = np.concatenate([[x_max * 1.2], x_cme_top_crop[::-1], x_cme_top_crop, [x_max * 1.2]])
+        y_poly_cme = np.concatenate([[-y_cme_top_crop[-1]], -y_cme_top_crop[::-1], y_cme_top_crop, [y_cme_top_crop[-1]]])
+        ax.fill(x_poly_cme, y_poly_cme, color=cme_color, alpha=0.05, zorder=4)
+
+    # ? --- Planeta Central ---
+    planet = Circle((0, 0), R_p, color=planet_color, ec=planet_edgecolor, lw=planet_linewidth, zorder=6)
     ax.add_patch(planet)
 
     if title:
@@ -2631,13 +2618,7 @@ def magnetosphere(
     ax.set_ylim(y_min, y_max)
 
     if show_grid:
-        ax.grid(
-            True,
-            linestyle=grid_linestyle,
-            linewidth=grid_linewidth,
-            color=grid_color,
-            alpha=grid_alpha,
-        )
+        ax.grid(True, linestyle=grid_linestyle, linewidth=grid_linewidth, color=grid_color, alpha=grid_alpha, zorder=1)
         ax.set_axisbelow(True)
 
     if not show_box:
@@ -2657,9 +2638,8 @@ def magnetosphere(
     plt.tight_layout()
 
     if save_fig:
-        filepath = f"figures/{filename}.{file_format}"
         import os
-
+        filepath = f"figures/{filename}.{file_format}"
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
         plt.savefig(filepath, dpi=dpi, bbox_inches="tight", facecolor=background_color)
 

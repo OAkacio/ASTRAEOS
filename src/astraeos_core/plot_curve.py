@@ -700,36 +700,24 @@ def plot_magnetosphere_shield(
     Rplan,
     exoplanet_name,
 ):
-    # * ============================================
-    # * Importações
-    # * ============================================
     import os
     import numpy as np
     from matplotlib.patches import Circle
+    import matplotlib.patheffects as pe
 
-    # * ============================================
-    # * Carregamento e Preparação de Dados
-    # * ============================================
     # ? --- Extração do Arquivo .npz ---
     dados = np.load(f"data/curve_{cte}.npz")
     nome = str(dados["nome"])
 
-    # O Raio Magnetosférico é salvo em raios terrestres (R_earth)
     Rmag_earth = dados["Rmag"].item()
 
-    # ? --- Conversão de Escala Geométrica ---
-    # Convertendo para unidades do raio do próprio exoplaneta (Rp)
     if Rplan > 0:
         Rm_rp = Rmag_earth / Rplan
     else:
-        Rm_rp = 1.0  # Fallback de segurança contra divisão por zero
+        Rm_rp = 1.0  
 
-    # * ============================================
-    # * Renderização do Gráfico da Magnetosfera
-    # * ============================================
-    # ? --- Definição da Janela de Escoamento Dinâmica ---
-    # Garante que a janela abre o suficiente para vermos a órbita de 10.2,
-    # mesmo se a magnetosfera for muito pequena.
+    fator_cme = 100.0
+
     limite_extremo = max(Rm_rp * 3.5, 13.0)
     x_limites = [-limite_extremo * 0.5, limite_extremo]
     y_limites = [-limite_extremo * 0.6, limite_extremo * 0.6]
@@ -738,27 +726,33 @@ def plot_magnetosphere_shield(
     fig = gp.magnetosphere(
         R_m=Rm_rp,
         R_p=1.0,
+        cme_factor=fator_cme,
+        show_cme=True,
         x_range=x_limites,
         y_range=y_limites,
-        grid_density=200,  # Densidade otimizada para o Tkinter
-        wind_velocity=1.5,  # Velocidade visual do fluxo no streamplot
+        grid_density=200,
+        wind_velocity=1.5,
         title=f"{nome} - {exoplanet_name} Magnetospheric Standoff",
         x_label=r"Distance [$R_{planet}$]",
         y_label=r"Distance [$R_{planet}$]",
         background_color="#1E1E1E",
-        stream_color="#61AFEF",  # Azul estelar para as linhas de fluxo
-        stream_density=1.2,
-        stream_linewidth=1.0,
-        stream_arrowsize=1.2,
+        stream_color="#61AFEF",
+        stream_density=0.9,     # <--- Densidade reduzida (espaça as linhas)
+        stream_linewidth=0.8,   # <--- Linhas mais finas e elegantes
+        stream_arrowsize=1.0,
         planet_color="#1E1E1E",
-        planet_edgecolor="#E5C07B",  # Dourado para o exoplaneta
+        planet_edgecolor="#E5C07B",
         planet_linewidth=2.0,
-        shield_color="#00D8FF",  # Ciano vibrante para o choque parabólico
-        shield_linestyle="--",
+        shield_color="#00D8FF",
+        shield_linestyle="-",
         shield_linewidth=2.0,
         shield_alpha=0.9,
         safe_zone_color="#00D8FF",
-        safe_zone_alpha=0.05,  # Névoa muito suave na zona protegida
+        safe_zone_alpha=0.08,
+        cme_color="#E06C75",
+        cme_linestyle=":",
+        cme_linewidth=2.0,
+        cme_alpha=0.9,
         show_grid=True,
         show_box=False,
         remove_borders=True,
@@ -776,88 +770,42 @@ def plot_magnetosphere_shield(
     )
     ax = fig.axes[0]
 
-    # * ============================================
-    # * Intervenções Estéticas Finais
-    # * ============================================
+    # O "Halo" escuro que resolve o problema da legibilidade sobre qualquer elemento
+    outline = [pe.withStroke(linewidth=4, foreground="#1E1E1E")]
 
-    # 1. FIX DE PROPORÇÃO: Força o planeta e as zonas a serem círculos perfeitos
     ax.set_aspect("equal", adjustable="box")
 
-    # 2. Zonas de Segurança (R=5 e R=10.2)
-    # R = 5 (Sub-Crítico / Zona de Risco Atmosférico)
-    anel_5 = Circle(
-        (0, 0),
-        5.0,
-        fill=False,
-        edgecolor="#E06C75",
-        linestyle=":",
-        linewidth=1.5,
-        alpha=1,
-        zorder=3,
-    )
+    anel_5 = Circle((0, 0), 5.0, fill=False, edgecolor="#E06C75", linestyle=":", linewidth=1.5, alpha=1, zorder=3)
     ax.add_patch(anel_5)
     ax.text(
-        0,
-        5.2,
-        "Critical Standoff (5 $R_p$)",
-        color="#E06C75",
-        fontsize=10,
-        ha="center",
-        alpha=1,
-        zorder=4,
+        0, 5.2, "Critical Standoff (5 $R_p$)",
+        color="#E06C75", fontsize=10, ha="center", zorder=7, path_effects=outline
     )
 
-    # R = 10.2 (Referência Segura Tipo-Terra)
-    anel_10 = Circle(
-        (0, 0),
-        10.2,
-        fill=False,
-        edgecolor="#98C379",
-        linestyle=":",
-        linewidth=1.5,
-        alpha=1,
-        zorder=3,
-    )
+    anel_10 = Circle((0, 0), 10.2, fill=False, edgecolor="#98C379", linestyle=":", linewidth=1.5, alpha=1, zorder=3)
     ax.add_patch(anel_10)
     ax.text(
-        0,
-        10.4,
-        "Earth-like Standoff (10.2 $R_p$)",
-        color="#98C379",
-        fontsize=10,
-        ha="center",
-        alpha=1,
-        zorder=4,
+        0, 10.4, "Earth-like Standoff (10.2 $R_p$)",
+        color="#98C379", fontsize=10, ha="center", zorder=7, path_effects=outline
     )
 
-    # 3. Textos Flutuantes
-    ax.text(
-        0.5 * Rm_rp,
-        0.0,
-        None,
-        color="#00D8FF",
-        fontsize=14,
-        fontweight="bold",
-        fontstyle="italic",
-        ha="center",
-        va="center",
-        alpha=1,
-        zorder=5,
-    )
+    # Identificadores das Curvas
+#    ax.text(
+#        -Rm_rp * 1.05, 0.0, "Magnetopause",
+#        color="#00D8FF", fontsize=8, fontweight="bold", ha="right", va="center", zorder=7, path_effects=outline
+#    )
+
+    rm_cme_calc = Rm_rp * (fator_cme ** (-1/6))
+#    ax.text(
+#        -rm_cme_calc * 1.05, -rm_cme_calc * 0.8, f"CME Impact",
+#        color="#E06C75", fontsize=8, fontweight="bold", fontstyle="italic", ha="right", va="top", zorder=7, path_effects=outline
+#    )
 
     ax.text(
-        x_limites[0] * 0.9,
-        y_limites[1] * 0.85,
-        "← Stellar Wind",
-        color="#61AFEF",
-        fontsize=12,
-        ha="left",
-        va="center",
-        alpha=1,
-        zorder=5,
+        x_limites[0] * 0.9, y_limites[1] * 0.85, "← Stellar Wind",
+        color="#61AFEF", fontsize=12, ha="left", va="center", zorder=7, path_effects=outline
     )
 
-    # ? --- Salvamento Manual da Figura ---
     filepath = "figures/magnetosphere_shield.png"
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
     fig.savefig(filepath, dpi=100, bbox_inches="tight", facecolor="#1E1E1E")
