@@ -41,6 +41,8 @@ class AppState:
         self.Mmag = ctk.StringVar(value="8e22")
         self.Dorb = ctk.StringVar(value="0.03849")
         self.Rplan = ctk.StringVar(value="1.045")
+        self.k_cme = ctk.StringVar(value="4.0")
+        self.hion = ctk.StringVar(value="1000")
 
         # ? --- Variáveis de Referência e Gráficos ---
         self.refs = [
@@ -126,6 +128,8 @@ class AppState:
             "Dorb": float(self.Dorb.get()),
             "Rplan": float(self.Rplan.get()),
             "parker": self.parker.get(),
+            "k_cme": float(self.k_cme.get()),
+            "hion": float(self.hion.get()),
         }
 
     def parameters_plot(self):

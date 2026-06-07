@@ -710,13 +710,19 @@ def plot_magnetosphere_shield(
     nome = str(dados["nome"])
 
     Rmag_earth = dados["Rmag"].item()
+    k_cme = dados["k_cme"].item()
+    hion_km = dados["hion"].item()
 
     if Rplan > 0:
         Rm_rp = Rmag_earth / Rplan
     else:
-        Rm_rp = 1.0  
+        Rm_rp = 1.0
 
-    fator_cme = 100.0
+    fator_cme = k_cme
+    
+    # Constante para converter km em Raios Terrestres (Rterra ≈ 6371 km)
+    Rterra = 6371.0 
+    hion_rp = (hion_km / Rterra) / Rplan
 
     limite_extremo = max(Rm_rp * 3.5, 13.0)
     x_limites = [-limite_extremo * 0.5, limite_extremo]
@@ -737,12 +743,12 @@ def plot_magnetosphere_shield(
         y_label=r"Distance [$R_{planet}$]",
         background_color="#1E1E1E",
         stream_color="#61AFEF",
-        stream_density=0.9,     # <--- Densidade reduzida (espaça as linhas)
-        stream_linewidth=0.8,   # <--- Linhas mais finas e elegantes
+        stream_density=0.9,
+        stream_linewidth=0.8,
         stream_arrowsize=1.0,
         planet_color="#1E1E1E",
         planet_edgecolor="#E5C07B",
-        planet_linewidth=2.0,
+        planet_linewidth=0.0,
         shield_color="#00D8FF",
         shield_linestyle="-",
         shield_linewidth=2.0,
@@ -750,7 +756,7 @@ def plot_magnetosphere_shield(
         safe_zone_color="#00D8FF",
         safe_zone_alpha=0.08,
         cme_color="#E06C75",
-        cme_linestyle=":",
+        cme_linestyle="-",
         cme_linewidth=2.0,
         cme_alpha=0.9,
         show_grid=True,
@@ -775,35 +781,96 @@ def plot_magnetosphere_shield(
 
     ax.set_aspect("equal", adjustable="box")
 
-    anel_5 = Circle((0, 0), 5.0, fill=False, edgecolor="#E06C75", linestyle=":", linewidth=1.5, alpha=1, zorder=3)
+    # =========================================================================
+    # ? EFEITO ATMOSFÉRICO ESFUMAÇADO (IONOSFERA)
+    # Desenha 20 anéis concêntricos que vão do R_planeta (1.0) até a altura máxima da ionosfera
+    # =========================================================================
+    num_camadas = 20
+    raio_max_atmosfera = 1.0 + hion_rp
+    passos_raio = np.linspace(1.0, raio_max_atmosfera, num_camadas)
+    
+    # O alpha começa um pouco forte perto da superfície e cai para 0 no topo
+    alphas = np.linspace(0.2, 0.0, num_camadas)
+
+    for r_camada, opacidade in zip(passos_raio, alphas):
+        halo_atmosferico = Circle(
+            (0, 0),
+            r_camada,
+            fill=True,
+            facecolor="#E5C07B",  # Usa a mesma cor do planeta para a atmosfera
+            edgecolor="none",
+            alpha=opacidade,
+            zorder=5, # Tem de ficar abaixo da linha sólida do planeta mas acima do choque
+        )
+        ax.add_patch(halo_atmosferico)
+    # =========================================================================
+
+    anel_5 = Circle(
+        (0, 0),
+        5.0,
+        fill=False,
+        edgecolor="#E06C75",
+        linestyle=":",
+        linewidth=1.5,
+        alpha=1,
+        zorder=3,
+    )
     ax.add_patch(anel_5)
     ax.text(
-        0, 5.2, "Critical Standoff (5 $R_p$)",
-        color="#E06C75", fontsize=10, ha="center", zorder=7, path_effects=outline
+        0,
+        5.2,
+        "Critical Standoff (5 $R_p$)",
+        color="#E06C75",
+        fontsize=10,
+        ha="center",
+        zorder=7,
+        path_effects=outline,
     )
 
-    anel_10 = Circle((0, 0), 10.2, fill=False, edgecolor="#98C379", linestyle=":", linewidth=1.5, alpha=1, zorder=3)
+    anel_10 = Circle(
+        (0, 0),
+        10.2,
+        fill=False,
+        edgecolor="#98C379",
+        linestyle=":",
+        linewidth=1.5,
+        alpha=1,
+        zorder=3,
+    )
     ax.add_patch(anel_10)
     ax.text(
-        0, 10.4, "Earth-like Standoff (10.2 $R_p$)",
-        color="#98C379", fontsize=10, ha="center", zorder=7, path_effects=outline
+        0,
+        10.4,
+        "Earth-like Standoff (10.2 $R_p$)",
+        color="#98C379",
+        fontsize=10,
+        ha="center",
+        zorder=7,
+        path_effects=outline,
     )
 
     # Identificadores das Curvas
-#    ax.text(
-#        -Rm_rp * 1.05, 0.0, "Magnetopause",
-#        color="#00D8FF", fontsize=8, fontweight="bold", ha="right", va="center", zorder=7, path_effects=outline
-#    )
+    #    ax.text(
+    #        -Rm_rp * 1.05, 0.0, "Magnetopause",
+    #        color="#00D8FF", fontsize=8, fontweight="bold", ha="right", va="center", zorder=7, path_effects=outline
+    #    )
 
-    rm_cme_calc = Rm_rp * (fator_cme ** (-1/6))
-#    ax.text(
-#        -rm_cme_calc * 1.05, -rm_cme_calc * 0.8, f"CME Impact",
-#        color="#E06C75", fontsize=8, fontweight="bold", fontstyle="italic", ha="right", va="top", zorder=7, path_effects=outline
-#    )
+    rm_cme_calc = Rm_rp * (fator_cme ** (-1 / 6))
+    #    ax.text(
+    #        -rm_cme_calc * 1.05, -rm_cme_calc * 0.8, f"CME Impact",
+    #        color="#E06C75", fontsize=8, fontweight="bold", fontstyle="italic", ha="right", va="top", zorder=7, path_effects=outline
+    #    )
 
     ax.text(
-        x_limites[0] * 0.9, y_limites[1] * 0.85, "← Stellar Wind",
-        color="#61AFEF", fontsize=12, ha="left", va="center", zorder=7, path_effects=outline
+        x_limites[0] * 0.9,
+        y_limites[1] * 0.85,
+        "← Stellar Wind",
+        color="#61AFEF",
+        fontsize=12,
+        ha="left",
+        va="center",
+        zorder=7,
+        path_effects=outline,
     )
 
     filepath = "figures/magnetosphere_shield.png"

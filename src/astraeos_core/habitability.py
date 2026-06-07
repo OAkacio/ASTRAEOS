@@ -29,17 +29,21 @@ def main_hab(
     r0,
     cte,
     exoplanet_name,
+    k_cme,
+    hion,
 ):
     # ? --- Cálculo de ZH ---
     sy.status("Loading input parameters...", flush=True)
     sy.param(
         ("Exoplanet Designation", exoplanet_name, ""),
-        ("Orbital Distance", Dorb, "AU"),
-        ("Orbital Eccentricity", e, "adm"),
-        ("Bond Albedo", Ab, "adm"),
-        ("Planetary Radius", Rplan, "Rearth"),
-        ("Magnetic Dipole Moment", Mmag, "Am²"),
-        ("Magnetospheric Compression Factor", f0, "adm"),
+        ("Orbital Distance ( Dorb )", Dorb, "AU"),
+        ("Orbital Eccentricity ( e )", e, "dim"),
+        ("Bond Albedo ( Ab )", Ab, "dim"),
+        ("Planetary Radius ( Rₚ )", Rplan, "R⊕"),
+        ("Magnetic Dipole Moment ( Mmag )", Mmag, "Am²"),
+        ("Chapman-Ferraro Factor ( f₀ )", f0, "dim"),
+        ("Compression Factor ( k )",k_cme,"dim"),
+        ("Ionosphere Height ( hion )",hion,"km"),
         flush=True,
     )
     sy.status("Calculating habitable zone distances...", flush=True)
@@ -65,9 +69,9 @@ def main_hab(
         rho_cgs=rho_total[i], u_ve0=y_tot[i], ve0_cgs=ve0, f0=f0, Mmag_AM2=Mmag
     )
     sy.param(
-        ("Ram Pressure", P_din, "Pa"),
-        ("Magnetopause Radius", Rmag, "Rearth"),
-        ("Normalized Magnetopause Radius", Rmag / Rplan, "Rplan"),
+        ("Ram Pressure ( Pdyn )", P_din, "Pa"),
+        ("Magnetopause Radius ( Rm )", Rmag, "R⊕"),
+        ("Normalized Magnetopause Radius", Rmag / Rplan, "Rₚ"),
         flush=True,
     )
     time.sleep(1)
@@ -91,6 +95,17 @@ def main_hab(
         "dc_ext": dc_ext,
         "P_din": P_din,
         "Rmag": Rmag,
+        "k_cme":k_cme,
+        "Rmag":Rmag,
+        "Pdin":P_din,
+        "Rplan":Rplan,
+        "Dorb":Dorb,
+        "Mmag":Mmag,
+        "f0":f0,
+        "Ab":Ab,
+        "e":e,
+        "exoplanet_name":exoplanet_name,
+        "hion":hion,
     }
     for chave, novo_valor in novos_valores.items():
         dadosdic[chave] = novo_valor

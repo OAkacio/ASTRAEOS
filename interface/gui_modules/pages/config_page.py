@@ -56,7 +56,7 @@ class ToolTip:
         x_inicial = event.x_root + offset_x
         y_inicial = event.y_root + offset_y
         self.tooltip_window.wm_geometry(f"+{x_inicial}+{y_inicial}")
-        
+
         self.tooltip_window.update_idletasks()
 
         tooltip_width = self.tooltip_window.winfo_reqwidth()
@@ -552,6 +552,8 @@ class ConfigPage(ctk.CTkFrame):
                     "Rplan": self.app_state.Rplan.get(),
                     "Mmag": self.app_state.Mmag.get(),
                     "f0": self.app_state.f0.get(),
+                    "k_cme": self.app_state.k_cme.get(),
+                    "hion": self.app_state.hion.get(),
                 },
                 "advanced": {
                     "multicurve": self.app_state.multicurve.get(),
@@ -630,6 +632,8 @@ class ConfigPage(ctk.CTkFrame):
                     "Rplan",
                     "Mmag",
                     "f0",
+                    "k_cme",
+                    "hion",
                 ],
                 "advanced": ["multicurve", "searchdv2", "ldv2", "hdv2", "stepdv2"],
             }
@@ -708,17 +712,19 @@ class ConfigPage(ctk.CTkFrame):
             ctk.CTkLabel(aba, text=uni, font=fonte_uni, text_color="#8b949e").grid(
                 row=linha, column=2, padx=(0, 50), pady=5, sticky="w"
             )
-            
+
         linha_atual = len(campos)
 
         # ? --- NOVA LÓGICA: Bibliotecas de Presets Estelares ---
         linha_atual += 1
         ctk.CTkLabel(
-            aba, 
-            text="Stellar Catalog (Presets)", 
-            font=ctk.CTkFont(family="Consolas", size=14, weight="bold"), 
-            text_color="#E5C07B"
-        ).grid(row=linha_atual, column=0, columnspan=3, pady=(25, 5), sticky="w", padx=20)
+            aba,
+            text="Stellar Catalog (Presets)",
+            font=ctk.CTkFont(family="Consolas", size=14, weight="bold"),
+            text_color="#E5C07B",
+        ).grid(
+            row=linha_atual, column=0, columnspan=3, pady=(25, 5), sticky="w", padx=20
+        )
 
         # Garante que o diretório base existe
         presets_dir = os.path.join(BASE_DIR, "presets")
@@ -729,35 +735,46 @@ class ConfigPage(ctk.CTkFrame):
         if not arquivos_json:
             linha_atual += 1
             ctk.CTkLabel(
-                aba, 
-                text="No .json presets found in 'presets/' folder.", 
-                font=fonte_var, 
-                text_color="#5c6269"
+                aba,
+                text="No .json presets found in 'presets/' folder.",
+                font=fonte_var,
+                text_color="#5c6269",
             ).grid(row=linha_atual, column=0, columnspan=3, padx=30, pady=5, sticky="w")
         else:
             for arquivo in arquivos_json:
                 linha_atual += 1
                 nome_preset = arquivo.replace(".json", "")
-                
+
                 # Container invisível para agrupar o nome e o botão perfeitamente alinhados
                 frame_preset = ctk.CTkFrame(aba, fg_color="transparent")
-                frame_preset.grid(row=linha_atual, column=0, columnspan=3, sticky="ew", padx=30, pady=2)
+                frame_preset.grid(
+                    row=linha_atual,
+                    column=0,
+                    columnspan=3,
+                    sticky="ew",
+                    padx=30,
+                    pady=2,
+                )
                 frame_preset.grid_columnconfigure(1, weight=1)
-                
+
                 # Indicador elegante
-                lbl_seta = ctk.CTkLabel(frame_preset, text="➤", font=fonte_var, text_color="#61AFEF")
+                lbl_seta = ctk.CTkLabel(
+                    frame_preset, text="➤", font=fonte_var, text_color="#61AFEF"
+                )
                 lbl_seta.grid(row=0, column=0, sticky="w", padx=(0, 10))
-                
+
                 # Nome do arquivo
-                lbl_nome = ctk.CTkLabel(frame_preset, text=nome_preset, font=fonte_var, text_color="#ABB2BF")
+                lbl_nome = ctk.CTkLabel(
+                    frame_preset, text=nome_preset, font=fonte_var, text_color="#ABB2BF"
+                )
                 lbl_nome.grid(row=0, column=1, sticky="w")
-                
+
                 caminho_completo = os.path.join(presets_dir, arquivo)
-                
+
                 # Função isolada para capturar a variável correta dentro do loop
                 def carregar(caminho=caminho_completo):
                     self._load_from_filepath(caminho)
-                
+
                 # Botão de Load estético
                 btn_load = ctk.CTkButton(
                     frame_preset,
@@ -770,7 +787,7 @@ class ConfigPage(ctk.CTkFrame):
                     border_color="#61AFEF",
                     text_color="#61AFEF",
                     font=fonte_var,
-                    command=carregar
+                    command=carregar,
                 )
                 btn_load.grid(row=0, column=2, sticky="e")
 
@@ -1266,9 +1283,9 @@ class ConfigPage(ctk.CTkFrame):
             row=0, column=1, columnspan=2, padx=(10, 0), pady=5, sticky="we"
         )
         self.exo_inputs.append(entry_rplan)
-        ctk.CTkLabel(
-            aba, text="  [ R⊕ ]", font=fonte_uni, text_color="#8b949e"
-        ).grid(row=0, column=3, padx=(0, 20), pady=5, sticky="w")
+        ctk.CTkLabel(aba, text="  [ R⊕ ]", font=fonte_uni, text_color="#8b949e").grid(
+            row=0, column=3, padx=(0, 20), pady=5, sticky="w"
+        )
 
         ctk.CTkLabel(
             aba,
@@ -1321,6 +1338,32 @@ class ConfigPage(ctk.CTkFrame):
             row=2, column=3, padx=(0, 20), pady=5, sticky="w"
         )
 
+        ctk.CTkLabel(
+            aba,
+            text="Compression Factor ( k ):",
+            font=fonte,
+            text_color="#E5C07B",
+        ).grid(row=3, column=0, padx=20, pady=5, sticky="w")
+        entry_k_cme = ctk.CTkEntry(aba, textvariable=self.app_state.k_cme, font=fonte_var)
+        entry_k_cme.grid(row=3, column=1, columnspan=2, padx=(10, 0), pady=5, sticky="we")
+        self.exo_inputs.append(entry_k_cme)
+        ctk.CTkLabel(aba, text="  [ adm ]", font=fonte_uni, text_color="#8b949e").grid(
+            row=3, column=3, padx=(0, 20), pady=5, sticky="w"
+        )
+
+        ctk.CTkLabel(
+            aba,
+            text="Ionosphere Height ( hion ):",
+            font=fonte,
+            text_color="#E5C07B",
+        ).grid(row=4, column=0, padx=20, pady=5, sticky="w")
+        entry_hion = ctk.CTkEntry(aba, textvariable=self.app_state.hion, font=fonte_var)
+        entry_hion.grid(row=4, column=1, columnspan=2, padx=(10, 0), pady=5, sticky="we")
+        self.exo_inputs.append(entry_hion)
+        ctk.CTkLabel(aba, text="  [ km ]", font=fonte_uni, text_color="#8b949e").grid(
+            row=4, column=3, padx=(0, 20), pady=5, sticky="w"
+        )
+
     # * ============================================
     # * Lógica Dinâmica da Interface
     # * ============================================
@@ -1330,20 +1373,28 @@ class ConfigPage(ctk.CTkFrame):
         if isinstance(widget, ctk.CTkEntry):
             if state_str == "disabled":
                 widget.configure(
-                    text_color="#3c4044",  border_color="#282C34", fg_color="#1E1E1E",
+                    text_color="#3c4044",
+                    border_color="#282C34",
+                    fg_color="#1E1E1E",
                 )
             else:
                 widget.configure(
-                    text_color="white", border_color="#565b5e", fg_color="#343638",
+                    text_color="white",
+                    border_color="#565b5e",
+                    fg_color="#343638",
                 )
         elif isinstance(widget, ctk.CTkSlider):
             if state_str == "disabled":
                 widget.configure(
-                    button_color="#282C34", progress_color="#282C34", button_hover_color="#282C34",
+                    button_color="#282C34",
+                    progress_color="#282C34",
+                    button_hover_color="#282C34",
                 )
             else:
                 widget.configure(
-                    button_color="#61AFEF", progress_color="#1F618D", button_hover_color="#56B6C2",
+                    button_color="#61AFEF",
+                    progress_color="#1F618D",
+                    button_hover_color="#56B6C2",
                 )
 
     def set_exoplanet_state(self, state_str):

@@ -33,7 +33,9 @@
         "Ab": "0.3",
         "Rplan": "1",
         "Mmag": "8e22",
-        "f0": "1.16"
+        "f0": "1.16",
+        "k_cme": "240",
+        "hion": "1000"
     },
     "advanced": {
         "multicurve": false,

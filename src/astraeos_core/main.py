@@ -61,6 +61,8 @@ def main(
     parker,
     x_un,
     y_un,
+    k_cme,
+    hion,
     show_progress=True,
     **kwargs,
 ):
@@ -104,27 +106,27 @@ def main(
     sy.param(
         # --- Stellar & Coronal Properties ---
         ("Target Name", nome, ""),
-        ("Stellar Mass", Mstar, "Msun"),
-        ("Stellar Radius", Rstar, "Rsun"),
-        ("Effective Temperature", Teff, "K"),
-        ("Stellar Luminosity", Lstar, "Lsun"),
-        ("Coronal Temperature", T, "K"),
-        ("Coronal Base Density", rho0, "g/cm³"),
-        ("Mean Molecular Weight", mu, "adm"),
-        ("Surface Magnetic Field", B0, "G"),
+        ("Stellar Mass ( M★ )", Mstar, "M⊙"),
+        ("Stellar Radius ( R★ )", Rstar, "R⊙"),
+        ("Effective Temperature ( K )", Teff, "K"),
+        ("Stellar Luminosity ( L★ )", Lstar, "L⊙"),
+        ("Coronal Temperature ( T )", T, "K"),
+        ("Coronal Base Density ( ρ₀ )", rho0, "g/cm³"),
+        ("Mean Molecular Weight ( μ )", mu, "dim"),
+        ("Surface Magnetic Field ( B₀ )", B0, "G"),
         # --- Wind & Wave Parameters ---
-        ("Expansion Factor", S_divergencia, "adm"),
-        ("Initial Wave Amplitude", deltav0, "ve0²"),
-        ("Initial Alfvén Flux", phi0, "erg/cm²/s"),
-        ("Damping Length", L0, "r0"),
+        ("Expansion Factor ( S )", S_divergencia, "dim"),
+        ("Initial Wave Amplitude ( Δv₀² )", deltav0, "ve0²"),
+        ("Initial Alfvén Flux ( φ₀ )", phi0, "erg/cm²/s"),
+        ("Damping Length ( L₀ )", L0, "R★"),
         ("Constant Damping Mode", cte, "bool"),
         # --- Calculated Velocities & Scales ---
         ("Escape Velocity (ve0)", ve0 / 1e5, "km/s"),
         ("Normalized Alfvén Velocity", vA0, "ve0"),
         ("Alfvén Velocity (vA0)", vA0 * ve0 / 1e5, "km/s"),
-        ("Thermal Velocity (vT)", vT, "ve0"),
+        ("Thermal Velocity (vt)", vT, "ve0"),
         ("Sound Speed (cs)", cs / 1e5, "km/s"),
-        ("Alfvén Radius (x_t)", x_t, "r0"),
+        ("Alfvén Radius (xt)", x_t, "R★"),
         flush=True,
     )
 
@@ -155,9 +157,9 @@ def main(
         sy.param(
             ("Base Velocity", u0 * ve0 / 1e5, "km/s"),
             ("Normalized Base Velocity", u0, "ve0"),
-            ("Critical Point Distance", x_crit, "r0"),
+            ("Critical Point Distance", x_crit, "R★"),
             ("Critical Velocity", y_crit, "ve0"),
-            ("Critical Topology Slope (du/dx)", r_crit, "adm"),
+            ("Critical Topology Slope (N/D)", r_crit, "dim"),
             flush=True,
         )
 
@@ -219,9 +221,9 @@ def main(
         sy.param(
             ("Base Velocity", u0 * ve0 / 1e5, "km/s"),
             ("Normalized Base Velocity", u0, "ve0"),
-            ("Critical Point Distance", x_crit, "r0"),
+            ("Critical Point Distance", x_crit, "R★"),
             ("Critical Velocity", y_crit, "ve0"),
-            ("Critical Topology Slope (du/dx)", r_crit, "adm"),
+            ("Critical Topology Slope (N/D)", r_crit, "dim"),
             flush=True,
         )
 
@@ -233,7 +235,6 @@ def main(
     sy.param(
         ("Terminal Velocity", y_tot[-1] * ve0 / 1e5, "km/s"),
         ("Normalized Terminal Velocity", y_tot[-1], "ve0"),
-        ("Alfvén Radius", x_t, "r0"),
         flush=True,
     )
 
@@ -255,6 +256,8 @@ def main(
             r0,
             cte,
             exoplanet_name,
+            k_cme,
+            hion,
         )
     else:
         d_int, d_ext, dc_int, dc_ext, P_din, Rmag = 0, 0, 0, 0, 0, 0
@@ -328,6 +331,8 @@ def main(
         parker=parker,
         x_un=x_un,
         y_un=y_un,
+        k_cme=k_cme,
+        hion=hion,
     )
 
     if show_progress:
@@ -476,5 +481,7 @@ if __name__ == "__main__":
         parker=parker_,
         x_un=x_un_,
         y_un=y_un_,
+        k_cme=k_cme_,
+        hion=hion_,
         show_progress=False,
     )
