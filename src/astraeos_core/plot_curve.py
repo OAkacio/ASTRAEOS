@@ -572,7 +572,7 @@ def plot_habitability_radar(
     rho_norm = rho_total / rho_total[0]
 
     # Amostragem da malha para evitar lentidão excessiva no Tkinter
-    step = max(1, len(x_tot) // 1000)
+    step = max(1, len(x_tot) // 12000)
     x_mesh = x_tot[::step]
     rho_mesh = rho_norm[::step]
 
