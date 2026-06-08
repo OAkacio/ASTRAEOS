@@ -562,7 +562,7 @@ def plot_habitability_radar(
     d_int_mg = dados["d_int_mg"].item()
     d_ext_mg = dados["d_ext_mg"].item()
     d_ext_em = dados["d_ext_em"].item()
-    
+
     d_int_classic = dados["dc_int"].item()
     d_ext_classic = dados["dc_ext"].item()
 
@@ -642,7 +642,7 @@ def plot_habitability_radar(
 
     planets_colors = ["#ABB2BF"] * 150 + ["#FF3333"]
     planets_markers = ["."] * 150 + ["o"]
-    planets_sizes = [2] * 150 + [60]
+    planets_sizes = [2] * 150 + [30]
     planets_names = [None] * 150 + [exoplanet_name]
 
     # * ============================================
@@ -732,10 +732,9 @@ def plot_magnetosphere_shield(
         Rm_rp = 1.0
 
     fator_cme = k_cme
-    
+
     # Constante para converter km em Raios Terrestres (Rterra ≈ 6371 km)
-    Rterra = 6371.0 
-    hion_rp = (hion_km / Rterra) / Rplan
+    hion_rp = (hion_km / (Rterra / 1000)) / Rplan
 
     limite_extremo = max(Rm_rp * 3.5, 13.0)
     x_limites = [-limite_extremo * 0.5, limite_extremo]
@@ -801,7 +800,7 @@ def plot_magnetosphere_shield(
     num_camadas = 20
     raio_max_atmosfera = 1.0 + hion_rp
     passos_raio = np.linspace(1.0, raio_max_atmosfera, num_camadas)
-    
+
     # O alpha começa um pouco forte perto da superfície e cai para 0 no topo
     alphas = np.linspace(0.2, 0.0, num_camadas)
 
@@ -813,7 +812,7 @@ def plot_magnetosphere_shield(
             facecolor="#E5C07B",  # Usa a mesma cor do planeta para a atmosfera
             edgecolor="none",
             alpha=opacidade,
-            zorder=5, # Tem de ficar abaixo da linha sólida do planeta mas acima do choque
+            zorder=5,  # Tem de ficar abaixo da linha sólida do planeta mas acima do choque
         )
         ax.add_patch(halo_atmosferico)
     # =========================================================================
