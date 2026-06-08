@@ -109,34 +109,70 @@ def find_i(lista, valor):
 # * ============================================
 
 
-def Seff_int(Teff):
+def Seff_int(Teff, tipo):
     T_dif = Teff - 5780
-    return (
-        Seff_sun_int
-        + a_int * T_dif
-        + b_int * T_dif**2
-        + c_int * T_dif**3
-        + d_int * T_dif**4
-    )
+    if tipo == "rv":
+        x = (
+            Seff_sun_int_rv
+            + a_int_rv * T_dif
+            + b_int_rv * T_dif**2
+            + c_int_rv * T_dif**3
+            + d_int_rv * T_dif**4
+        )
+    elif tipo == "rg":
+        x = (
+            Seff_sun_int_rg
+            + a_int_rg * T_dif
+            + b_int_rg * T_dif**2
+            + c_int_rg * T_dif**3
+            + d_int_rg * T_dif**4
+        )
+    elif tipo == "mg":
+        x = (
+            Seff_sun_int_mg
+            + a_int_mg * T_dif
+            + b_int_mg * T_dif**2
+            + c_int_mg * T_dif**3
+            + d_int_mg * T_dif**4
+        )
+    return x
 
 
-def Seff_ext(Teff):
+def Seff_ext(Teff, tipo):
     T_dif = Teff - 5780
-    return (
-        Seff_sun_ext
-        + a_ext * T_dif
-        + b_ext * T_dif**2
-        + c_ext * T_dif**3
-        + d_ext * T_dif**4
-    )
+    if tipo == "mg":
+        x = (
+            Seff_sun_ext_mg
+            + a_ext_mg * T_dif
+            + b_ext_mg * T_dif**2
+            + c_ext_mg * T_dif**3
+            + d_ext_mg * T_dif**4
+        )
+    elif tipo == "em":
+        x = (
+            Seff_sun_ext_em
+            + a_ext_em * T_dif
+            + b_ext_em * T_dif**2
+            + c_ext_em * T_dif**3
+            + d_ext_em * T_dif**4
+        )
+    return x
 
 
 def distancia_habitavel(Lstar, Teff, e, Rstar_sun):
     fator_ecc = (1 - e**2) ** 0.5
-    d_int_au = (Lstar / (Seff_int(Teff) * fator_ecc)) ** 0.5
-    d_ext_au = (Lstar / (Seff_ext(Teff) * fator_ecc)) ** 0.5
+    d_int_au_rv = (Lstar / (Seff_int(Teff, "rv") * fator_ecc)) ** 0.5
+    d_int_au_rg = (Lstar / (Seff_int(Teff, "rg") * fator_ecc)) ** 0.5
+    d_int_au_mg = (Lstar / (Seff_int(Teff, "mg") * fator_ecc)) ** 0.5
+    d_ext_au_mg = (Lstar / (Seff_ext(Teff, "mg") * fator_ecc)) ** 0.5
+    d_ext_au_em = (Lstar / (Seff_ext(Teff, "em") * fator_ecc)) ** 0.5
     fator_conversao = au_cgs / (Rstar_sun * rsun)
-    return d_int_au * fator_conversao, d_ext_au * fator_conversao
+    d_int_rv = d_int_au_rv * fator_conversao
+    d_int_rg = d_int_au_rg * fator_conversao
+    d_int_mg = d_int_au_mg * fator_conversao
+    d_ext_mg = d_ext_au_mg * fator_conversao
+    d_ext_em = d_ext_au_em * fator_conversao
+    return d_int_rv, d_int_rg, d_int_mg, d_ext_mg, d_ext_em
 
 
 def distancia_habitavel_classic(Rstar_sun, Teff, Ab):

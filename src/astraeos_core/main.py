@@ -239,7 +239,7 @@ def main(
     )
 
     if habitabilidade:
-        d_int, d_ext, dc_int, dc_ext, P_din, Rmag = main_hab(
+        d_int_rv, d_int_rg, d_int_mg, d_ext_mg, d_ext_em, dc_int, dc_ext, P_din, Rmag = main_hab(
             Lstar,
             Teff,
             e,
@@ -260,7 +260,7 @@ def main(
             hion,
         )
     else:
-        d_int, d_ext, dc_int, dc_ext, P_din, Rmag = 0, 0, 0, 0, 0, 0
+        d_int_rv, d_int_rg, d_int_mg, d_ext_mg, d_ext_em, dc_int, dc_ext, P_din, Rmag = 0, 0, 0, 0, 0, 0, 0, 0, 0
 
     # ? --- Processamento e Salvamento de Dados ---
     os.makedirs("data", exist_ok=True)
@@ -322,8 +322,11 @@ def main(
         phi_total=phi_total,
         deltav2_total=deltav2_total,
         dmdt_total=dmdt_total,
-        d_int=d_int,
-        d_ext=d_ext,
+        d_int_rv=d_int_rv,
+        d_int_rg=d_int_rg,
+        d_int_mg=d_int_mg,
+        d_ext_mg=d_ext_mg,
+        d_ext_em=d_ext_em,
         dc_int=dc_int,
         dc_ext=dc_ext,
         P_din=P_din,

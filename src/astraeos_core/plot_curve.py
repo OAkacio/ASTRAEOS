@@ -546,15 +546,9 @@ def plot_habitability_radar(
     Rstar,
     exoplanet_name,
 ):
-    # * ============================================
-    # * Importações
-    # * ============================================
     import os
     import numpy as np
 
-    # * ============================================
-    # * Carregamento e Preparação de Dados
-    # * ============================================
     # ? --- Extração do Arquivo .npz ---
     dados = np.load(f"data/curve_{cte}.npz")
     x_tot = dados["x_tot"]
@@ -562,16 +556,19 @@ def plot_habitability_radar(
     nome = str(dados["nome"])
     x_sim = dados["x_sim"].item()
 
-    d_int = dados["d_int"].item()
-    d_ext = dados["d_ext"].item()
+    # Variáveis extraídas do cálculo expandido de Kopparapu
+    d_int_rv = dados["d_int_rv"].item()
+    d_int_rg = dados["d_int_rg"].item()
+    d_int_mg = dados["d_int_mg"].item()
+    d_ext_mg = dados["d_ext_mg"].item()
+    d_ext_em = dados["d_ext_em"].item()
+    
     d_int_classic = dados["dc_int"].item()
     d_ext_classic = dados["dc_ext"].item()
 
     # ? --- Normalização e Otimização Crítica ---
-    # Normalização da densidade
     rho_norm = rho_total / rho_total[0]
 
-    # Amostragem da malha para evitar lentidão excessiva no Tkinter
     step = max(1, len(x_tot) // 12000)
     x_mesh = x_tot[::step]
     rho_mesh = rho_norm[::step]
@@ -582,46 +579,67 @@ def plot_habitability_radar(
     Z = rho_mesh[:, np.newaxis] * np.ones((1, len(theta_1d)))
 
     # * ============================================
-    # * Elementos Visuais do Mapa Orbital
+    # * Estratificação Espacial das Zonas Habitáveis
     # * ============================================
-    # ? --- Zonas Habitáveis ---
     rings_in = []
     rings_out = []
     rings_cols = []
     rings_alps = []
     rings_labs = []
 
-    # Segurança: Adiciona a Zona Clássica se o valor for válido
+    # 1. HZ Clássica (Hierarquia Visual Baixa: Cinza Fantasma)
     if d_int_classic > 0 and d_ext_classic > 0:
         rings_in.append(d_int_classic)
         rings_out.append(d_ext_classic)
-        rings_cols.append("#6AFF00")  # Verde
-        rings_alps.append(0.3)
+        rings_cols.append("#5C6370")
+        rings_alps.append(0.12)
         rings_labs.append("Classic Habitable Zone")
 
-    # Segurança: Adiciona a Zona de Kopparapu se o valor for válido
-    if d_int > 0 and d_ext > 0:
-        rings_in.append(d_int)
-        rings_out.append(d_ext)
-        rings_cols.append("#00D8FF")  # Ciano
-        rings_alps.append(0.3)
-        rings_labs.append("Kopparapu Habitable Zone")
+    # 2. Otimista Interna (Recent Venus -> Runaway Greenhouse)
+    if d_int_rv > 0 and d_int_rg > 0:
+        rings_in.append(d_int_rv)
+        rings_out.append(d_int_rg)
+        rings_cols.append("#E06C75")  # Vermelho Suave
+        rings_alps.append(0.25)
+        rings_labs.append("Optimistic Inner (Recent Venus)")
+
+    # 3. Transição Interna (Runaway Greenhouse -> Moist Greenhouse)
+    if d_int_rg > 0 and d_int_mg > 0:
+        rings_in.append(d_int_rg)
+        rings_out.append(d_int_mg)
+        rings_cols.append("#E5C07B")  # Dourado Térmico
+        rings_alps.append(0.35)
+        rings_labs.append("Runaway -> Moist Greenhouse")
+
+    # 4. HZ Conservadora Central (Moist Greenhouse -> Maximum Greenhouse)
+    # Hierarquia Visual Alta (Maior opacidade, atrai a atenção imediata)
+    if d_int_mg > 0 and d_ext_mg > 0:
+        rings_in.append(d_int_mg)
+        rings_out.append(d_ext_mg)
+        rings_cols.append("#98C379")  # Verde Destaque
+        rings_alps.append(0.55)
+        rings_labs.append("Conservative HZ (Moist -> Max)")
+
+    # 5. Otimista Externa (Maximum Greenhouse -> Early Mars)
+    if d_ext_mg > 0 and d_ext_em > 0:
+        rings_in.append(d_ext_mg)
+        rings_out.append(d_ext_em)
+        rings_cols.append("#61AFEF")  # Azul Frio
+        rings_alps.append(0.25)
+        rings_labs.append("Optimistic Outer (Early Mars)")
 
     # ? --- Órbita e Posição do Exoplaneta ---
-    # Conversão da distância orbital (AU -> r0)
     rsun = 6.957e10
     au_em_cm = 1.495978707e13
     r0 = Rstar * rsun
     Dorb_r0 = Dorb * (au_em_cm / r0)
 
-    # Equação geométrica da órbita elíptica
     theta_orb = np.linspace(0, 2 * np.pi, 150)
     r_orb = Dorb_r0 * (1 - e**2) / (1 + e * np.cos(theta_orb))
 
     planets_theta = list(theta_orb) + [np.pi / 4]
     planets_r = list(r_orb) + [Dorb_r0 * (1 - e**2) / (1 + e * np.cos(np.pi / 4))]
 
-    # Estilização: Órbita pontilhada (150 pontos) + Planeta central (1 ponto)
     planets_colors = ["#ABB2BF"] * 150 + ["#FF3333"]
     planets_markers = ["."] * 150 + ["o"]
     planets_sizes = [2] * 150 + [60]
@@ -630,7 +648,6 @@ def plot_habitability_radar(
     # * ============================================
     # * Renderização e Ajustes Finais
     # * ============================================
-    # ? --- Geração do Gráfico Base ---
     fig = gp.radar(
         r_data=R,
         theta_data=Theta,
@@ -665,13 +682,10 @@ def plot_habitability_radar(
         show_plot=False,
     )
 
-    # ? --- Intervenções Estéticas Customizadas ---
     ax = fig.axes[0]
 
-    # Remove as marcações de ângulos das bordas (90º, 180º) para um visual limpo
     ax.set_xticks([])
 
-    # Recolhe e reposiciona a legenda à esquerda para evitar sobreposição
     handles, labels = ax.get_legend_handles_labels()
     by_label = dict(zip(labels, handles))
     if None in by_label:
@@ -687,7 +701,6 @@ def plot_habitability_radar(
         labelcolor="#ABB2BF",
     )
 
-    # ? --- Salvamento Manual da Figura ---
     filepath = "figures/habitability_radar.png"
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
     fig.savefig(filepath, dpi=100, bbox_inches="tight", facecolor="#1E1E1E")

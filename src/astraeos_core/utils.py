@@ -23,52 +23,52 @@ au_cgs = const.au.cgs.value  # Distância Astronômica em centímetros [cm]
 # * Constantes de Zona Habitável (Interna)
 # * ============================================
 # ? --- Borda Interna (Recent Venus) --- [empirico/otimista: Fluxo de energia recebida por Vênus no momento que 'morreu']
-Seff_sun_int = (
+Seff_sun_int_rv = (
     1.7763  # Fluxo solar efetivo [Lsol/AU²]
 )
-a_int = 1.4335e-4  # Coeficiente a [adm]
-b_int = 3.3954e-9  # Coeficiente b [adm]
-c_int = -7.6364e-12  # Coeficiente c [adm]
-d_int = -1.1950e-15  # Coeficiente d [adm]
+a_int_rv = 1.4335e-4  # Coeficiente a [adm]
+b_int_rv = 3.3954e-9  # Coeficiente b [adm]
+c_int_rv = -7.6364e-12  # Coeficiente c [adm]
+d_int_rv = -1.1950e-15  # Coeficiente d [adm]
 
 # ? --- Borda Interna (Runaway Greenhouse) --- [teórico: Efeito estufa descontrolado]
-Seff_sun_int = (
-    1.7763  # Fluxo solar efetivo [Lsol/AU²]
+Seff_sun_int_rg = (
+    1.0385  # Fluxo solar efetivo [Lsol/AU²]
 )
-a_int = 1.2456e-4  # Coeficiente a [adm]
-b_int = 1.4612e-8  # Coeficiente b [adm]
-c_int = -7.6345e-12  # Coeficiente c [adm]
-d_int = -1.7511e-15  # Coeficiente d [adm]
+a_int_rg = 1.2456e-4  # Coeficiente a [adm]
+b_int_rg = 1.4612e-8  # Coeficiente b [adm]
+c_int_rg = -7.6345e-12  # Coeficiente c [adm]
+d_int_rg = -1.7511e-15  # Coeficiente d [adm]
 
 # ? --- Borda Interna (Moist Greenhouse) --- [teórico/conservador: Atmosfera saturada de vapos d'água]
-Seff_sun_int = (
+Seff_sun_int_mg = (
     1.0146  # Fluxo solar efetivo [Lsol/AU²]
 )
-a_int = 8.1884e-5  # Coeficiente a [adm]
-b_int = 1.9394e-9  # Coeficiente b [adm]
-c_int = -4.3618e-12  # Coeficiente c [adm]
-d_int = -6.8260e-16  # Coeficiente d [adm]
+a_int_mg = 8.1884e-5  # Coeficiente a [adm]
+b_int_mg = 1.9394e-9  # Coeficiente b [adm]
+c_int_mg = -4.3618e-12  # Coeficiente c [adm]
+d_int_mg = -6.8260e-16  # Coeficiente d [adm]
 
 # * ============================================
 # * Constantes de Zona Habitável (Externa)
 # * ============================================
 # ? --- Borda Externa (Maximum Greenhouse) --- [teórico/conservador: saturação atmosférica de CO2 (biológico) para o aquecimento causando intenso efeito Rayleigh e esfriando mais o planeta ao invés de aquecer]
-Seff_sun_ext = (
+Seff_sun_ext_mg = (
     0.3507  # Fluxo solar efetivo [Lsol/AU²]
 )
-a_ext = 5.9578e-5  # Coeficiente a [adm]
-b_ext = 1.6707e-9  # Coeficiente b [adm]
-c_ext = -3.0058e-12  # Coeficiente c [adm]
-d_ext = -5.1925e-16  # Coeficiente d [adm]
+a_ext_mg = 5.9578e-5  # Coeficiente a [adm]
+b_ext_mg = 1.6707e-9  # Coeficiente b [adm]
+c_ext_mg = -3.0058e-12  # Coeficiente c [adm]
+d_ext_mg = -5.1925e-16  # Coeficiente d [adm]
 
 # ? --- Borda Externa (Early Mars) --- [empirico/otimista: Fluxo de energia recebida por Marte no momento que 'morreu']
-Seff_sun_ext = (
+Seff_sun_ext_em = (
     0.3207  # Fluxo solar efetivo [Lsol/AU²]
 )
-a_ext = 5.4471e-5  # Coeficiente a [adm]
-b_ext = 1.5275e-9  # Coeficiente b [adm]
-c_ext = -2.1709e-12  # Coeficiente c [adm]
-d_ext = -3.8282e-16  # Coeficiente d [adm]
+a_ext_em = 5.4471e-5  # Coeficiente a [adm]
+b_ext_em = 1.5275e-9  # Coeficiente b [adm]
+c_ext_em = -2.1709e-12  # Coeficiente c [adm]
+d_ext_em = -3.8282e-16  # Coeficiente d [adm]
 
 # ? --- Coeficientes de Zona Habitável Clássica ---
 Teq_int = 303  # Temperatura de equilíbrio para a borda interna da zona habitável [K]

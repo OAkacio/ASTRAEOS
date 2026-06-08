@@ -47,17 +47,20 @@ def main_hab(
         flush=True,
     )
     sy.status("Calculating habitable zone distances...", flush=True)
-    d_int, d_ext = distancia_habitavel(Lstar=Lstar, Teff=Teff, e=e, Rstar_sun=Rstar)
+    d_int_rv, d_int_rg, d_int_mg, d_ext_mg, d_ext_em = distancia_habitavel(Lstar=Lstar, Teff=Teff, e=e, Rstar_sun=Rstar)
     dc_int, dc_ext = distancia_habitavel_classic(
         Rstar_sun=Rstar,
         Teff=Teff,
         Ab=Ab,
     )
     sy.param(
-        ("Kopparapu Inner Edge", d_int, "r0"),
-        ("Kopparapu Outer Edge", d_ext, "r0"),
-        ("Classic Inner Edge", dc_int, "r0"),
-        ("Classic Outer Edge", dc_ext, "r0"),
+        ("Kopparapu Recent Venus Inner Edge", d_int_rv, "R★"),
+        ("Kopparapu Runaway Greenhouse Inner Edge", d_int_rg, "R★"),
+        ("Kopparapu Moist Greenhouse Inner Edge", d_int_mg, "R★"),
+        ("Kopparapu Maximum Greenhouse Outer Edge", d_ext_mg, "R★"),
+        ("Kopparapu Early Mars Outer Edge", d_ext_em, "R★"),
+        ("Classic Inner Edge", dc_int, "R★"),
+        ("Classic Outer Edge", dc_ext, "R★"),
         flush=True,
     )
     time.sleep(1)
@@ -89,8 +92,11 @@ def main_hab(
     dadosdic = dict(dados)
     dados.close()
     novos_valores = {
-        "d_int": d_int,
-        "d_ext": d_ext,
+        "d_int_rv": d_int_rv,
+        "d_int_rg": d_int_rg,
+        "d_int_mg": d_int_mg,
+        "d_ext_mg": d_ext_mg,
+        "d_ext_em": d_ext_em,
         "dc_int": dc_int,
         "dc_ext": dc_ext,
         "P_din": P_din,
@@ -113,4 +119,4 @@ def main_hab(
     np.savez(f"data/curve_{cte}.npz", **dadosdic)
     time.sleep(1)
 
-    return d_int, d_ext, dc_int, dc_ext, P_din, Rmag
+    return d_int_rv, d_int_rg, d_int_mg, d_ext_mg, d_ext_em, dc_int, dc_ext, P_din, Rmag
