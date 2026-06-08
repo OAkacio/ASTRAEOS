@@ -53,6 +53,30 @@ def main_hab(
         Teff=Teff,
         Ab=Ab,
     )
+    DorbR=Dorb*(au_cgs / (Rstar * rsun))
+    if DorbR < dc_int:
+        loc = "Too Hot (Inside Classic Inner Edge)"
+    
+    elif dc_int <= DorbR < d_int_rv:
+        loc = "Classic Inner Zone (Outside Kopparapu Optimistic)"
+        
+    elif d_int_rv <= DorbR < d_int_rg:
+        loc = "Optimistic Inner HZ (Recent Venus Limit)"
+        
+    elif d_int_rg <= DorbR < d_int_mg:
+        loc = "Transition Inner HZ (Runaway to Moist Greenhouse)"
+        
+    elif d_int_mg <= DorbR <= d_ext_mg:
+        loc = "Conservative HZ (Moist to Maximum Greenhouse)"
+        
+    elif d_ext_mg < DorbR <= d_ext_em:
+        loc = "Optimistic Outer HZ (Early Mars Limit)"
+        
+    elif d_ext_em < DorbR <= dc_ext:
+        loc = "Classic Outer Zone (Outside Kopparapu Optimistic)"
+        
+    else:
+        loc = "Too Cold (Beyond Classic Outer Edge)"
     sy.param(
         ("Kopparapu Recent Venus Inner Edge", d_int_rv, "R★"),
         ("Kopparapu Runaway Greenhouse Inner Edge", d_int_rg, "R★"),
@@ -61,6 +85,7 @@ def main_hab(
         ("Kopparapu Early Mars Outer Edge", d_ext_em, "R★"),
         ("Classic Inner Edge", dc_int, "R★"),
         ("Classic Outer Edge", dc_ext, "R★"),
+        ("Status", loc, ""),
         flush=True,
     )
     time.sleep(1)

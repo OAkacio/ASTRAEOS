@@ -400,7 +400,7 @@ class ConfigPage(ctk.CTkFrame):
                         f"# Search Lower Limit: {val('u0_ini')} | Search Step: {val('u0_step')} | Final Base Vel (u0): {val('u0')}\n"
                     )
                     f.write(
-                        f"# Critical Point (x_crit): {val('x_crit')} | Velocity at Crit (y_crit): {val('y_crit')} | Alfvén Point (x_t): {val('x_t')}\n"
+                        f"# Critical Point (x_crit): {val('x_crit')} | Velocity at Crit (y_crit): {val('y_crit')} | Transition Radius (x_t): {val('x_t')}\n"
                     )
                     f.write(
                         f"# Critical Jump Size: {val('tamanho_pulo')} | Backtrack Steps: {val('recuo_pulo')}\n"

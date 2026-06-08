@@ -126,7 +126,7 @@ def main(
         ("Alfvén Velocity (vA0)", vA0 * ve0 / 1e5, "km/s"),
         ("Thermal Velocity (vt)", vT, "ve0"),
         ("Sound Speed (cs)", cs / 1e5, "km/s"),
-        ("Alfvén Radius (xt)", x_t, "R★"),
+        ("transition Radius (xt)", x_t, "R★"),
         flush=True,
     )
 
