@@ -41,7 +41,7 @@ class AppState:
         self.Mmag = ctk.StringVar(value="8e22")
         self.Dorb = ctk.StringVar(value="0.03849")
         self.Rplan = ctk.StringVar(value="1.045")
-        self.k_cme = ctk.StringVar(value="4.0")
+        self.k_cme = ctk.StringVar(value="240")
         self.hion = ctk.StringVar(value="1000")
 
         # ? --- Variáveis de Referência e Gráficos ---
