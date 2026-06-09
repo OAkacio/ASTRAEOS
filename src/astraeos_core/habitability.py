@@ -42,39 +42,41 @@ def main_hab(
         ("Planetary Radius ( Rₚ )", Rplan, "R⊕"),
         ("Magnetic Dipole Moment ( Mmag )", Mmag, "Am²"),
         ("Chapman-Ferraro Factor ( f₀ )", f0, "dim"),
-        ("Compression Factor ( k )",k_cme,"dim"),
-        ("Ionosphere Height ( hion )",hion,"km"),
+        ("Compression Factor ( k )", k_cme, "dim"),
+        ("Ionosphere Height ( hion )", hion, "km"),
         flush=True,
     )
     sy.status("Calculating habitable zone distances...", flush=True)
-    d_int_rv, d_int_rg, d_int_mg, d_ext_mg, d_ext_em = distancia_habitavel(Lstar=Lstar, Teff=Teff, e=e, Rstar_sun=Rstar)
+    d_int_rv, d_int_rg, d_int_mg, d_ext_mg, d_ext_em = distancia_habitavel(
+        Lstar=Lstar, Teff=Teff, e=e, Rstar_sun=Rstar
+    )
     dc_int, dc_ext = distancia_habitavel_classic(
         Rstar_sun=Rstar,
         Teff=Teff,
         Ab=Ab,
     )
-    DorbR=Dorb*(au_cgs / (Rstar * rsun))
+    DorbR = Dorb * (au_cgs / (Rstar * rsun))
     if DorbR < dc_int:
         loc = "Too Hot (Inside Classic Inner Edge)"
-    
+
     elif dc_int <= DorbR < d_int_rv:
         loc = "Classic Inner Zone (Outside Kopparapu Optimistic)"
-        
+
     elif d_int_rv <= DorbR < d_int_rg:
         loc = "Optimistic Inner HZ (Recent Venus Limit)"
-        
+
     elif d_int_rg <= DorbR < d_int_mg:
         loc = "Transition Inner HZ (Runaway to Moist Greenhouse)"
-        
+
     elif d_int_mg <= DorbR <= d_ext_mg:
         loc = "Conservative HZ (Moist to Maximum Greenhouse)"
-        
+
     elif d_ext_mg < DorbR <= d_ext_em:
         loc = "Optimistic Outer HZ (Early Mars Limit)"
-        
+
     elif d_ext_em < DorbR <= dc_ext:
         loc = "Classic Outer Zone (Outside Kopparapu Optimistic)"
-        
+
     else:
         loc = "Too Cold (Beyond Classic Outer Edge)"
     sy.param(
@@ -126,17 +128,17 @@ def main_hab(
         "dc_ext": dc_ext,
         "P_din": P_din,
         "Rmag": Rmag,
-        "k_cme":k_cme,
-        "Rmag":Rmag,
-        "Pdin":P_din,
-        "Rplan":Rplan,
-        "Dorb":Dorb,
-        "Mmag":Mmag,
-        "f0":f0,
-        "Ab":Ab,
-        "e":e,
-        "exoplanet_name":exoplanet_name,
-        "hion":hion,
+        "k_cme": k_cme,
+        "Rmag": Rmag,
+        "Pdin": P_din,
+        "Rplan": Rplan,
+        "Dorb": Dorb,
+        "Mmag": Mmag,
+        "f0": f0,
+        "Ab": Ab,
+        "e": e,
+        "exoplanet_name": exoplanet_name,
+        "hion": hion,
     }
     for chave, novo_valor in novos_valores.items():
         dadosdic[chave] = novo_valor

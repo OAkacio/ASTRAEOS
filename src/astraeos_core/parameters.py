@@ -23,6 +23,7 @@ B0_ = 600  # Campo magnético inicial [G]
 
 # ? --- Parâmetros de Onda e Geometria ---
 S_divergencia_ = 2.5  # Fator de expansão [adm] #? Livre
+F_ = 10  # Fator de expansão superradial [adm]
 phi0_ = 5e7  # Fluxo inicial de ondas Alfvén [erg /cm²/s] #? Livre
 L0_ = 1  # Comprimento de amortecimento [unidades de r0] #? Livre
 deltav0_ = 0.12851  # Amplitude de onda inicial [ve0²] #? Livre
@@ -82,4 +83,4 @@ Rplan_ = 1.045  # Raio do planeta [Raios Terrestres]
 Mmag_ = 8e22  # Momento Magnético do Planeta [Am²]
 f0_ = 1.16  # Fator de forma da magnetosfera [adm]
 k_cme_ = 4.0  # Fator multiplicativo para Ejeção de Massa Coronal (CME) [adm]
-hion_= 1000 # Altura máxima da ionosfera [km]
+hion_ = 1000  # Altura máxima da ionosfera [km]

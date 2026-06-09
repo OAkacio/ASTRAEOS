@@ -41,10 +41,10 @@ end
 # * ============================================
 # ? --- Derivadas da Velocidade do Vento ---
 function derivada_velocidade_vento(x, y, vetor)
-    B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S, alpha, phi0 = vetor
+    B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S, alpha, phi0, F = vetor
 
-    # [!] INJEÇÃO DE SEGURANÇA: Previne singularidade e força topologia puramente radial
-    x_t = (S == 2.0) ? Inf : 10.0^(1.0 / (S - 2.0))
+    # [!] INJEÇÃO DE SEGURANÇA: Usa o fator F passado por argumento
+    x_t = (S == 2.0) ? Inf : F^(1.0 / (S - 2.0))
 
     Ma0 = alpha / vA0
 
@@ -76,10 +76,10 @@ function derivada_velocidade_vento(x, y, vetor)
 end
 
 function derivada_velocidade_ventoRES(x, y, vetor)
-    B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S, alpha, phi0 = vetor
+    B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S, alpha, phi0, F = vetor
 
     # [!] INJEÇÃO DE SEGURANÇA
-    x_t = (S == 2.0) ? Inf : 10.0^(1.0 / (S - 2.0))
+    x_t = (S == 2.0) ? Inf : F^(1.0 / (S - 2.0))
 
     Ma0 = alpha / vA0
 
@@ -112,10 +112,10 @@ end
 
 # ? --- Topologia do Ponto Crítico ---
 function analisa_singularidade_vento(x, y, vetor)
-    B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S, alpha, phi0 = vetor
+    B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S, alpha, phi0, F = vetor
 
     # [!] INJEÇÃO DE SEGURANÇA
-    x_t = (S == 2.0) ? Inf : 10.0^(1.0 / (S - 2.0))
+    x_t = (S == 2.0) ? Inf : F^(1.0 / (S - 2.0))
 
     Ma0 = alpha / vA0
 
@@ -147,10 +147,10 @@ function analisa_singularidade_vento(x, y, vetor)
 end
 
 function analisa_singularidade_ventoRES(x, y, vetor)
-    B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S, alpha, phi0 = vetor
+    B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S, alpha, phi0, F = vetor
 
     # [!] INJEÇÃO DE SEGURANÇA
-    x_t = (S == 2.0) ? Inf : 10.0^(1.0 / (S - 2.0))
+    x_t = (S == 2.0) ? Inf : F^(1.0 / (S - 2.0))
 
     Ma0 = alpha / vA0
 
@@ -204,7 +204,8 @@ function busca_u0(vT, vetor_base, u0_step, u0_ini, cte, py_cb)
     func_derivada = cte ? derivada_velocidade_vento : derivada_velocidade_ventoRES
     func_analise = cte ? analisa_singularidade_vento : analisa_singularidade_ventoRES
 
-    B0, rho0, _, vA0, L0, r0, ve0, deltav0, S, _, phi0 = vetor_base
+    # Agora extrai o parâmetro F como o 12º elemento
+    B0, rho0, _, vA0, L0, r0, ve0, deltav0, S, _, phi0, F = vetor_base
     x_vals = 1.0:1e-5:3.9999
     alpha_vals = u0_ini:u0_step:(vT-1e-4)
 
@@ -232,7 +233,9 @@ function busca_u0(vT, vetor_base, u0_step, u0_ini, cte, py_cb)
         u0 = a
         u0_aux = u0
         temp_x_append, temp_y_append = Float64[], Float64[]
-        vetor = Float64[B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S, u0, phi0]
+
+        # Garante que o F é repassado ao longo de todo o loop de integração
+        vetor = Float64[B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S, u0, phi0, F]
 
         for i in 1:(length(x_vals)-1)
             x0_loop, x_atual = x_vals[i], x_vals[i+1]

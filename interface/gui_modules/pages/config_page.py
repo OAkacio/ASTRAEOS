@@ -386,7 +386,7 @@ class ConfigPage(ctk.CTkFrame):
 
                     f.write("#\n# [ 2. WIND & WAVES ]\n")
                     f.write(
-                        f"# Expansion Factor (S): {val('S_divergencia')} | Initial Wave Amp (dv0^2): {val('deltav0')}\n"
+                        f"# Expansion Factor (S): {val('S_divergencia')} | Transition Factor (F): {val('F')} | Initial Wave Amp (dv0^2): {val('deltav0')}\n"
                     )
                     f.write(
                         f"# Initial Flux (phi0): {val('phi0')} | Damping Length (L0): {val('L0')} | Constant Damping: {val('cte')}\n"
@@ -530,6 +530,7 @@ class ConfigPage(ctk.CTkFrame):
                 },
                 "wave": {
                     "S_divergencia": self.app_state.S_divergencia.get(),
+                    "F": self.app_state.F.get(),
                     "deltav0": self.app_state.deltav0.get(),
                     "phi0": self.app_state.phi0.get(),
                     "L0": self.app_state.L0.get(),
@@ -615,7 +616,15 @@ class ConfigPage(ctk.CTkFrame):
                     "B0",
                     "mu",
                 ],
-                "wave": ["S_divergencia", "deltav0", "phi0", "L0", "cte", "parker"],
+                "wave": [
+                    "S_divergencia",
+                    "F",
+                    "deltav0",
+                    "phi0",
+                    "L0",
+                    "cte",
+                    "parker",
+                ],
                 "numeric": [
                     "x_sim",
                     "h_rk",
@@ -807,12 +816,18 @@ class ConfigPage(ctk.CTkFrame):
             (0, "Expansion Factor ( S ) :", self.app_state.S_divergencia, "[ adm ]"),
             (
                 1,
+                "Transition Factor ( F ) :",
+                self.app_state.F,
+                "[ adm ]",
+            ),
+            (
+                2,
                 "Initial Wave Amplitude ( Δv₀² ) :",
                 self.app_state.deltav0,
                 "[ ve0² ]",
             ),
-            (2, "Initial Alfvén Flux ( φ₀ ) :", self.app_state.phi0, "[ erg/cm²/s ]"),
-            (3, "Damping Length ( L₀ ) :", self.app_state.L0, "[ R★ ]"),
+            (3, "Initial Alfvén Flux ( φ₀ ) :", self.app_state.phi0, "[ erg/cm²/s ]"),
+            (4, "Damping Length ( L₀ ) :", self.app_state.L0, "[ R★ ]"),
         ]
 
         for linha, texto, var, uni in campos:
@@ -832,7 +847,7 @@ class ConfigPage(ctk.CTkFrame):
             aba.grid_rowconfigure(len(campos), weight=1, minsize=10)
 
         ctk.CTkLabel(aba, text="Damping Model:", font=fonte, text_color="#E5C07B").grid(
-            row=6, column=0, padx=20, pady=15, sticky="w"
+            row=7, column=0, padx=20, pady=15, sticky="w"
         )
 
         def on_combo_change(choice):
@@ -853,7 +868,7 @@ class ConfigPage(ctk.CTkFrame):
             state="readonly",
             command=on_combo_change,
         )
-        combo_damping.grid(row=6, column=1, padx=(10, 0), pady=15, sticky="sw")
+        combo_damping.grid(row=7, column=1, padx=(10, 0), pady=15, sticky="sw")
 
         def sync_combo_damping(*args):
             try:

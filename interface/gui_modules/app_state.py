@@ -20,6 +20,7 @@ class AppState:
         self.T = ctk.StringVar(value="2.0e6")
         self.mu = ctk.StringVar(value="0.6")
         self.S_divergencia = ctk.StringVar(value="2.5")
+        self.F = ctk.StringVar(value="10.0")
         self.deltav0 = ctk.StringVar(value="0.12851")
         self.phi0 = ctk.StringVar(value="5e7")
         self.L0 = ctk.StringVar(value="1.0")
@@ -114,6 +115,7 @@ class AppState:
             "h_rk": float(self.h_rk.get()),
             "deltav0": float(self.deltav0.get()),
             "S_divergencia": float(self.S_divergencia.get()),
+            "F": float(self.F.get()),
             "recuo_pulo": int(self.recuo_pulo.get()),
             "tamanho_pulo": float(self.tamanho_pulo.get()),
             "cte": self.cte.get(),

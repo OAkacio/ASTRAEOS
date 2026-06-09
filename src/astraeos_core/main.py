@@ -35,6 +35,7 @@ def main(
     h_rk,
     deltav0,
     S_divergencia,
+    F,
     recuo_pulo,
     tamanho_pulo,
     cte,
@@ -89,6 +90,7 @@ def main(
         h_rk,
         deltav0,
         S_divergencia,
+        F,
         recuo_pulo,
         tamanho_pulo,
         cte,
@@ -116,6 +118,7 @@ def main(
         ("Surface Magnetic Field ( B₀ )", B0, "G"),
         # --- Wind & Wave Parameters ---
         ("Expansion Factor ( S )", S_divergencia, "dim"),
+        ("Expansion Factor ( F )", F, "dim"),
         ("Initial Wave Amplitude ( Δv₀² )", deltav0, "ve0²"),
         ("Initial Alfvén Flux ( φ₀ )", phi0, "erg/cm²/s"),
         ("Damping Length ( L₀ )", L0, "R★"),
@@ -147,7 +150,7 @@ def main(
 
         u0, x_crit, y_crit, r_crit, x_append, y_append, vetor = jl.busca_u0(
             vT,
-            [B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S_divergencia, 0.0, phi0],
+            [B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S_divergencia, 0.0, phi0, F],
             u0_step,
             u0_ini,
             cte,
@@ -239,7 +242,17 @@ def main(
     )
 
     if habitabilidade:
-        d_int_rv, d_int_rg, d_int_mg, d_ext_mg, d_ext_em, dc_int, dc_ext, P_din, Rmag = main_hab(
+        (
+            d_int_rv,
+            d_int_rg,
+            d_int_mg,
+            d_ext_mg,
+            d_ext_em,
+            dc_int,
+            dc_ext,
+            P_din,
+            Rmag,
+        ) = main_hab(
             Lstar,
             Teff,
             e,
@@ -260,7 +273,17 @@ def main(
             hion,
         )
     else:
-        d_int_rv, d_int_rg, d_int_mg, d_ext_mg, d_ext_em, dc_int, dc_ext, P_din, Rmag = 0, 0, 0, 0, 0, 0, 0, 0, 0
+        (
+            d_int_rv,
+            d_int_rg,
+            d_int_mg,
+            d_ext_mg,
+            d_ext_em,
+            dc_int,
+            dc_ext,
+            P_din,
+            Rmag,
+        ) = (0, 0, 0, 0, 0, 0, 0, 0, 0)
 
     # ? --- Processamento e Salvamento de Dados ---
     os.makedirs("data", exist_ok=True)
@@ -281,6 +304,7 @@ def main(
         h_rk=h_rk,
         deltav0=deltav0,
         S_divergencia=S_divergencia,
+        F=F,
         recuo_pulo=recuo_pulo,
         tamanho_pulo=tamanho_pulo,
         cte=cte,
@@ -458,6 +482,7 @@ if __name__ == "__main__":
         h_rk=h_rk_,
         deltav0=deltav0_,
         S_divergencia=S_divergencia_,
+        F=F_,
         recuo_pulo=recuo_pulo_,
         tamanho_pulo=tamanho_pulo_,
         cte=cte_,
