@@ -148,8 +148,22 @@ class ConfigPage(ctk.CTkFrame):
             img_about = ctk.CTkImage(
                 Image.open(os.path.join(self.assets_path, "about.png")), size=(18, 18)
             )
+
+            # --- ADICIONE A LINHA ABAIXO ---
+            img_cancel = ctk.CTkImage(
+                Image.open(os.path.join(self.assets_path, "cancel.png")), size=(14, 14)
+            )
         except Exception:
-            img_load, img_save, img_export, img_about = None, None, None, None
+            # --- ATUALIZE O EXCEPT PARA CONTER O img_cancel ---
+            img_load, img_save, img_export, img_about, img_cancel = (
+                None,
+                None,
+                None,
+                None,
+                None,
+            )
+
+        self.img_cancel = img_cancel  # Salva para uso posterior
 
         self.btn_load_prof = ctk.CTkButton(
             self.header_frame,
@@ -967,11 +981,56 @@ class ConfigPage(ctk.CTkFrame):
                 state="readonly",
             ).grid(row=row, column=3, padx=5, pady=5)
 
+            # --- ADICIONE ESTE BLOCO AQUI (Ainda dentro do for loop) ---
+            def make_clear_cmd(r=ref):
+                def clear():
+                    r["x"].set("")
+                    r["nome"].set("")
+                    r["cor"].set("")
+                    r["estilo"].set("-")
+
+                return clear
+
+            btn_clear = ctk.CTkButton(
+                aba,
+                text="" if self.img_cancel else "X",
+                image=self.img_cancel,
+                width=28,
+                height=28,
+                fg_color="#282C34",
+                hover_color="#75353A",
+                command=make_clear_cmd(),
+            )
+            btn_clear.grid(row=row, column=4, padx=5, pady=5)
+            # -----------------------------------------------------------
+
         row_offset = len(self.app_state.refs) + 1
 
-        ctk.CTkLabel(aba, text="Sigma Zone", font=fonte, text_color="#E5C07B").grid(
-            row=row_offset, column=0, columnspan=4, pady=(10, 5)
+        frame_sigma_header = ctk.CTkFrame(aba, fg_color="transparent")
+        frame_sigma_header.grid(row=row_offset, column=0, columnspan=4, pady=(10, 5))
+
+        ctk.CTkLabel(
+            frame_sigma_header, text="Sigma Zone", font=fonte, text_color="#E5C07B"
+        ).pack(side="left", padx=(0, 10))
+
+        def clear_sigma():
+            self.app_state.sigma_ini.set("")
+            self.app_state.sigma_fim.set("")
+            self.app_state.sigma_nome.set("")
+            self.app_state.sigma_cor.set("")
+
+        btn_clear_sigma = ctk.CTkButton(
+            frame_sigma_header,
+            text="" if self.img_cancel else "X",
+            image=self.img_cancel,
+            width=24,  # Ligeiramente menor para acompanhar o texto
+            height=24,
+            fg_color="#282C34",
+            hover_color="#75353A",
+            command=clear_sigma,
         )
+        btn_clear_sigma.pack(side="left")
+        
         frame_sigma = ctk.CTkFrame(aba, fg_color="transparent")
         frame_sigma.grid(row=row_offset + 1, column=0, columnspan=4, pady=5)
 
@@ -1359,8 +1418,12 @@ class ConfigPage(ctk.CTkFrame):
             font=fonte,
             text_color="#E5C07B",
         ).grid(row=3, column=0, padx=20, pady=5, sticky="w")
-        entry_k_cme = ctk.CTkEntry(aba, textvariable=self.app_state.k_cme, font=fonte_var)
-        entry_k_cme.grid(row=3, column=1, columnspan=2, padx=(10, 0), pady=5, sticky="we")
+        entry_k_cme = ctk.CTkEntry(
+            aba, textvariable=self.app_state.k_cme, font=fonte_var
+        )
+        entry_k_cme.grid(
+            row=3, column=1, columnspan=2, padx=(10, 0), pady=5, sticky="we"
+        )
         self.exo_inputs.append(entry_k_cme)
         ctk.CTkLabel(aba, text="  [ adm ]", font=fonte_uni, text_color="#8b949e").grid(
             row=3, column=3, padx=(0, 20), pady=5, sticky="w"
@@ -1373,7 +1436,9 @@ class ConfigPage(ctk.CTkFrame):
             text_color="#E5C07B",
         ).grid(row=4, column=0, padx=20, pady=5, sticky="w")
         entry_hion = ctk.CTkEntry(aba, textvariable=self.app_state.hion, font=fonte_var)
-        entry_hion.grid(row=4, column=1, columnspan=2, padx=(10, 0), pady=5, sticky="we")
+        entry_hion.grid(
+            row=4, column=1, columnspan=2, padx=(10, 0), pady=5, sticky="we"
+        )
         self.exo_inputs.append(entry_hion)
         ctk.CTkLabel(aba, text="  [ km ]", font=fonte_uni, text_color="#8b949e").grid(
             row=4, column=3, padx=(0, 20), pady=5, sticky="w"

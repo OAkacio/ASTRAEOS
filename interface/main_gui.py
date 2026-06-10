@@ -8,6 +8,7 @@ import multiprocessing
 import customtkinter as ctk
 from PIL import Image
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+from tkinter import filedialog
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC_PATH = os.path.join(BASE_DIR, "src")
@@ -183,6 +184,20 @@ class AppWindow(ctk.CTk):
         )
         self.console_box.grid(row=1, column=0, sticky="nsew", padx=(0, 20))
 
+        self.btn_save_console = ctk.CTkButton(
+            self.main_container,
+            text="Save Log",
+            font=("Consolas", 12, "bold"),
+            fg_color="#282C34",
+            hover_color="#404C55",
+            width=80,
+            height=24,
+            command=self.save_console_log,
+        )
+        self.btn_save_console.grid(
+            row=1, column=0, sticky="ne", padx=(0, 40), pady=(10, 0)
+        )
+
         self.cores_ansi = {
             "30": "#282C34",
             "31": "#E06C75",
@@ -222,6 +237,22 @@ class AppWindow(ctk.CTk):
     # * ============================================
     # * Rotinas de Interface Visual
     # * ============================================
+
+    def save_console_log(self):
+        filepath = filedialog.asksaveasfilename(
+            initialdir=os.path.join(os.getcwd(), "data"),
+            title="Save Console Log",
+            defaultextension=".txt",
+            filetypes=[("Text File", "*.txt"), ("All Files", "*.*")],
+        )
+        if filepath:
+            try:
+                with open(filepath, "w", encoding="utf-8") as f:
+                    f.write(self.console_box.get("0.0", "end"))
+                self.set_status(f"Console log saved to: {filepath}", "#98C379")
+            except Exception as e:
+                self.set_status(f"Error saving log: {e}", "#E06C75")
+
     def escrever_console(self, texto):
         self.console_box.configure(state="normal")
         partes = re.split(r"(\x1b\[[0-9;]*m)", texto)
