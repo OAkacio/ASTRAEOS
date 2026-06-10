@@ -184,6 +184,8 @@ def main(
             phi_total,
             deltav2_total,
             dmdt_total,
+            L_total,
+            Pdin_total,
         ) = jl.integra_perfil(
             u0,
             x_crit,
@@ -217,6 +219,8 @@ def main(
             phi_total,
             deltav2_total,
             dmdt_total,
+            L_total,
+            Pdin_total,
         ) = jl.integra_perfil_parker(cs, G, M, ve0, r0, rho0, x_sim, h_rk, rsun)
 
         r_crit = 1.0
@@ -360,6 +364,8 @@ def main(
         y_un=y_un,
         k_cme=k_cme,
         hion=hion,
+        L_total=L_total,
+        Pdin_total=Pdin_total,
     )
 
     if show_progress:

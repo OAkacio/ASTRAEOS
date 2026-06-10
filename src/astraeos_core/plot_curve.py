@@ -468,6 +468,8 @@ def plot_plasmaprop(
 
     rho = dados["rho_total"]
     phi = dados["phi_total"]
+    L = dados["L_total"]
+    Pdin = dados["Pdin_total"]
     deltav2 = dados["deltav2_total"]
     dmdt = dados["dmdt_total"]
 
@@ -484,20 +486,22 @@ def plot_plasmaprop(
     # ? --- Renderização do Gráfico de Propriedades do Plasma ---
     fig = gp.plot(
         title=f"{nome} - Normalized Plasma Properties",
-        x_data=[x_tot, x_tot, x_tot, x_tot, x_tot],
+        x_data=[x_tot, x_tot, x_tot, x_tot, x_tot, x_tot, x_tot],
         y_data=[
             list(u_norm),
             list(rho_norm),
             list(phi_norm),
             list(deltav2_norm),
             list(dmdt_norm),
+            list(L),
+            list(Pdin),
         ],
         show_plot=False,
         x_label=r"$r/r_{0}$",
         y_label=r"Normalized Value ($f/f_0$)",
         x_scale=x_scale,
         y_scale=y_scale,
-        linewidth=[1.5, 2.0, 2.0, 2.0, 2.0],
+        linewidth=[1.5, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0],
         axis_fontsize=16,
         show_grid=True,
         grid_linewidth=0.4,
@@ -507,8 +511,8 @@ def plot_plasmaprop(
         save_fig=True,
         file_format="png",
         filename="plasmaprop_output",
-        color_style=["#0072B2", "#56B6C2", "#E5C07B", "#E06C75", "#98C379"],
-        linestyle=[":", "-", "-", "-", "-"],
+        color_style=["#0072B2", "#56B6C2", "#E5C07B", "#E06C75", "#98C379", "#E43543", "#E4AD46"],
+        linestyle=[":", "-", "-", "-", "-", "-", "-"],
         vlines=[x_t, *x_ref],
         v_colors=["#C678DD", *color_ref],
         v_linewidth=1.5,
@@ -520,6 +524,8 @@ def plot_plasmaprop(
             r"Alfvén Wave Flux ($\phi_M/\phi_{M0}$)",
             r"Wave Amplitude ($\langle\delta v^2\rangle/\langle\delta v^2\rangle_0$)",
             r"Mass Loss Rate ($\dot{M}/\dot{M}_0$)",
+            r"Damping Length ($L/L_0$)",
+            r"Dynamic Pressure ($P_{dyn}/P_{dyn,0}$)",
         ],
         figure_dpi=100,
         fig_width=10.0,
