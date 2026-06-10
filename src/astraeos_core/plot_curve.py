@@ -478,8 +478,8 @@ def plot_plasmaprop(
     deltav2_norm = deltav2 if deltav2[0] == 0 else deltav2 / deltav2[0]
     dmdt_norm = dmdt if dmdt[0] == 0 else dmdt / dmdt[0]
     u_norm = y_tot / y_tot[0]
-    L=L if L[0]==0 else L/L[0]
-    Pdin=Pdin if Pdin[0]==0 else Pdin/Pdin[0]
+    L = L if L[0] == 0 else L / L[0]
+    Pdin = Pdin if Pdin[0] == 0 else Pdin / Pdin[0]
 
     # ? --- Lógica do Limite Inferior Dinâmico ---
     idx_xt = np.argmin(np.abs(x_tot - x_t))
@@ -513,7 +513,15 @@ def plot_plasmaprop(
         save_fig=True,
         file_format="png",
         filename="plasmaprop_output",
-        color_style=["#0072B2", "#56B6C2", "#E5C07B", "#E06C75", "#98C379", "#E43543", "#E4AD46"],
+        color_style=[
+            "#0072B2",
+            "#56B6C2",
+            "#E5C07B",
+            "#E06C75",
+            "#98C379",
+            "#E43543",
+            "#E4AD46",
+        ],
         linestyle=[":", "-", "-", "-", "-", "-", "-"],
         vlines=[x_t, *x_ref],
         v_colors=["#C678DD", *color_ref],

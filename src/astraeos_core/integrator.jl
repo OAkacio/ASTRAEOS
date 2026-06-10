@@ -354,7 +354,7 @@ function integra_perfil(u0_final, x_crit, y_crit, vetor_final, x_append_final, y
     phi_total = Float64[]
     deltav2_total = Float64[]
     dmdt_total = Float64[]
-    
+
     # NOVAS ARRAYS PARA L E P_din
     L_total = Float64[]
     Pdin_total = Float64[]
@@ -370,10 +370,10 @@ function integra_perfil(u0_final, x_crit, y_crit, vetor_final, x_append_final, y
         push!(den_alpha_list, [r[3], alpha_final])
 
         # 2. Grandezas Físicas
-        if x_i <= x_t_eff  
+        if x_i <= x_t_eff
             vA = vA0 * (x_i^(-S / 2.0)) * sqrt(y_i / alpha_final)
             Ma = Ma0 * sqrt(y_i / alpha_final) * (x_i^(S / 2.0))
-            
+
             # Cálculo explícito de L para o ponto
             if cte
                 L_local = L0_input
@@ -408,12 +408,12 @@ function integra_perfil(u0_final, x_crit, y_crit, vetor_final, x_append_final, y
         end
 
         deltav2 = deltav1 * exp(-res)
-        
+
         # dmdt em unidades normalizadas
         dmdt = rho * y_i * A_r
-        
+
         phi_M = phi0 * ((1.0 + 1.5 * Ma) / (1.0 + 1.5 * Ma0)) * ((1.0 + Ma0) / (1.0 + Ma))^2 * exp(-res)
-        
+
         # Cálculo da Pressão Dinâmica em CGS (dinas/cm^2). Convertendo y_i (adimensional) para u_cgs.
         u_cgs = y_i * ve0 * 1e5 # ve0 está em km/s, convertemos para cm/s
         pdin = rho * (u_cgs^2)
@@ -426,7 +426,7 @@ function integra_perfil(u0_final, x_crit, y_crit, vetor_final, x_append_final, y
         push!(L_total, L_local)
         push!(Pdin_total, pdin)
     end
-    
+
     limiar_brisa = 0.1
     if y_total[end] < limiar_brisa
         error("BREEZE_STATE: The terminal velocity is too low, indicating insufficient u0 precision.")

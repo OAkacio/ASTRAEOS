@@ -149,4 +149,15 @@ def main_hab(
     np.savez(f"data/curve_{cte}.npz", **dadosdic)
     time.sleep(1)
 
-    return d_int_rv, d_int_rg, d_int_mg, d_ext_mg, d_ext_em, dc_int, dc_ext, P_din, Rmag, Aperdida
+    return (
+        d_int_rv,
+        d_int_rg,
+        d_int_mg,
+        d_ext_mg,
+        d_ext_em,
+        dc_int,
+        dc_ext,
+        P_din,
+        Rmag,
+        Aperdida,
+    )
