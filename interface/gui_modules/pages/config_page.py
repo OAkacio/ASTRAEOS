@@ -1007,7 +1007,7 @@ class ConfigPage(ctk.CTkFrame):
         row_offset = len(self.app_state.refs) + 1
 
         frame_sigma_header = ctk.CTkFrame(aba, fg_color="transparent")
-        frame_sigma_header.grid(row=row_offset, column=0, columnspan=4, pady=(10, 5))
+        frame_sigma_header.grid(row=row_offset, column=0, columnspan=5, pady=(10, 5))
 
         ctk.CTkLabel(
             frame_sigma_header, text="Sigma Zone", font=fonte, text_color="#E5C07B"
@@ -1030,9 +1030,9 @@ class ConfigPage(ctk.CTkFrame):
             command=clear_sigma,
         )
         btn_clear_sigma.pack(side="left")
-        
+
         frame_sigma = ctk.CTkFrame(aba, fg_color="transparent")
-        frame_sigma.grid(row=row_offset + 1, column=0, columnspan=4, pady=5)
+        frame_sigma.grid(row=row_offset + 1, column=0, columnspan=5, pady=5)
 
         ctk.CTkLabel(frame_sigma, text="From:").grid(row=0, column=0, padx=5)
         ctk.CTkEntry(
@@ -1059,11 +1059,11 @@ class ConfigPage(ctk.CTkFrame):
 
         row_offset += 2
         ctk.CTkLabel(aba, text="Axis Scales", font=fonte, text_color="#E5C07B").grid(
-            row=row_offset, column=0, columnspan=4, pady=(10, 5)
+            row=row_offset, column=0, columnspan=5, pady=(10, 5)
         )
 
         frame_axis = ctk.CTkFrame(aba, fg_color="transparent")
-        frame_axis.grid(row=row_offset + 1, column=0, columnspan=4, pady=5)
+        frame_axis.grid(row=row_offset + 1, column=0, columnspan=5, pady=5)
 
         estilos_escala = ["log", "linear"]
         ctk.CTkLabel(frame_axis, text="X Axis Scale:").grid(row=0, column=0, padx=5)
@@ -1091,11 +1091,11 @@ class ConfigPage(ctk.CTkFrame):
         # ? --- NOVA LÓGICA: Axis Units ---
         row_offset += 2
         ctk.CTkLabel(aba, text="Axis Units", font=fonte, text_color="#E5C07B").grid(
-            row=row_offset, column=0, columnspan=4, pady=(10, 5)
+            row=row_offset, column=0, columnspan=5, pady=(10, 5)
         )
 
         frame_units = ctk.CTkFrame(aba, fg_color="transparent")
-        frame_units.grid(row=row_offset + 1, column=0, columnspan=4, pady=5)
+        frame_units.grid(row=row_offset + 1, column=0, columnspan=5, pady=5)
 
         ctk.CTkLabel(frame_units, text="X Axis Unit:").grid(row=0, column=0, padx=5)
 
@@ -1151,8 +1151,9 @@ class ConfigPage(ctk.CTkFrame):
             command=self.iniciar_replot,
             fg_color="#5C7174",
             state="disabled",
+            height=25,
         )
-        self.btn_update_plot.grid(row=row_offset, column=0, columnspan=4, pady=(20, 10))
+        self.btn_update_plot.grid(row=row_offset, column=0, columnspan=5, pady=(20, 10), sticky="ew")
 
     def _construir_aba_more(self, aba):
         aba.grid_columnconfigure(0, weight=1)

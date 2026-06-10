@@ -241,11 +241,11 @@ def main(
     sy.status("Extracting final results...", flush=True)
 
     # Adicionando Mass Loss Rate ao param
-    Msol_per_s = dmdt0 / 1.989e33
+    Msol_per_yr = (dmdt0 / 1.989e33) * 3.1536e7
     sy.param(
         ("Terminal Velocity", y_tot[-1] * ve0 / 1e5, "km/s"),
         ("Normalized Terminal Velocity", y_tot[-1], "ve0"),
-        ("Mass Loss Rate", Msol_per_s, "M⊙/s"),
+        ("Mass Loss Rate", Msol_per_yr, "M⊙/year"),
         flush=True,
     )
 
