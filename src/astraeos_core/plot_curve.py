@@ -67,7 +67,7 @@ def plot_perfil_output(
         v_alpha=0.8,
         v_linestyle=["--", *linestyle_ref],
         v_labels=(
-            [rf"$r_t$ ; ${round(x_t,1)}$ $R★$", *nome_ref]
+            [rf"$r_t$ ; ${round(x_t,2)}$ $R★$", *nome_ref]
             if x_un == "r/r0"
             else [rf"$r_t$ ; ${round(x_t * r0,3)}$ $AU$", *nome_ref]
         ),
@@ -170,7 +170,7 @@ def plot_perfil_main(
         v_linewidth=1.5,
         v_alpha=0.6,
         v_linestyle=["--", *linestyle_ref],
-        v_labels=[rf"$r_t$ ; ${x_t}$ $r_0$", *nome_ref],
+        v_labels=[rf"$r_t$ ; ${round(x_t,2)}$ $r_0$", *nome_ref],
         curve_names=[
             rf"Perfil de Velocidade ; $u_\infty = {y_tot[-1] * ve0 / 1e5:0.2f}$ km/s"
         ],

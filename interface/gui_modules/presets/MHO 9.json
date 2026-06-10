@@ -1,29 +1,29 @@
 {
     "star": {
-        "nome": "Supergiant K5",
-        "Mstar": "16",
-        "Rstar": "400",
-        "Teff": "3750",
-        "Lstar": "28400",
-        "T": "1e4",
-        "rho0": "1.07e-13",
-        "B0": "10",
+        "nome": "MHO 9",
+        "Mstar": "0.24",
+        "Rstar": "1.5",
+        "Teff": "3234",
+        "Lstar": "0.22",
+        "T": "2.1e5",
+        "rho0": "3.63e-16",
+        "B0": "1000",
         "mu": "0.667"
     },
     "wave": {
-        "S_divergencia": "5.4",
+        "S_divergencia": "3.5",
         "F": "10",
-        "deltav0": "0.028",
+        "deltav0": "0.0031",
         "phi0": "3.36e6",
-        "L0": "0.3",
+        "L0": "4",
         "cte": false,
         "parker": false
     },
     "numeric": {
         "x_sim": "300",
         "h_rk": "5e-4",
-        "u0_ini": "0.0145",
-        "u0_step": "1e-6",
+        "u0_ini": "0.00741",
+        "u0_step": "1e-7",
         "tamanho_pulo": "0.1",
         "recuo_pulo": "50"
     },
@@ -41,7 +41,7 @@
     "advanced": {
         "multicurve": false,
         "searchdv2": false,
-        "ldv2": "0.004",
+        "ldv2": "0.0001",
         "hdv2": "0.15",
         "stepdv2": "0.003"
     },
