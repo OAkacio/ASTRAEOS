@@ -98,10 +98,12 @@ def main_hab(
     Rmag = raio_magnetosfera(
         rho_cgs=rho_total[i], u_ve0=y_tot[i], ve0_cgs=ve0, f0=f0, Mmag_AM2=Mmag
     )
+    Aperdida = Apc(Rmg_terra=Rmag, Rio_km=hion)
     sy.param(
         ("Ram Pressure ( Pdyn )", P_din, "Pa"),
         ("Magnetopause Radius ( Rm )", Rmag, "R⊕"),
         ("Normalized Magnetopause Radius", Rmag / Rplan, "Rₚ"),
+        ("Atmospheric Escape Region", Aperdida, "%"),
         flush=True,
     )
     time.sleep(1)
@@ -139,6 +141,7 @@ def main_hab(
         "e": e,
         "exoplanet_name": exoplanet_name,
         "hion": hion,
+        "Aperdida": Aperdida,
     }
     for chave, novo_valor in novos_valores.items():
         dadosdic[chave] = novo_valor
@@ -146,4 +149,4 @@ def main_hab(
     np.savez(f"data/curve_{cte}.npz", **dadosdic)
     time.sleep(1)
 
-    return d_int_rv, d_int_rg, d_int_mg, d_ext_mg, d_ext_em, dc_int, dc_ext, P_din, Rmag
+    return d_int_rv, d_int_rg, d_int_mg, d_ext_mg, d_ext_em, dc_int, dc_ext, P_din, Rmag, Aperdida

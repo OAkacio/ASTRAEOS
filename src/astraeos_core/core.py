@@ -210,3 +210,9 @@ def exo_status(Rmag_RT, Rplan_RT):
         return "Compressed Magnetosphere", "Marginal Zone", "cyan"
     else:
         return "Sub-critical Shield", "Unsafe Zone", "red"
+
+
+def Apc(Rmg_terra, Rio_km):
+    Rmg, Rio = Rmg_terra * Rterra / 1000, Rio_km
+    At=4*pi*Rio**2
+    return (100*(2 * pi * Rio ** 3) / (Rmg))/At

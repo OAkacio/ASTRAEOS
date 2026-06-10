@@ -765,7 +765,7 @@ def plot_magnetosphere_shield(
         stream_color="#61AFEF",
         stream_density=0.9,
         stream_linewidth=0.8,
-        stream_arrowsize=1.0,
+        stream_arrowsize=0.3,
         planet_color="#1E1E1E",
         planet_edgecolor="#E5C07B",
         planet_linewidth=0.0,

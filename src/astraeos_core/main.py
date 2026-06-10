@@ -256,6 +256,7 @@ def main(
             dc_ext,
             P_din,
             Rmag,
+            Aperdida,
         ) = main_hab(
             Lstar,
             Teff,
@@ -287,7 +288,8 @@ def main(
             dc_ext,
             P_din,
             Rmag,
-        ) = (0, 0, 0, 0, 0, 0, 0, 0, 0)
+            Aperdida,
+        ) = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
     # ? --- Processamento e Salvamento de Dados ---
     os.makedirs("data", exist_ok=True)
@@ -366,6 +368,7 @@ def main(
         hion=hion,
         L_total=L_total,
         Pdin_total=Pdin_total,
+        Aperdida=Aperdida,
     )
 
     if show_progress:
