@@ -353,7 +353,6 @@ function integra_perfil(u0_final, x_crit, y_crit, vetor_final, x_append_final, y
     rho_total = Float64[]
     phi_total = Float64[]
     deltav2_total = Float64[]
-    dmdt_total = Float64[]
 
     # NOVAS ARRAYS PARA L E P_din
     L_total = Float64[]
@@ -384,7 +383,6 @@ function integra_perfil(u0_final, x_crit, y_crit, vetor_final, x_append_final, y
             end
 
             rho = rho0 * (alpha_final / y_i) * (x_i^(-S))
-            A_r = x_i^S
             deltav1 = deltav0 * (y_i / alpha_final) * (x_i^S) * (Ma0 / Ma) * ((1.0 + Ma0) / (1.0 + Ma))^2
         else
             vA = vA0 * (x_t_eff^(-S / 2.0)) * (x_t_eff / x_i) * sqrt(y_i / alpha_final)
@@ -403,14 +401,10 @@ function integra_perfil(u0_final, x_crit, y_crit, vetor_final, x_append_final, y
             res = res_int1 + res_int2
 
             rho = rho0 * (alpha_final / y_i) * (x_t_eff^(-S)) * ((x_t_eff / x_i)^2)
-            A_r = (x_t_eff^S) * ((x_i / x_t_eff)^2)
             deltav1 = deltav0 * (y_i / alpha_final) * (x_t_eff^S) * ((x_i / x_t_eff)^2) * (Ma0 / Ma) * ((1.0 + Ma0) / (1.0 + Ma))^2
         end
 
         deltav2 = deltav1 * exp(-res)
-
-        # dmdt em unidades normalizadas
-        dmdt = rho * y_i * A_r
 
         phi_M = phi0 * ((1.0 + 1.5 * Ma) / (1.0 + 1.5 * Ma0)) * ((1.0 + Ma0) / (1.0 + Ma))^2 * exp(-res)
 
@@ -422,17 +416,20 @@ function integra_perfil(u0_final, x_crit, y_crit, vetor_final, x_append_final, y
         push!(rho_total, rho)
         push!(deltav2_total, deltav2)
         push!(phi_total, phi_M)
-        push!(dmdt_total, dmdt)
         push!(L_total, L_local)
         push!(Pdin_total, pdin)
     end
+
+    # Massa Total Perdida calculada SOMENTE uma vez para a base (x=1)
+    # A conservação da massa dita que este valor se mantém.
+    dmdt0 = rho0 * (u0_final * ve0 * 1e5) * (vetor_final[6])^2
 
     limiar_brisa = 0.1
     if y_total[end] < limiar_brisa
         error("BREEZE_STATE: The terminal velocity is too low, indicating insufficient u0 precision.")
     end
 
-    return x0n, y0, x_int, y_int, x_ext, y_ext, num_alpha_list, den_alpha_list, vA_total, rho_total, phi_total, deltav2_total, dmdt_total, L_total, Pdin_total
+    return x0n, y0, x_int, y_int, x_ext, y_ext, num_alpha_list, den_alpha_list, vA_total, rho_total, phi_total, deltav2_total, dmdt0, L_total, Pdin_total
 end
 
 function integra_perfil_parker(cs, G, M, ve0, R, rho0, x_sim, h_rk, rsun)
@@ -494,7 +491,7 @@ function integra_perfil_parker(cs, G, M, ve0, R, rho0, x_sim, h_rk, rsun)
     # Velocidade na base em CGS
     u0_cgs = y_int_cgs[1]
 
-    # --- Preenchimento de Variáveis Auxiliares (rho, dmdt, L, pdin) ---
+    # --- Preenchimento de Variáveis Auxiliares (rho, L, pdin) ---
     len_total = length(x_int_cgs) + length(x_ext_cgs)
 
     # Preenchimento com [0.0, 0.0] para evitar o IndexError no Python ([:, 0])
@@ -507,7 +504,6 @@ function integra_perfil_parker(cs, G, M, ve0, R, rho0, x_sim, h_rk, rsun)
 
     # Arrays reais para os cálculos de massa e pressão
     rho_total = zeros(len_total)
-    dmdt_total = zeros(len_total)
     L_total = zeros(len_total) # Em Parker, o amortecimento mecânico da onda não existe (L=0)
     Pdin_total = zeros(len_total)
 
@@ -524,12 +520,10 @@ function integra_perfil_parker(cs, G, M, ve0, R, rho0, x_sim, h_rk, rsun)
 
         # Física: A conservação estrita impõe que rho = (rho0 * u0 * R^2) / (r^2 * u)
         rho_cgs = (rho0 * u0_cgs * R^2) / (r_cgs^2 * u_cgs)
-        dmdt_cgs = rho_cgs * u_cgs * r_cgs^2
         pdin = rho_cgs * (u_cgs^2)
 
-        # Salvando as normalizações (rho/rho0 e dmdt/dmdt0)
-        rho_total[i] = rho_cgs / rho0
-        dmdt_total[i] = dmdt_cgs / dmdt0
+        # Salvando os valores físicos reais
+        rho_total[i] = rho_cgs           # <--- CORRIGIDO
         Pdin_total[i] = pdin
     end
 
@@ -542,5 +536,5 @@ function integra_perfil_parker(cs, G, M, ve0, R, rho0, x_sim, h_rk, rsun)
     x_ext = x_ext_cgs ./ R
     y_ext = y_ext_cgs ./ ve0
 
-    return u0, x_crit, y_crit, x_int, y_int, x_ext, y_ext, num_alpha_list, den_alpha_list, vA_total, rho_total, phi_total, deltav2_total, dmdt_total, L_total, Pdin_total
+    return u0, x_crit, y_crit, x_int, y_int, x_ext, y_ext, num_alpha_list, den_alpha_list, vA_total, rho_total, phi_total, deltav2_total, dmdt0, L_total, Pdin_total
 end

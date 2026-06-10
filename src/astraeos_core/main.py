@@ -183,7 +183,7 @@ def main(
             rho_total,
             phi_total,
             deltav2_total,
-            dmdt_total,
+            dmdt0,
             L_total,
             Pdin_total,
         ) = jl.integra_perfil(
@@ -218,7 +218,7 @@ def main(
             rho_total,
             phi_total,
             deltav2_total,
-            dmdt_total,
+            dmdt0,
             L_total,
             Pdin_total,
         ) = jl.integra_perfil_parker(cs, G, M, ve0, r0, rho0, x_sim, h_rk, rsun)
@@ -239,9 +239,13 @@ def main(
     )
 
     sy.status("Extracting final results...", flush=True)
+
+    # Adicionando Mass Loss Rate ao param
+    Msol_per_s = dmdt0 / 1.989e33
     sy.param(
         ("Terminal Velocity", y_tot[-1] * ve0 / 1e5, "km/s"),
         ("Normalized Terminal Velocity", y_tot[-1], "ve0"),
+        ("Mass Loss Rate", Msol_per_s, "M⊙/s"),
         flush=True,
     )
 
@@ -351,7 +355,7 @@ def main(
         rho_total=rho_total,
         phi_total=phi_total,
         deltav2_total=deltav2_total,
-        dmdt_total=dmdt_total,
+        dmdt0=dmdt0,
         d_int_rv=d_int_rv,
         d_int_rg=d_int_rg,
         d_int_mg=d_int_mg,
