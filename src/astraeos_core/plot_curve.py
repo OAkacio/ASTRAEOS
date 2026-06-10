@@ -164,7 +164,7 @@ def plot_perfil_main(
         grid_linestyle="-",
         save_fig=True,
         file_format="png",
-        filename="clean_output",
+        filename=rf"VelocityProfile_{nome}_Damp{cte}_S{S_divergencia}_L0{L0}_dv0{deltav0}",
         vlines=[x_t, *x_ref],
         v_colors=["#CC79A7", *color_ref],
         v_linewidth=1.5,
@@ -609,7 +609,7 @@ def plot_habitability_radar(
         rings_out.append(d_int_rg)
         rings_cols.append("#E06C75")  # Vermelho Suave
         rings_alps.append(0.25)
-        rings_labs.append("Optimistic Inner (Recent Venus)")
+        rings_labs.append("Recent Venus")
 
     # 3. Transição Interna (Runaway Greenhouse -> Moist Greenhouse)
     if d_int_rg > 0 and d_int_mg > 0:
@@ -617,7 +617,7 @@ def plot_habitability_radar(
         rings_out.append(d_int_mg)
         rings_cols.append("#E5C07B")  # Dourado Térmico
         rings_alps.append(0.35)
-        rings_labs.append("Runaway -> Moist Greenhouse")
+        rings_labs.append(r"Runaway $\rightarrow$ Moist Greenhouse")
 
     # 4. HZ Conservadora Central (Moist Greenhouse -> Maximum Greenhouse)
     # Hierarquia Visual Alta (Maior opacidade, atrai a atenção imediata)
@@ -626,7 +626,7 @@ def plot_habitability_radar(
         rings_out.append(d_ext_mg)
         rings_cols.append("#98C379")  # Verde Destaque
         rings_alps.append(0.55)
-        rings_labs.append("Conservative HZ (Moist -> Max)")
+        rings_labs.append(r"Moist $\rightarrow$ Maximum Greenhouse")
 
     # 5. Otimista Externa (Maximum Greenhouse -> Early Mars)
     if d_ext_mg > 0 and d_ext_em > 0:
@@ -634,7 +634,7 @@ def plot_habitability_radar(
         rings_out.append(d_ext_em)
         rings_cols.append("#61AFEF")  # Azul Frio
         rings_alps.append(0.25)
-        rings_labs.append("Optimistic Outer (Early Mars)")
+        rings_labs.append("Early Mars")
 
     # ? --- Órbita e Posição do Exoplaneta ---
     rsun = 6.957e10
