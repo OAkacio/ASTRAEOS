@@ -478,6 +478,8 @@ def plot_plasmaprop(
     deltav2_norm = deltav2 if deltav2[0] == 0 else deltav2 / deltav2[0]
     dmdt_norm = dmdt if dmdt[0] == 0 else dmdt / dmdt[0]
     u_norm = y_tot / y_tot[0]
+    L=L if L[0]==0 else L/L[0]
+    Pdin=Pdin if Pdin[0]==0 else Pdin/Pdin[0]
 
     # ? --- Lógica do Limite Inferior Dinâmico ---
     idx_xt = np.argmin(np.abs(x_tot - x_t))
