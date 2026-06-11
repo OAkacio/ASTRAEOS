@@ -1,6 +1,8 @@
-# * ============================================
+#
+# * ========================================================================================
 # * Importações
-# * ============================================
+# * ========================================================================================
+# ? --- Bibliotecas Padrão e Científicas ---
 import os
 import math
 import numpy as np
@@ -10,6 +12,7 @@ import time
 from astropy import constants as const
 from astropy import units as u
 
+# ? --- Módulos Locais (pytools) ---
 try:
     from .pytools import system as sy
     from .pytools import graphs as gp
@@ -19,9 +22,11 @@ except ImportError:
     import pytools.graphs as gp
     import pytools.saveload as sl
 
+# ? --- Integração com Julia ---
 from juliacall import Main as jl
 
-# * ============================================
+# * ========================================================================================
 # * Início
-# * ============================================
+# * ========================================================================================
+# ? --- Execução do Core ---
 jl.include("src/astraeos_core/integrator.jl")

@@ -1,6 +1,8 @@
-# * ============================================
+#
+# * ========================================================================================
 # * Importações
-# * ============================================
+# * ========================================================================================
+# ? --- Carregamento de Dependências Locais ---
 try:
     from .lib import *
     from .utils import *
@@ -11,9 +13,10 @@ except ImportError:
     from parameters import *
 
 
-# * ============================================
+# * ========================================================================================
 # * Grandezas Derivadas
-# * ============================================
+# * ========================================================================================
+# ? --- Cálculo de Parâmetros Iniciais do Vento Estelar ---
 def calc_param(
     nome,
     Mstar,
@@ -53,9 +56,10 @@ def calc_param(
     return ve0, cs, vA0, vT, x_t, r0, M
 
 
-# * ============================================
+# * ========================================================================================
 # * Lógica Integrada
-# * ============================================
+# * ========================================================================================
+# ? --- Detecção de Pontos Críticos e Cruzamentos de Zero ---
 def zerosND(x_int, y_int, x_ext, y_ext, num_alpha_list, den_alpha_list):
     x_tot = np.concatenate([x_int, x_ext])
     y_tot = np.concatenate([y_int, y_ext])
@@ -101,15 +105,15 @@ def zerosND(x_int, y_int, x_ext, y_ext, num_alpha_list, den_alpha_list):
     )
 
 
+# ? --- Busca de Índices Aproximados ---
 def find_i(lista, valor):
     return min(range(len(lista)), key=lambda i: abs(lista[i] - valor))
 
 
-# * ============================================
+# * ========================================================================================
 # * Zona Habitável
-# * ============================================
-
-
+# * ========================================================================================
+# ? --- Fluxo Efetivo Recebido ---
 def Seff_int(Teff, tipo):
     T_dif = Teff - 5780
     if tipo == "rv":
@@ -160,6 +164,7 @@ def Seff_ext(Teff, tipo):
     return x
 
 
+# ? --- Distâncias Críticas da Zona Habitável ---
 def distancia_habitavel(Lstar, Teff, e, Rstar_sun):
     fator_ecc = (1 - e**2) ** 0.5
     d_int_au_rv = (Lstar / (Seff_int(Teff, "rv") * fator_ecc)) ** 0.5
@@ -167,7 +172,9 @@ def distancia_habitavel(Lstar, Teff, e, Rstar_sun):
     d_int_au_mg = (Lstar / (Seff_int(Teff, "mg") * fator_ecc)) ** 0.5
     d_ext_au_mg = (Lstar / (Seff_ext(Teff, "mg") * fator_ecc)) ** 0.5
     d_ext_au_em = (Lstar / (Seff_ext(Teff, "em") * fator_ecc)) ** 0.5
-    fator_conversao = au_cgs / (Rstar_sun * rsun)
+
+    fator_conversao = au_cgs / (Rstar_sun * rsun)  # Fator de conversão geométrica [adm]
+
     d_int_rv = d_int_au_rv * fator_conversao
     d_int_rg = d_int_au_rg * fator_conversao
     d_int_mg = d_int_au_mg * fator_conversao
@@ -180,28 +187,33 @@ def distancia_habitavel_classic(Rstar_sun, Teff, Ab):
     Rstar_au = (Rstar_sun * rsun) / au_cgs
     d_int_au = Rstar_au * 0.5 * (Teff / Teq_int) ** 2 * (1 - Ab) ** 0.5
     d_ext_au = Rstar_au * 0.5 * (Teff / Teq_ext) ** 2 * (1 - Ab) ** 0.5
-    fator_conversao = au_cgs / (Rstar_sun * rsun)
+
+    fator_conversao = au_cgs / (Rstar_sun * rsun)  # Fator de conversão geométrica [adm]
+
     return d_int_au * fator_conversao, d_ext_au * fator_conversao
 
 
-# * ============================================
+# * ========================================================================================
 # * Blindagem Magnetosférica
-# * ============================================
-
-
+# * ========================================================================================
+# ? --- Pressão Dinâmica (Ram Pressure) ---
 def Pram(rho_cgs, u_ve0, ve0_cgs):
     u_cgs = u_ve0 * ve0_cgs
-    conversao_cgs_to_SI = 0.1
+    conversao_cgs_to_SI = 0.1  # Fator de conversão do sistema CGS para o SI [adm]
     return (rho_cgs * u_cgs**2) * conversao_cgs_to_SI
 
 
+# ? --- Extensão da Magnetosfera ---
 def raio_magnetosfera(rho_cgs, u_ve0, ve0_cgs, f0, Mmag_AM2):
     N = perm_mag_vac * f0**2 * Mmag_AM2**2
     D = 8 * pi**2 * Pram(rho_cgs, u_ve0, ve0_cgs)
-    convcersao_SI_to_RaiosTerrastres = 1 / Rterra
+    convcersao_SI_to_RaiosTerrastres = (
+        1 / Rterra
+    )  # Fator de conversão métrica para Raios Terrestres [1/m]
     return ((N / D) ** (1 / 6)) * convcersao_SI_to_RaiosTerrastres
 
 
+# ? --- Status de Proteção Planetária ---
 def exo_status(Rmag_RT, Rplan_RT):
     Rmag_RP = Rmag_RT / Rplan_RT
     if Rmag_RP > Rseg_terra_at:
@@ -212,7 +224,8 @@ def exo_status(Rmag_RT, Rplan_RT):
         return "Sub-critical Shield", "Unsafe Zone", "red"
 
 
+# ? --- Abertura da Calota Polar ---
 def Apc(Rmg_terra, Rio_km):
     Rmg, Rio = Rmg_terra * Rterra / 1000, Rio_km
-    At=4*pi*Rio**2
-    return (100*(2 * pi * Rio ** 3) / (Rmg))/At
+    At = 4 * pi * Rio**2
+    return (100 * (2 * pi * Rio**3) / (Rmg)) / At
