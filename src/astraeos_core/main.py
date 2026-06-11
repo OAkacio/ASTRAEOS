@@ -1,6 +1,7 @@
-# * ============================================
+#
+# * ========================================================================================
 # * Importações
-# * ============================================
+# * ========================================================================================
 try:
     from .lib import *
     from .parameters import *
@@ -17,9 +18,9 @@ except ImportError:
     from habitability import *
 
 
-# * ============================================
+# * ========================================================================================
 # * Rotina Principal de Simulação
-# * ============================================
+# * ========================================================================================
 def main(
     nome,
     Mstar,
@@ -67,7 +68,7 @@ def main(
     show_progress=True,
     **kwargs,
 ):
-    # ? --- Inicialização e Parâmetros ---
+    # ? --- Inicialização e Setup de Parâmetros ---
     if show_progress:
         print("___PROGRESS___|0.05", flush=True)
 
@@ -106,7 +107,6 @@ def main(
     )
 
     sy.param(
-        # --- Stellar & Coronal Properties ---
         ("Target Name", nome, ""),
         ("Stellar Mass ( M★ )", Mstar, "M⊙"),
         ("Stellar Radius ( R★ )", Rstar, "R⊙"),
@@ -116,14 +116,12 @@ def main(
         ("Coronal Base Density ( ρ₀ )", rho0, "g/cm³"),
         ("Mean Molecular Weight ( μ )", mu, "dim"),
         ("Surface Magnetic Field ( B₀ )", B0, "G"),
-        # --- Wind & Wave Parameters ---
         ("Expansion Factor ( S )", S_divergencia, "dim"),
         ("Expansion Factor ( F )", F, "dim"),
         ("Initial Wave Amplitude ( Δv₀² )", deltav0, "ve0²"),
         ("Initial Alfvén Flux ( φ₀ )", phi0, "erg/cm²/s"),
         ("Damping Length ( L₀ )", L0, "R★"),
         ("Constant Damping Mode", cte, "bool"),
-        # --- Calculated Velocities & Scales ---
         ("Escape Velocity (ve0)", ve0 / 1e5, "km/s"),
         ("Normalized Alfvén Velocity", vA0, "ve0"),
         ("Alfvén Velocity (vA0)", vA0 * ve0 / 1e5, "km/s"),
@@ -136,15 +134,15 @@ def main(
     if show_progress:
         print("___PROGRESS___|0.2", flush=True)
 
-    # ? --- Callbacks de Progresso ---
+    # ? --- Callbacks de Integração ---
     def cb_u0(pct):
         print(f"___U0_PROGRESS___|{pct}", flush=True)
 
     def cb_int(pct):
         print(f"___INT_PROGRESS___|{pct}", flush=True)
 
+    # ? --- Processo de Integração Numérica ---
     if not parker:
-        # ? --- Busca por Velocidade Inicial ---
         sy.status("Searching for base velocity and critical point...", flush=True)
         time.sleep(1)
 
@@ -166,7 +164,6 @@ def main(
             flush=True,
         )
 
-        # ? --- Integração do Perfil de Velocidade ---
         sy.status("Integrating wind velocity profile...", flush=True)
         time.sleep(1)
 
@@ -234,14 +231,14 @@ def main(
             flush=True,
         )
 
+    # ? --- Extração de Pontos Críticos ---
     x_tot, y_tot, num_alpha_array, den_alpha_array, idx_crit_num, idx_crit_den = (
         zerosND(x_int, y_int, x_ext, y_ext, num_alpha_list, den_alpha_list)
     )
 
     sy.status("Extracting final results...", flush=True)
 
-    # Adicionando Mass Loss Rate ao param
-    Msol_per_yr = dmdt0
+    Msol_per_yr = dmdt0  # Taxa de perda de massa estelar [Massas Solares / ano]
     sy.param(
         ("Terminal Velocity", y_tot[-1] * ve0 / 1e5, "km/s"),
         ("Normalized Terminal Velocity", y_tot[-1], "ve0"),
@@ -249,6 +246,7 @@ def main(
         flush=True,
     )
 
+    # ? --- Execução de Módulos Secundários ---
     if habitabilidade:
         (
             d_int_rv,
@@ -295,11 +293,10 @@ def main(
             Aperdida,
         ) = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
-    # ? --- Processamento e Salvamento de Dados ---
+    # ? --- Estruturação e Salvamento de Dados ---
     os.makedirs("data", exist_ok=True)
     np.savez(
         f"data/curve_{cte}.npz",
-        # --- Input Parameters ---
         nome=nome,
         Mstar=Mstar,
         Rstar=Rstar,
@@ -338,7 +335,6 @@ def main(
         Mmag=Mmag,
         Dorb=Dorb,
         Rplan=Rplan,
-        # --- Output Parameters ---
         x_tot=x_tot,
         y_tot=y_tot,
         x_crit=x_crit,
@@ -378,7 +374,7 @@ def main(
     if show_progress:
         print("___PROGRESS___|0.8", flush=True)
 
-    # ? --- Geração de Gráficos ---
+    # ? --- Acionamento de Geração Gráfica ---
     sy.status("Plotting simulation results...", flush=True)
     plot_perfil_main(
         x_ref,
@@ -476,9 +472,10 @@ def main(
     )
 
 
-# * ============================================
+# * ========================================================================================
 # * Execução em Linha de Comando
-# * ============================================
+# * ========================================================================================
+# ? --- Chamada do Script Principal ---
 if __name__ == "__main__":
     main(
         nome=nome_,

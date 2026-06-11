@@ -1,6 +1,7 @@
-# * ============================================
+#
+# * ========================================================================================
 # * Importações
-# * ============================================
+# * ========================================================================================
 try:
     from .lib import *
     from .utils import *
@@ -9,9 +10,10 @@ except ImportError:
     from utils import *
 
 
-# * ============================================
+# * ========================================================================================
 # * Geração de Gráficos de Saída e Principais
-# * ============================================
+# * ========================================================================================
+# ? --- Perfil de Velocidade Customizado ---
 def plot_perfil_output(
     x_ref,
     linestyle_ref,
@@ -26,7 +28,6 @@ def plot_perfil_output(
     x_un,
     y_un,
 ):
-    # ? --- Carregamento de Dados ---
     dados = np.load(f"data/curve_{cte}.npz")
     x_tot = dados["x_tot"]
     y_tot = dados["y_tot"]
@@ -36,9 +37,10 @@ def plot_perfil_output(
     ve0 = dados["ve0"].item()
     x_sim = dados["x_sim"].item()
     nome = str(dados["nome"])
-    r0 = float(dados["Rstar"].item()) * rsunAU
+    r0 = (
+        float(dados["Rstar"].item()) * rsunAU
+    )  # Distância de referência paramétrica [AU]
 
-    # ? --- Renderização do Gráfico Limpo ---
     fig = gp.plot(
         title=nome,
         x_data=[x_tot] if x_un == "r/r0" else [list(np.array(x_tot) * r0)],
@@ -117,6 +119,7 @@ def plot_perfil_output(
     return fig
 
 
+# ? --- Perfil Principal do Vento Estelar ---
 def plot_perfil_main(
     x_ref,
     linestyle_ref,
@@ -134,7 +137,6 @@ def plot_perfil_main(
     S_divergencia,
     cte,
 ):
-    # ? --- Carregamento de Dados ---
     dados = np.load(f"data/curve_{cte}.npz")
     x_tot = dados["x_tot"]
     y_tot = dados["y_tot"]
@@ -145,7 +147,6 @@ def plot_perfil_main(
     x_sim = dados["x_sim"].item()
     nome = str(dados["nome"])
 
-    # ? --- Renderização do Gráfico Principal ---
     fig = gp.plot(
         x_data=[x_tot],
         y_data=[list(np.array(y_tot) * ve0 / 1e5)],
@@ -194,11 +195,11 @@ def plot_perfil_main(
     return fig
 
 
-# * ============================================
+# * ========================================================================================
 # * Geração de Gráficos de Análise e Comparação
-# * ============================================
+# * ========================================================================================
+# ? --- Topologia Crítica da Solução ---
 def plot_curve_analis(tamanho_pulo, recuo_pulo, L0, deltav0, S_divergencia, cte):
-    # ? --- Carregamento de Dados ---
     dados = np.load(f"data/curve_{cte}.npz")
     x_tot = dados["x_tot"]
     y_tot = dados["y_tot"]
@@ -210,7 +211,6 @@ def plot_curve_analis(tamanho_pulo, recuo_pulo, L0, deltav0, S_divergencia, cte)
     idx_crit_den = dados["idx_crit_den"].item()
     nome = str(dados["nome"])
 
-    # ? --- Renderização do Gráfico de Termos da Equação ---
     fig = gp.plot(
         title=f"{nome} - Critical Topology",
         x_data=[x_tot] * 4,
@@ -278,6 +278,7 @@ def plot_curve_analis(tamanho_pulo, recuo_pulo, L0, deltav0, S_divergencia, cte)
     return fig
 
 
+# ? --- Comparação de Amortecimentos Múltiplos ---
 def plot_multicurve(
     x_ref,
     linestyle_ref,
@@ -289,7 +290,6 @@ def plot_multicurve(
     x_scale,
     y_scale,
 ):
-    # ? --- Carregamento de Dados Múltiplos ---
     tdados = np.load("data/curve_True.npz")
     fdados = np.load("data/curve_False.npz")
 
@@ -308,7 +308,6 @@ def plot_multicurve(
     x_sim = tdados["x_sim"].item()
     nome = str(tdados["nome"])
 
-    # ? --- Renderização do Gráfico Comparativo ---
     fig = gp.plot(
         title=nome,
         x_data=[tx_tot, fx_tot],
@@ -365,6 +364,7 @@ def plot_multicurve(
     return fig
 
 
+# ? --- Velocidades Características do Vento ---
 def plot_charspeeds(
     x_ref,
     linestyle_ref,
@@ -377,7 +377,6 @@ def plot_charspeeds(
     y_scale,
     cte,
 ):
-    # ? --- Carregamento de Dados ---
     dados = np.load(f"data/curve_{cte}.npz")
     x_tot = dados["x_tot"]
     y_tot = dados["y_tot"]
@@ -391,7 +390,6 @@ def plot_charspeeds(
     x_crit = dados["x_crit"].item()
     y_crit = dados["y_crit"].item()
 
-    # ? --- Renderização do Gráfico de Velocidades Características ---
     fig = gp.plot(
         title=f"{nome} - Characteristic Speeds",
         x_data=[x_tot, x_tot],
@@ -443,6 +441,7 @@ def plot_charspeeds(
     return fig
 
 
+# ? --- Propriedades Normalizadas do Plasma ---
 def plot_plasmaprop(
     x_ref,
     linestyle_ref,
@@ -455,7 +454,6 @@ def plot_plasmaprop(
     y_scale,
     cte,
 ):
-    # ? --- Carregamento de Dados ---
     dados = np.load(f"data/curve_{cte}.npz")
     x_tot = dados["x_tot"]
     y_tot = dados["y_tot"]
@@ -479,11 +477,9 @@ def plot_plasmaprop(
     L = L if L[0] == 0 else L / L[0]
     Pdin = Pdin if Pdin[0] == 0 else Pdin / Pdin[0]
 
-    # ? --- Lógica do Limite Inferior Dinâmico ---
     idx_xt = np.argmin(np.abs(x_tot - x_t))
     rho_rt_norm = rho_norm[idx_xt]
 
-    # ? --- Renderização do Gráfico de Propriedades do Plasma ---
     fig = gp.plot(
         title=f"{nome} - Normalized Plasma Properties",
         x_data=[x_tot, x_tot, x_tot, x_tot, x_tot, x_tot],
@@ -550,6 +546,10 @@ def plot_plasmaprop(
     return fig
 
 
+# * ========================================================================================
+# * Visualizações de Habitabilidade e Blindagem
+# * ========================================================================================
+# ? --- Radar da Zona Habitável do Sistema ---
 def plot_habitability_radar(
     cte,
     Dorb,
@@ -560,14 +560,12 @@ def plot_habitability_radar(
     import os
     import numpy as np
 
-    # ? --- Extração do Arquivo .npz ---
     dados = np.load(f"data/curve_{cte}.npz")
     x_tot = dados["x_tot"]
     rho_total = dados["rho_total"]
     nome = str(dados["nome"])
     x_sim = dados["x_sim"].item()
 
-    # Variáveis extraídas do cálculo expandido de Kopparapu
     d_int_rv = dados["d_int_rv"].item()
     d_int_rg = dados["d_int_rg"].item()
     d_int_mg = dados["d_int_mg"].item()
@@ -577,28 +575,22 @@ def plot_habitability_radar(
     d_int_classic = dados["dc_int"].item()
     d_ext_classic = dados["dc_ext"].item()
 
-    # ? --- Normalização e Otimização Crítica ---
     rho_norm = rho_total / rho_total[0]
 
     step = max(1, len(x_tot) // 12000)
     x_mesh = x_tot[::step]
     rho_mesh = rho_norm[::step]
 
-    # ? --- Grade Polar e Matriz Z (Heatmap) ---
     theta_1d = np.linspace(0, 2 * np.pi, 200)
     Theta, R = np.meshgrid(theta_1d, x_mesh)
     Z = rho_mesh[:, np.newaxis] * np.ones((1, len(theta_1d)))
 
-    # * ============================================
-    # * Estratificação Espacial das Zonas Habitáveis
-    # * ============================================
     rings_in = []
     rings_out = []
     rings_cols = []
     rings_alps = []
     rings_labs = []
 
-    # 1. HZ Clássica (Hierarquia Visual Baixa: Cinza Fantasma)
     if d_int_classic > 0 and d_ext_classic > 0:
         rings_in.append(d_int_classic)
         rings_out.append(d_ext_classic)
@@ -606,42 +598,36 @@ def plot_habitability_radar(
         rings_alps.append(0.12)
         rings_labs.append("Classic Habitable Zone")
 
-    # 2. Otimista Interna (Recent Venus -> Runaway Greenhouse)
     if d_int_rv > 0 and d_int_rg > 0:
         rings_in.append(d_int_rv)
         rings_out.append(d_int_rg)
-        rings_cols.append("#E06C75")  # Vermelho Suave
+        rings_cols.append("#E06C75")
         rings_alps.append(0.25)
         rings_labs.append("Recent Venus")
 
-    # 3. Transição Interna (Runaway Greenhouse -> Moist Greenhouse)
     if d_int_rg > 0 and d_int_mg > 0:
         rings_in.append(d_int_rg)
         rings_out.append(d_int_mg)
-        rings_cols.append("#E5C07B")  # Dourado Térmico
+        rings_cols.append("#E5C07B")
         rings_alps.append(0.35)
         rings_labs.append(r"Runaway $\rightarrow$ Moist Greenhouse")
 
-    # 4. HZ Conservadora Central (Moist Greenhouse -> Maximum Greenhouse)
-    # Hierarquia Visual Alta (Maior opacidade, atrai a atenção imediata)
     if d_int_mg > 0 and d_ext_mg > 0:
         rings_in.append(d_int_mg)
         rings_out.append(d_ext_mg)
-        rings_cols.append("#98C379")  # Verde Destaque
+        rings_cols.append("#98C379")
         rings_alps.append(0.55)
         rings_labs.append(r"Moist $\rightarrow$ Maximum Greenhouse")
 
-    # 5. Otimista Externa (Maximum Greenhouse -> Early Mars)
     if d_ext_mg > 0 and d_ext_em > 0:
         rings_in.append(d_ext_mg)
         rings_out.append(d_ext_em)
-        rings_cols.append("#61AFEF")  # Azul Frio
+        rings_cols.append("#61AFEF")
         rings_alps.append(0.25)
         rings_labs.append("Early Mars")
 
-    # ? --- Órbita e Posição do Exoplaneta ---
-    rsun = 6.957e10
-    au_em_cm = 1.495978707e13
+    rsun = 6.957e10  # Raio Solar [cm]
+    au_em_cm = 1.495978707e13  # Distância de Unidade Astronômica [cm]
     r0 = Rstar * rsun
     Dorb_r0 = Dorb * (au_em_cm / r0)
 
@@ -656,9 +642,6 @@ def plot_habitability_radar(
     planets_sizes = [2] * 150 + [30]
     planets_names = [None] * 150 + [exoplanet_name]
 
-    # * ============================================
-    # * Renderização e Ajustes Finais
-    # * ============================================
     fig = gp.radar(
         r_data=R,
         theta_data=Theta,
@@ -694,7 +677,6 @@ def plot_habitability_radar(
     )
 
     ax = fig.axes[0]
-
     ax.set_xticks([])
 
     handles, labels = ax.get_legend_handles_labels()
@@ -719,6 +701,7 @@ def plot_habitability_radar(
     return fig
 
 
+# ? --- Escudo de Standoff Magnetosférico ---
 def plot_magnetosphere_shield(
     cte,
     Rplan,
@@ -729,7 +712,6 @@ def plot_magnetosphere_shield(
     from matplotlib.patches import Circle
     import matplotlib.patheffects as pe
 
-    # ? --- Extração do Arquivo .npz ---
     dados = np.load(f"data/curve_{cte}.npz")
     nome = str(dados["nome"])
 
@@ -743,15 +725,14 @@ def plot_magnetosphere_shield(
         Rm_rp = 1.0
 
     fator_cme = k_cme
-
-    # Constante para converter km em Raios Terrestres (Rterra ≈ 6371 km)
-    hion_rp = (hion_km / (Rterra / 1000)) / Rplan
+    hion_rp = (
+        hion_km / (Rterra / 1000)
+    ) / Rplan  # Constante convertendo altimetria [km] em unidade paramétrica local [Rplan]
 
     limite_extremo = max(Rm_rp * 3.5, 13.0)
     x_limites = [-limite_extremo * 0.5, limite_extremo]
     y_limites = [-limite_extremo * 0.6, limite_extremo * 0.6]
 
-    # ? --- Geração do Gráfico Base ---
     fig = gp.magnetosphere(
         R_m=Rm_rp,
         R_p=1.0,
@@ -798,21 +779,12 @@ def plot_magnetosphere_shield(
         theme="dark",
     )
     ax = fig.axes[0]
-
-    # O "Halo" escuro que resolve o problema da legibilidade sobre qualquer elemento
     outline = [pe.withStroke(linewidth=4, foreground="#1E1E1E")]
-
     ax.set_aspect("equal", adjustable="box")
 
-    # =========================================================================
-    # ? EFEITO ATMOSFÉRICO ESFUMAÇADO (IONOSFERA)
-    # Desenha 20 anéis concêntricos que vão do R_planeta (1.0) até a altura máxima da ionosfera
-    # =========================================================================
     num_camadas = 20
     raio_max_atmosfera = 1.0 + hion_rp
     passos_raio = np.linspace(1.0, raio_max_atmosfera, num_camadas)
-
-    # O alpha começa um pouco forte perto da superfície e cai para 0 no topo
     alphas = np.linspace(0.2, 0.0, num_camadas)
 
     for r_camada, opacidade in zip(passos_raio, alphas):
@@ -820,13 +792,12 @@ def plot_magnetosphere_shield(
             (0, 0),
             r_camada,
             fill=True,
-            facecolor="#E5C07B",  # Usa a mesma cor do planeta para a atmosfera
+            facecolor="#E5C07B",
             edgecolor="none",
             alpha=opacidade,
-            zorder=5,  # Tem de ficar abaixo da linha sólida do planeta mas acima do choque
+            zorder=5,
         )
         ax.add_patch(halo_atmosferico)
-    # =========================================================================
 
     anel_5 = Circle(
         (0, 0),
@@ -872,17 +843,7 @@ def plot_magnetosphere_shield(
         path_effects=outline,
     )
 
-    # Identificadores das Curvas
-    #    ax.text(
-    #        -Rm_rp * 1.05, 0.0, "Magnetopause",
-    #        color="#00D8FF", fontsize=8, fontweight="bold", ha="right", va="center", zorder=7, path_effects=outline
-    #    )
-
     rm_cme_calc = Rm_rp * (fator_cme ** (-1 / 6))
-    #    ax.text(
-    #        -rm_cme_calc * 1.05, -rm_cme_calc * 0.8, f"CME Impact",
-    #        color="#E06C75", fontsize=8, fontweight="bold", fontstyle="italic", ha="right", va="top", zorder=7, path_effects=outline
-    #    )
 
     ax.text(
         x_limites[0] * 0.9,
