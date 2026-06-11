@@ -408,8 +408,8 @@ function integra_perfil(u0_final, x_crit, y_crit, vetor_final, x_append_final, y
 
         phi_M = phi0 * ((1.0 + 1.5 * Ma) / (1.0 + 1.5 * Ma0)) * ((1.0 + Ma0) / (1.0 + Ma))^2 * exp(-res)
 
-        # Cálculo da Pressão Dinâmica em CGS (dinas/cm^2). Convertendo y_i (adimensional) para u_cgs.
-        u_cgs = y_i * ve0 * 1e5 # ve0 está em km/s, convertemos para cm/s
+        # [!] CORREÇÃO: ve0 JÁ É cm/s do Python. Remove o fator 1e5 na transformação para Pdin
+        u_cgs = y_i * ve0
         pdin = rho * (u_cgs^2)
 
         push!(vA_total, vA)
@@ -420,9 +420,8 @@ function integra_perfil(u0_final, x_crit, y_crit, vetor_final, x_append_final, y
         push!(Pdin_total, pdin)
     end
 
-    # Massa Total Perdida calculada SOMENTE uma vez para a base (x=1)
-    # A conservação da massa dita que este valor se mantém.
-    dmdt0 = rho0 * (u0_final * ve0 * 1e5) * (vetor_final[6])^2
+    # [!] CORREÇÃO: Conservação da massa esférica total usando 4 * pi, com ve0 sem 1e5
+    dmdt0 = (4.0 * pi * rho0 * (u0_final * ve0) * (vetor_final[6])^2) * (3.1536e7 / 1.9884e33)
 
     limiar_brisa = 0.1
     if y_total[end] < limiar_brisa
@@ -446,7 +445,6 @@ function integra_perfil_parker(cs, G, M, ve0, R, rho0, x_sim, h_rk, rsun)
 
             v_next = v - f / df
 
-            # Evita que o palpite caia em números negativos (log de negativo)
             if v_next <= 0.0
                 v_next = v / 2.0
             end
@@ -494,7 +492,6 @@ function integra_perfil_parker(cs, G, M, ve0, R, rho0, x_sim, h_rk, rsun)
     # --- Preenchimento de Variáveis Auxiliares (rho, L, pdin) ---
     len_total = length(x_int_cgs) + length(x_ext_cgs)
 
-    # Preenchimento com [0.0, 0.0] para evitar o IndexError no Python ([:, 0])
     num_alpha_list = [[0.0, 0.0] for _ in 1:len_total]
     den_alpha_list = [[0.0, 0.0] for _ in 1:len_total]
 
@@ -507,12 +504,11 @@ function integra_perfil_parker(cs, G, M, ve0, R, rho0, x_sim, h_rk, rsun)
     L_total = zeros(len_total) # Em Parker, o amortecimento mecânico da onda não existe (L=0)
     Pdin_total = zeros(len_total)
 
-    # Concatenação para iterar sobre todo o vento de uma vez
     x_total_cgs = vcat(x_int_cgs, x_ext_cgs)
     y_total_cgs = vcat(y_int_cgs, y_ext_cgs)
 
-    # Constante de perda de massa na base (CGS)
-    dmdt0 = rho0 * u0_cgs * R^2
+    # [!] CORREÇÃO: Conservação da massa esférica total usando 4 * pi
+    dmdt0 = (4.0 * pi * rho0 * u0_cgs * R^2) * (3.1536e7 / 1.9884e33)
 
     for i in 1:len_total
         r_cgs = x_total_cgs[i]
@@ -522,8 +518,8 @@ function integra_perfil_parker(cs, G, M, ve0, R, rho0, x_sim, h_rk, rsun)
         rho_cgs = (rho0 * u0_cgs * R^2) / (r_cgs^2 * u_cgs)
         pdin = rho_cgs * (u_cgs^2)
 
-        # Salvando os valores físicos reais
-        rho_total[i] = rho_cgs           # <--- CORRIGIDO
+        # Salvando os valores físicos reais CGS 
+        rho_total[i] = rho_cgs
         Pdin_total[i] = pdin
     end
 
