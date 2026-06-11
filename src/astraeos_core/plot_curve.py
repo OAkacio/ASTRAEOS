@@ -1,7 +1,8 @@
 #
-# * ========================================================================================
-# * Importações
-# * ========================================================================================
+# * ╭────────────────────────────────────────────────────────────────────────────╮
+# * │   Importações                                                              │
+# * ╰────────────────────────────────────────────────────────────────────────────╯
+#
 try:
     from .lib import *
     from .utils import *
@@ -10,10 +11,11 @@ except ImportError:
     from utils import *
 
 
-# * ========================================================================================
-# * Geração de Gráficos de Saída e Principais
-# * ========================================================================================
-# ? --- Perfil de Velocidade Customizado ---
+#
+# * ╭────────────────────────────────────────────────────────────────────────────╮
+# * │   Gráfico de Perfil de Velocidade DARK                                     │
+# * ╰────────────────────────────────────────────────────────────────────────────╯
+#
 def plot_perfil_output(
     x_ref,
     linestyle_ref,
@@ -37,10 +39,7 @@ def plot_perfil_output(
     ve0 = dados["ve0"].item()
     x_sim = dados["x_sim"].item()
     nome = str(dados["nome"])
-    r0 = (
-        float(dados["Rstar"].item()) * rsunAU
-    )  # Distância de referência paramétrica [AU]
-
+    r0 = float(dados["Rstar"].item()) * rsunAU
     fig = gp.plot(
         title=nome,
         x_data=[x_tot] if x_un == "r/r0" else [list(np.array(x_tot) * r0)],
@@ -119,7 +118,11 @@ def plot_perfil_output(
     return fig
 
 
-# ? --- Perfil Principal do Vento Estelar ---
+#
+# * ╭────────────────────────────────────────────────────────────────────────────╮
+# * │   Gráfico de Perfil de Velocidade LIGHT                                    │
+# * ╰────────────────────────────────────────────────────────────────────────────╯
+#
 def plot_perfil_main(
     x_ref,
     linestyle_ref,
@@ -146,7 +149,6 @@ def plot_perfil_main(
     ve0 = dados["ve0"].item()
     x_sim = dados["x_sim"].item()
     nome = str(dados["nome"])
-
     fig = gp.plot(
         x_data=[x_tot],
         y_data=[list(np.array(y_tot) * ve0 / 1e5)],
@@ -195,10 +197,11 @@ def plot_perfil_main(
     return fig
 
 
-# * ========================================================================================
-# * Geração de Gráficos de Análise e Comparação
-# * ========================================================================================
-# ? --- Topologia Crítica da Solução ---
+#
+# * ╭────────────────────────────────────────────────────────────────────────────╮
+# * │   Gráfico de Analise de Topologia                                          │
+# * ╰────────────────────────────────────────────────────────────────────────────╯
+#
 def plot_curve_analis(tamanho_pulo, recuo_pulo, L0, deltav0, S_divergencia, cte):
     dados = np.load(f"data/curve_{cte}.npz")
     x_tot = dados["x_tot"]
@@ -210,7 +213,6 @@ def plot_curve_analis(tamanho_pulo, recuo_pulo, L0, deltav0, S_divergencia, cte)
     idx_crit_num = dados["idx_crit_num"].item()
     idx_crit_den = dados["idx_crit_den"].item()
     nome = str(dados["nome"])
-
     fig = gp.plot(
         title=f"{nome} - Critical Topology",
         x_data=[x_tot] * 4,
@@ -278,7 +280,11 @@ def plot_curve_analis(tamanho_pulo, recuo_pulo, L0, deltav0, S_divergencia, cte)
     return fig
 
 
-# ? --- Comparação de Amortecimentos Múltiplos ---
+#
+# * ╭────────────────────────────────────────────────────────────────────────────╮
+# * │   Gráfico de Curvas Múltiplas                                              │
+# * ╰────────────────────────────────────────────────────────────────────────────╯
+#
 def plot_multicurve(
     x_ref,
     linestyle_ref,
@@ -292,22 +298,18 @@ def plot_multicurve(
 ):
     tdados = np.load("data/curve_True.npz")
     fdados = np.load("data/curve_False.npz")
-
     tx_tot = tdados["x_tot"]
     ty_tot = tdados["y_tot"]
     tx_crit = tdados["x_crit"].item()
     ty_crit = tdados["y_crit"].item()
-
     fx_tot = fdados["x_tot"]
     fy_tot = fdados["y_tot"]
     fx_crit = fdados["x_crit"].item()
     fy_crit = fdados["y_crit"].item()
-
     x_t = tdados["x_t"].item()
     ve0 = tdados["ve0"].item()
     x_sim = tdados["x_sim"].item()
     nome = str(tdados["nome"])
-
     fig = gp.plot(
         title=nome,
         x_data=[tx_tot, fx_tot],
@@ -364,7 +366,11 @@ def plot_multicurve(
     return fig
 
 
-# ? --- Velocidades Características do Vento ---
+#
+# * ╭────────────────────────────────────────────────────────────────────────────╮
+# * │   Gráfico de Velocidades Características                                   │
+# * ╰────────────────────────────────────────────────────────────────────────────╯
+#
 def plot_charspeeds(
     x_ref,
     linestyle_ref,
@@ -389,7 +395,6 @@ def plot_charspeeds(
     cs_km = dados["cs"] * 1e-5
     x_crit = dados["x_crit"].item()
     y_crit = dados["y_crit"].item()
-
     fig = gp.plot(
         title=f"{nome} - Characteristic Speeds",
         x_data=[x_tot, x_tot],
@@ -441,7 +446,11 @@ def plot_charspeeds(
     return fig
 
 
-# ? --- Propriedades Normalizadas do Plasma ---
+#
+# * ╭────────────────────────────────────────────────────────────────────────────╮
+# * │   Gráfico de Propriedades do Plasa                                         │
+# * ╰────────────────────────────────────────────────────────────────────────────╯
+#
 def plot_plasmaprop(
     x_ref,
     linestyle_ref,
@@ -463,23 +472,19 @@ def plot_plasmaprop(
     x_crit = dados["x_crit"].item()
     y_crit = dados["y_crit"].item()
     ve0 = dados["ve0"].item()
-
     rho = dados["rho_total"]
     phi = dados["phi_total"]
     L = dados["L_total"]
     Pdin = dados["Pdin_total"]
     deltav2 = dados["deltav2_total"]
-
     rho_norm = rho / rho[0]
     phi_norm = phi if phi[0] == 0 else phi / phi[0]
     deltav2_norm = deltav2 if deltav2[0] == 0 else deltav2 / deltav2[0]
     u_norm = y_tot / y_tot[0]
     L = L if L[0] == 0 else L / L[0]
     Pdin = Pdin if Pdin[0] == 0 else Pdin / Pdin[0]
-
     idx_xt = np.argmin(np.abs(x_tot - x_t))
     rho_rt_norm = rho_norm[idx_xt]
-
     fig = gp.plot(
         title=f"{nome} - Normalized Plasma Properties",
         x_data=[x_tot, x_tot, x_tot, x_tot, x_tot, x_tot],
@@ -546,10 +551,11 @@ def plot_plasmaprop(
     return fig
 
 
-# * ========================================================================================
-# * Visualizações de Habitabilidade e Blindagem
-# * ========================================================================================
-# ? --- Radar da Zona Habitável do Sistema ---
+#
+# * ╭────────────────────────────────────────────────────────────────────────────╮
+# * │   Gráfico de Radar de Zona Habitável                                       │
+# * ╰────────────────────────────────────────────────────────────────────────────╯
+#
 def plot_habitability_radar(
     cte,
     Dorb,
@@ -565,83 +571,67 @@ def plot_habitability_radar(
     rho_total = dados["rho_total"]
     nome = str(dados["nome"])
     x_sim = dados["x_sim"].item()
-
     d_int_rv = dados["d_int_rv"].item()
     d_int_rg = dados["d_int_rg"].item()
     d_int_mg = dados["d_int_mg"].item()
     d_ext_mg = dados["d_ext_mg"].item()
     d_ext_em = dados["d_ext_em"].item()
-
     d_int_classic = dados["dc_int"].item()
     d_ext_classic = dados["dc_ext"].item()
-
     rho_norm = rho_total / rho_total[0]
-
     step = max(1, len(x_tot) // 12000)
     x_mesh = x_tot[::step]
     rho_mesh = rho_norm[::step]
-
     theta_1d = np.linspace(0, 2 * np.pi, 200)
     Theta, R = np.meshgrid(theta_1d, x_mesh)
     Z = rho_mesh[:, np.newaxis] * np.ones((1, len(theta_1d)))
-
     rings_in = []
     rings_out = []
     rings_cols = []
     rings_alps = []
     rings_labs = []
-
     if d_int_classic > 0 and d_ext_classic > 0:
         rings_in.append(d_int_classic)
         rings_out.append(d_ext_classic)
         rings_cols.append("#5C6370")
         rings_alps.append(0.12)
         rings_labs.append("Classic Habitable Zone")
-
     if d_int_rv > 0 and d_int_rg > 0:
         rings_in.append(d_int_rv)
         rings_out.append(d_int_rg)
         rings_cols.append("#E06C75")
         rings_alps.append(0.25)
         rings_labs.append("Recent Venus")
-
     if d_int_rg > 0 and d_int_mg > 0:
         rings_in.append(d_int_rg)
         rings_out.append(d_int_mg)
         rings_cols.append("#E5C07B")
         rings_alps.append(0.35)
         rings_labs.append(r"Runaway $\rightarrow$ Moist Greenhouse")
-
     if d_int_mg > 0 and d_ext_mg > 0:
         rings_in.append(d_int_mg)
         rings_out.append(d_ext_mg)
         rings_cols.append("#98C379")
         rings_alps.append(0.55)
         rings_labs.append(r"Moist $\rightarrow$ Maximum Greenhouse")
-
     if d_ext_mg > 0 and d_ext_em > 0:
         rings_in.append(d_ext_mg)
         rings_out.append(d_ext_em)
         rings_cols.append("#61AFEF")
         rings_alps.append(0.25)
         rings_labs.append("Early Mars")
-
-    rsun = 6.957e10  # Raio Solar [cm]
-    au_em_cm = 1.495978707e13  # Distância de Unidade Astronômica [cm]
+    rsun = 6.957e10
+    au_em_cm = 1.495978707e13
     r0 = Rstar * rsun
     Dorb_r0 = Dorb * (au_em_cm / r0)
-
     theta_orb = np.linspace(0, 2 * np.pi, 150)
     r_orb = Dorb_r0 * (1 - e**2) / (1 + e * np.cos(theta_orb))
-
     planets_theta = list(theta_orb) + [np.pi / 4]
     planets_r = list(r_orb) + [Dorb_r0 * (1 - e**2) / (1 + e * np.cos(np.pi / 4))]
-
     planets_colors = ["#ABB2BF"] * 150 + ["#FF3333"]
     planets_markers = ["."] * 150 + ["o"]
     planets_sizes = [2] * 150 + [30]
     planets_names = [None] * 150 + [exoplanet_name]
-
     fig = gp.radar(
         r_data=R,
         theta_data=Theta,
@@ -675,15 +665,12 @@ def plot_habitability_radar(
         save_fig=False,
         show_plot=False,
     )
-
     ax = fig.axes[0]
     ax.set_xticks([])
-
     handles, labels = ax.get_legend_handles_labels()
     by_label = dict(zip(labels, handles))
     if None in by_label:
         del by_label[None]
-
     ax.legend(
         by_label.values(),
         by_label.keys(),
@@ -693,15 +680,17 @@ def plot_habitability_radar(
         fontsize=11,
         labelcolor="#ABB2BF",
     )
-
     filepath = "figures/habitability_radar.png"
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
     fig.savefig(filepath, dpi=100, bbox_inches="tight", facecolor="#1E1E1E")
-
     return fig
 
 
-# ? --- Escudo de Standoff Magnetosférico ---
+#
+# * ╭────────────────────────────────────────────────────────────────────────────╮
+# * │   Gráfico de Magnetosfera                                                  │
+# * ╰────────────────────────────────────────────────────────────────────────────╯
+#
 def plot_magnetosphere_shield(
     cte,
     Rplan,
@@ -714,25 +703,18 @@ def plot_magnetosphere_shield(
 
     dados = np.load(f"data/curve_{cte}.npz")
     nome = str(dados["nome"])
-
     Rmag_earth = dados["Rmag"].item()
     k_cme = dados["k_cme"].item()
     hion_km = dados["hion"].item()
-
     if Rplan > 0:
         Rm_rp = Rmag_earth / Rplan
     else:
         Rm_rp = 1.0
-
     fator_cme = k_cme
-    hion_rp = (
-        hion_km / (Rterra / 1000)
-    ) / Rplan  # Constante convertendo altimetria [km] em unidade paramétrica local [Rplan]
-
+    hion_rp = (hion_km / (Rterra / 1000)) / Rplan
     limite_extremo = max(Rm_rp * 3.5, 13.0)
     x_limites = [-limite_extremo * 0.5, limite_extremo]
     y_limites = [-limite_extremo * 0.6, limite_extremo * 0.6]
-
     fig = gp.magnetosphere(
         R_m=Rm_rp,
         R_p=1.0,
@@ -781,7 +763,6 @@ def plot_magnetosphere_shield(
     ax = fig.axes[0]
     outline = [pe.withStroke(linewidth=4, foreground="#1E1E1E")]
     ax.set_aspect("equal", adjustable="box")
-
     num_camadas = 20
     raio_max_atmosfera = 1.0 + hion_rp
     passos_raio = np.linspace(1.0, raio_max_atmosfera, num_camadas)
@@ -798,7 +779,6 @@ def plot_magnetosphere_shield(
             zorder=5,
         )
         ax.add_patch(halo_atmosferico)
-
     anel_5 = Circle(
         (0, 0),
         5.0,
@@ -842,9 +822,6 @@ def plot_magnetosphere_shield(
         zorder=7,
         path_effects=outline,
     )
-
-    rm_cme_calc = Rm_rp * (fator_cme ** (-1 / 6))
-
     ax.text(
         x_limites[0] * 0.9,
         y_limites[1] * 0.85,
@@ -856,9 +833,7 @@ def plot_magnetosphere_shield(
         zorder=7,
         path_effects=outline,
     )
-
     filepath = "figures/magnetosphere_shield.png"
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
     fig.savefig(filepath, dpi=100, bbox_inches="tight", facecolor="#1E1E1E")
-
     return fig

@@ -1,7 +1,8 @@
 #
-# * ========================================================================================
-# * Importações
-# * ========================================================================================
+# * ╭────────────────────────────────────────────────────────────────────────────╮
+# * │   Importações                                                              │
+# * ╰────────────────────────────────────────────────────────────────────────────╯
+#
 try:
     from .lib import *
     from .parameters import *
@@ -18,9 +19,11 @@ except ImportError:
     from habitability import *
 
 
-# * ========================================================================================
-# * Rotina Principal de Simulação
-# * ========================================================================================
+#
+# * ╭────────────────────────────────────────────────────────────────────────────╮
+# * │   Rotina Principal                                                         │
+# * ╰────────────────────────────────────────────────────────────────────────────╯
+#
 def main(
     nome,
     Mstar,
@@ -68,14 +71,16 @@ def main(
     show_progress=True,
     **kwargs,
 ):
-    # ? --- Inicialização e Setup de Parâmetros ---
+    #
+    # ? ╭────────────────────────────────────────────────────╮
+    # ? │   Apresentação dos Parâmetros                      │
+    # ? ╰────────────────────────────────────────────────────╯
+    #
     if show_progress:
         print("___PROGRESS___|0.05", flush=True)
-
     sy.header("ASTRAEOS", Version="v0.1.0", Author="Victor M. Acacio", flush=True)
     time.sleep(1)
     sy.status("Loading input parameters...", flush=True)
-
     ve0, cs, vA0, vT, x_t, r0, M = calc_param(
         nome,
         Mstar,
@@ -130,22 +135,23 @@ def main(
         ("transition Radius (xt)", x_t, "R★"),
         flush=True,
     )
-
     if show_progress:
         print("___PROGRESS___|0.2", flush=True)
 
-    # ? --- Callbacks de Integração ---
     def cb_u0(pct):
         print(f"___U0_PROGRESS___|{pct}", flush=True)
 
     def cb_int(pct):
         print(f"___INT_PROGRESS___|{pct}", flush=True)
 
-    # ? --- Processo de Integração Numérica ---
     if not parker:
+        #
+        # ? ╭────────────────────────────────────────────────────╮
+        # ? │   Busca por Velocidade Inicial e Ponto Critico     │
+        # ? ╰────────────────────────────────────────────────────╯
+        #
         sy.status("Searching for base velocity and critical point...", flush=True)
         time.sleep(1)
-
         u0, x_crit, y_crit, r_crit, x_append, y_append, vetor = jl.busca_u0(
             vT,
             [B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S_divergencia, 0.0, phi0, F],
@@ -154,7 +160,6 @@ def main(
             cte,
             cb_u0,
         )
-
         sy.param(
             ("Base Velocity", u0 * ve0 / 1e5, "km/s"),
             ("Normalized Base Velocity", u0, "ve0"),
@@ -163,10 +168,13 @@ def main(
             ("Critical Topology Slope (N/D)", r_crit, "dim"),
             flush=True,
         )
-
+        #
+        # ? ╭────────────────────────────────────────────────────╮
+        # ? │   Integração de Curva de Perfil                    │
+        # ? ╰────────────────────────────────────────────────────╯
+        #
         sy.status("Integrating wind velocity profile...", flush=True)
         time.sleep(1)
-
         (
             x0n,
             y0,
@@ -199,6 +207,11 @@ def main(
             cb_int,
         )
     else:
+        #
+        # ? ╭────────────────────────────────────────────────────╮
+        # ? │   Geração de Curva por Parker                      │
+        # ? ╰────────────────────────────────────────────────────╯
+        #
         sy.status("Integrating wind velocity profile...", flush=True)
         time.sleep(1)
         (
@@ -219,9 +232,7 @@ def main(
             L_total,
             Pdin_total,
         ) = jl.integra_perfil_parker(cs, G, M, ve0, r0, rho0, x_sim, h_rk, rsun)
-
         r_crit = 1.0
-
         sy.param(
             ("Base Velocity", u0 * ve0 / 1e5, "km/s"),
             ("Normalized Base Velocity", u0, "ve0"),
@@ -230,23 +241,22 @@ def main(
             ("Critical Topology Slope (N/D)", r_crit, "dim"),
             flush=True,
         )
-
-    # ? --- Extração de Pontos Críticos ---
     x_tot, y_tot, num_alpha_array, den_alpha_array, idx_crit_num, idx_crit_den = (
         zerosND(x_int, y_int, x_ext, y_ext, num_alpha_list, den_alpha_list)
     )
-
     sy.status("Extracting final results...", flush=True)
-
-    Msol_per_yr = dmdt0  # Taxa de perda de massa estelar [Massas Solares / ano]
+    Msol_per_yr = dmdt0
     sy.param(
         ("Terminal Velocity", y_tot[-1] * ve0 / 1e5, "km/s"),
         ("Normalized Terminal Velocity", y_tot[-1], "ve0"),
         ("Mass Loss Rate", f"{Msol_per_yr:e}", "M⊙/year"),
         flush=True,
     )
-
-    # ? --- Execução de Módulos Secundários ---
+    #
+    # ? ╭────────────────────────────────────────────────────╮
+    # ? │   Rotina de Habitabilidade                         │
+    # ? ╰────────────────────────────────────────────────────╯
+    #
     if habitabilidade:
         (
             d_int_rv,
@@ -292,11 +302,15 @@ def main(
             Rmag,
             Aperdida,
         ) = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-
-    # ? --- Estruturação e Salvamento de Dados ---
+    #
+    # ? ╭────────────────────────────────────────────────────╮
+    # ? │   Processamento de Dados                           │
+    # ? ╰────────────────────────────────────────────────────╯
+    #
     os.makedirs("data", exist_ok=True)
     np.savez(
         f"data/curve_{cte}.npz",
+        # --- Input Parameters ---
         nome=nome,
         Mstar=Mstar,
         Rstar=Rstar,
@@ -370,11 +384,13 @@ def main(
         Pdin_total=Pdin_total,
         Aperdida=Aperdida,
     )
-
     if show_progress:
         print("___PROGRESS___|0.8", flush=True)
-
-    # ? --- Acionamento de Geração Gráfica ---
+    #
+    # ? ╭────────────────────────────────────────────────────╮
+    # ? │   Geraçãod de Graficos                             │
+    # ? ╰────────────────────────────────────────────────────╯
+    #
     sy.status("Plotting simulation results...", flush=True)
     plot_perfil_main(
         x_ref,
@@ -393,7 +409,6 @@ def main(
         S_divergencia,
         cte,
     )
-
     plot_perfil_output(
         x_ref,
         linestyle_ref,
@@ -408,9 +423,7 @@ def main(
         x_un,
         y_un,
     )
-
     plot_curve_analis(tamanho_pulo, recuo_pulo, L0, deltav0, S_divergencia, cte)
-
     plot_charspeeds(
         x_ref,
         linestyle_ref,
@@ -423,7 +436,6 @@ def main(
         y_scale,
         cte,
     )
-
     plot_plasmaprop(
         x_ref,
         linestyle_ref,
@@ -436,7 +448,6 @@ def main(
         y_scale,
         cte,
     )
-
     if habitabilidade:
         plot_habitability_radar(
             cte=cte,
@@ -450,12 +461,9 @@ def main(
             Rplan,
             exoplanet_name,
         )
-
     if show_progress:
         print("___PROGRESS___|1.0", flush=True)
-
     sy.fim("SIMULATION COMPLETED", flush=True)
-
     return (
         x_tot,
         y_tot,
@@ -472,10 +480,11 @@ def main(
     )
 
 
-# * ========================================================================================
-# * Execução em Linha de Comando
-# * ========================================================================================
-# ? --- Chamada do Script Principal ---
+#
+# * ╭────────────────────────────────────────────────────────────────────────────╮
+# * │   Chamada da Rotina Manual                                                 │
+# * ╰────────────────────────────────────────────────────────────────────────────╯
+#
 if __name__ == "__main__":
     main(
         nome=nome_,

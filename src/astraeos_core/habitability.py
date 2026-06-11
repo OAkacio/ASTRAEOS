@@ -1,3 +1,8 @@
+#
+# * ╭────────────────────────────────────────────────────────────────────────────╮
+# * │   Importações                                                              │
+# * ╰────────────────────────────────────────────────────────────────────────────╯
+#
 try:
     from .lib import *
     from .utils import *
@@ -12,6 +17,11 @@ except ImportError:
     from plot_curve import *
 
 
+#
+# * ╭────────────────────────────────────────────────────────────────────────────╮
+# * │   Rotina Principal de Habitabilidade                                       │
+# * ╰────────────────────────────────────────────────────────────────────────────╯
+#
 def main_hab(
     Lstar,
     Teff,
@@ -32,7 +42,11 @@ def main_hab(
     k_cme,
     hion,
 ):
-    # ? --- Cálculo de ZH ---
+    #
+    # ? ╭────────────────────────────────────────────────────╮
+    # ? │   Apresentação de Parâmetros                       │
+    # ? ╰────────────────────────────────────────────────────╯
+    #
     sy.status("Loading input parameters...", flush=True)
     sy.param(
         ("Exoplanet Designation", exoplanet_name, ""),
@@ -46,6 +60,11 @@ def main_hab(
         ("Ionosphere Height ( hion )", hion, "km"),
         flush=True,
     )
+    #
+    # ? ╭────────────────────────────────────────────────────╮
+    # ? │   Cálculo e Lógica de Zona Habitável               │
+    # ? ╰────────────────────────────────────────────────────╯
+    #
     sy.status("Calculating habitable zone distances...", flush=True)
     d_int_rv, d_int_rg, d_int_mg, d_ext_mg, d_ext_em = distancia_habitavel(
         Lstar=Lstar, Teff=Teff, e=e, Rstar_sun=Rstar
@@ -58,25 +77,18 @@ def main_hab(
     DorbR = Dorb * (au_cgs / (Rstar * rsun))
     if DorbR < dc_int:
         loc = "Too Hot (Inside Classic Inner Edge)"
-
     elif dc_int <= DorbR < d_int_rv:
         loc = "Classic Inner Zone (Outside Kopparapu Optimistic)"
-
     elif d_int_rv <= DorbR < d_int_rg:
         loc = "Optimistic Inner HZ (Recent Venus Limit)"
-
     elif d_int_rg <= DorbR < d_int_mg:
         loc = "Transition Inner HZ (Runaway to Moist Greenhouse)"
-
     elif d_int_mg <= DorbR <= d_ext_mg:
         loc = "Conservative HZ (Moist to Maximum Greenhouse)"
-
     elif d_ext_mg < DorbR <= d_ext_em:
         loc = "Optimistic Outer HZ (Early Mars Limit)"
-
     elif d_ext_em < DorbR <= dc_ext:
         loc = "Classic Outer Zone (Outside Kopparapu Optimistic)"
-
     else:
         loc = "Too Cold (Beyond Classic Outer Edge)"
     sy.param(
@@ -91,7 +103,11 @@ def main_hab(
         flush=True,
     )
     time.sleep(1)
-    # ? --- Raio Magnetosférico ---
+    #
+    # ? ╭────────────────────────────────────────────────────╮
+    # ? │   Cálculo e Lógica de Magnetosfera                 │
+    # ? ╰────────────────────────────────────────────────────╯
+    #
     sy.status("Calculating magnetospheric standoff distance...", flush=True)
     i = find_i(x_tot, Dorb * (au_cgs / r0))
     P_din = Pram(rho_cgs=rho_total[i], u_ve0=y_tot[i], ve0_cgs=ve0)
@@ -115,8 +131,11 @@ def main_hab(
         index="STATUS",
         flush=True,
     )
-
-    # ? --- Salvando Valores ---
+    #
+    # ? ╭────────────────────────────────────────────────────╮
+    # ? │   Processo de Dados                                │
+    # ? ╰────────────────────────────────────────────────────╯
+    #
     dados = np.load(f"data/curve_{cte}.npz")
     dadosdic = dict(dados)
     dados.close()
@@ -148,7 +167,6 @@ def main_hab(
     dadosdic.update(novos_valores)
     np.savez(f"data/curve_{cte}.npz", **dadosdic)
     time.sleep(1)
-
     return (
         d_int_rv,
         d_int_rg,
