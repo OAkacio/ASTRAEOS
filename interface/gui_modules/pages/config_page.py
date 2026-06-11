@@ -1,6 +1,8 @@
-# * ============================================
-# * Importações
-# * ============================================
+#
+# * ╭────────────────────────────────────────────────────────────────────────────╮
+# * │   Importações                                                              │
+# * ╰────────────────────────────────────────────────────────────────────────────╯
+#
 import tkinter as tk
 import customtkinter as ctk
 import json
@@ -15,9 +17,11 @@ SRC_PATH = os.path.join(BASE_DIR, "src")
 from astraeos_core.utils import *
 
 
-# * ============================================
-# * Componentes de Interface Auxiliares
-# * ============================================
+#
+# * ╭────────────────────────────────────────────────────────────────────────────╮
+# * │   Componentes de Interface Auxiliares                                      │
+# * ╰────────────────────────────────────────────────────────────────────────────╯
+#
 class ToolTip:
     def __init__(self, widget, text):
         self.widget = widget
@@ -29,11 +33,9 @@ class ToolTip:
     def mostrar_tooltip(self, event):
         if self.tooltip_window or not self.text:
             return
-
         self.tooltip_window = tk.Toplevel(self.widget)
         self.tooltip_window.wm_overrideredirect(True)
         self.tooltip_window.attributes("-alpha", 0.0)
-
         label = tk.Label(
             self.tooltip_window,
             text=self.text,
@@ -47,36 +49,24 @@ class ToolTip:
             justify="left",
         )
         label.pack()
-
-        # Define os recuos logo no início
         offset_x = 15
         offset_y = 15
-
-        # Faz a janela nascer já com o recuo para nunca tocar no ponteiro do rato!
         x_inicial = event.x_root + offset_x
         y_inicial = event.y_root + offset_y
         self.tooltip_window.wm_geometry(f"+{x_inicial}+{y_inicial}")
-
         self.tooltip_window.update_idletasks()
-
         tooltip_width = self.tooltip_window.winfo_reqwidth()
         tooltip_height = self.tooltip_window.winfo_reqheight()
-
         screen_width = self.tooltip_window.winfo_screenwidth()
         screen_height = self.tooltip_window.winfo_screenheight()
-
         x = event.x_root + offset_x
         y = event.y_root + offset_y
-
         if x + tooltip_width > screen_width:
             x = event.x_root - tooltip_width - offset_x
-
         if y + tooltip_height > screen_height:
             y = event.y_root - tooltip_height - offset_y
-
         x = max(0, x)
         y = max(0, y)
-
         self.tooltip_window.wm_geometry(f"+{x}+{y}")
         self.tooltip_window.attributes("-topmost", True)
         self.tooltip_window.attributes("-alpha", 1.0)
@@ -87,9 +77,11 @@ class ToolTip:
             self.tooltip_window = None
 
 
-# * ============================================
-# * Classe Principal: Página de Configuração
-# * ============================================
+#
+# * ╭────────────────────────────────────────────────────────────────────────────╮
+# * │   Classe Principal: Página de Configuração                                 │
+# * ╰────────────────────────────────────────────────────────────────────────────╯
+#
 class ConfigPage(ctk.CTkFrame):
     def __init__(
         self,
@@ -102,38 +94,32 @@ class ConfigPage(ctk.CTkFrame):
         assets_path,
     ):
         super().__init__(master, corner_radius=0, fg_color="transparent")
-
-        # ? --- Injeção de Dependências ---
+        #
+        # ? ╭────────────────────────────────────────────────────╮
+        # ? │   Injeção de Dependências e Layout Principal       │
+        # ? ╰────────────────────────────────────────────────────╯
+        #
         self.app_state = state
         self.on_run_click = on_run_click
         self.on_update_click = on_update_click
         self.on_abort_click = on_abort_click
         self.on_simulate_exo_click = on_simulate_exo_click
         self.assets_path = assets_path
-        self.exo_inputs = []  # Lista para guardar os widgets do exoplaneta
-        self.parker_disabled_inputs = []  # Lista para guardar caixas do Parker
-
-        # ? --- Configuração de Layout Principal ---
+        self.exo_inputs = []
+        self.parker_disabled_inputs = []
         self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(0, weight=1)  # Permite à área de scroll expandir
-        self.grid_rowconfigure(1, weight=0)  # O rodapé usa apenas o espaço necessário
-
-        # ? --- NOVA ÁREA INTERNA DE SCROLL ---
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=0)
         self.scroll_area = ctk.CTkScrollableFrame(self, fg_color="transparent")
         self.scroll_area.grid(row=0, column=0, sticky="nsew")
         self.scroll_area.grid_columnconfigure(0, weight=1)
-
-        # Todos os elementos passam a usar self.scroll_area como master
         self.header_frame = ctk.CTkFrame(self.scroll_area, fg_color="transparent")
         self.header_frame.grid(row=0, column=0, pady=(10, 2), sticky="ew", padx=20)
         self.header_frame.grid_columnconfigure(0, weight=1)
-
         self.lbl_titulo = ctk.CTkLabel(
             self.header_frame, text="Simulation Settings", font=("Consolas", 18, "bold")
         )
         self.lbl_titulo.grid(row=0, column=0, sticky="w")
-
-        # Tentativa de carregamento dos assets de botões
         try:
             img_load = ctk.CTkImage(
                 Image.open(os.path.join(self.assets_path, "load.png")), size=(18, 18)
@@ -148,13 +134,10 @@ class ConfigPage(ctk.CTkFrame):
             img_about = ctk.CTkImage(
                 Image.open(os.path.join(self.assets_path, "about.png")), size=(18, 18)
             )
-
-            # --- ADICIONE A LINHA ABAIXO ---
             img_cancel = ctk.CTkImage(
                 Image.open(os.path.join(self.assets_path, "cancel.png")), size=(14, 14)
             )
         except Exception:
-            # --- ATUALIZE O EXCEPT PARA CONTER O img_cancel ---
             img_load, img_save, img_export, img_about, img_cancel = (
                 None,
                 None,
@@ -162,9 +145,7 @@ class ConfigPage(ctk.CTkFrame):
                 None,
                 None,
             )
-
-        self.img_cancel = img_cancel  # Salva para uso posterior
-
+        self.img_cancel = img_cancel
         self.btn_load_prof = ctk.CTkButton(
             self.header_frame,
             text="" if img_load else "L",
@@ -177,7 +158,6 @@ class ConfigPage(ctk.CTkFrame):
         )
         self.btn_load_prof.grid(row=0, column=1, padx=(0, 5), sticky="e")
         ToolTip(self.btn_load_prof, "Load Profile")
-
         self.btn_save_prof = ctk.CTkButton(
             self.header_frame,
             text="" if img_save else "S",
@@ -190,7 +170,6 @@ class ConfigPage(ctk.CTkFrame):
         )
         self.btn_save_prof.grid(row=0, column=2, padx=(0, 5), sticky="e")
         ToolTip(self.btn_save_prof, "Save Profile")
-
         self.btn_export = ctk.CTkButton(
             self.header_frame,
             text="" if img_export else "E",
@@ -202,11 +181,7 @@ class ConfigPage(ctk.CTkFrame):
             command=self.export_data,
         )
         self.btn_export.grid(row=0, column=3, padx=(0, 5), sticky="e")
-        ToolTip(
-            self.btn_export,
-            "Export Data",
-        )
-
+        ToolTip(self.btn_export, "Export Data")
         self.btn_about = ctk.CTkButton(
             self.header_frame,
             text="" if img_about else "A",
@@ -218,42 +193,27 @@ class ConfigPage(ctk.CTkFrame):
             command=self.show_about,
         )
         self.btn_about.grid(row=0, column=4, sticky="e")
-        ToolTip(
-            self.btn_about,
-            "About",
-        )
-
+        ToolTip(self.btn_about, "About")
         self.tabview = ctk.CTkTabview(self.scroll_area, height=250)
         self.tabview.grid(row=1, column=0, padx=20, pady=5, sticky="nsew")
-
         aba_astro = self.tabview.add("Star & Corona")
         aba_onda = self.tabview.add("Wind & Wave")
         aba_num = self.tabview.add("Numerical Setup")
         aba_gp = self.tabview.add("Plot Preferences")
-        aba_more = self.tabview.add("More Options")
-
         self._construir_aba_astro(aba_astro)
         self._construir_aba_onda(aba_onda)
         self._construir_aba_numerico(aba_num)
         self._construir_aba_gp(aba_gp)
-        self._construir_aba_more(aba_more)
-
         self.lbl_exo = ctk.CTkLabel(
-            self.scroll_area,
-            text="Exoplanet Settings",
-            font=("Consolas", 18, "bold"),
+            self.scroll_area, text="Exoplanet Settings", font=("Consolas", 18, "bold")
         )
         self.lbl_exo.grid(row=2, column=0, pady=(15, 2), sticky="w", padx=20)
-
         self.tabview_exo = ctk.CTkTabview(self.scroll_area, height=180)
         self.tabview_exo.grid(row=3, column=0, padx=20, pady=5, sticky="nsew")
-
         aba_orbita = self.tabview_exo.add("Orbit & Habitability")
         aba_magnet = self.tabview_exo.add("Magnetosphere")
-
         self._construir_aba_orbita(aba_orbita)
         self._construir_aba_magnet(aba_magnet)
-
         self.btn_sim_exo = ctk.CTkButton(
             self.scroll_area,
             text="Simulate Exoplanet",
@@ -262,16 +222,13 @@ class ConfigPage(ctk.CTkFrame):
             hover_color="#404C55",
             font=("Consolas", 14, "bold"),
             height=25,
-            state="disabled",  # IMPEDE CLIQUE ANTES DA PRIMEIRA SIMULAÇÃO
+            state="disabled",
         )
         self.btn_sim_exo.grid(row=4, column=0, padx=20, pady=(5, 20), sticky="ew")
-
-        # ? --- Rodapé Fixo (Fora do Scroll, colado no 'self') ---
         self.frame_rodape = ctk.CTkFrame(self, fg_color="transparent")
         self.frame_rodape.grid(row=1, column=0, padx=20, pady=(10, 20), sticky="ew")
         self.frame_rodape.grid_columnconfigure(0, weight=1)
         self.frame_rodape.grid_columnconfigure(1, weight=1)
-
         self.btn_run = ctk.CTkButton(
             self.frame_rodape,
             text="Run Star Simulation",
@@ -282,7 +239,6 @@ class ConfigPage(ctk.CTkFrame):
             height=30,
         )
         self.btn_run.grid(row=0, column=0, sticky="ew")
-
         self.btn_abort = ctk.CTkButton(
             self.frame_rodape,
             text="Abort",
@@ -294,20 +250,19 @@ class ConfigPage(ctk.CTkFrame):
             state="disabled",
         )
         self.btn_abort.grid(row=0, column=1, sticky="ew", padx=(5, 0))
-
-        # Força os inputs do exoplaneta a começarem bloqueados
         self.set_exoplanet_state("disabled")
 
-    # * ============================================
-    # * Ferramentas de Dados (Export & About)
-    # * ============================================
+    #
+    # * ╭────────────────────────────────────────────────────────────────────────────╮
+    # * │   Ferramentas de Dados (Export & About)                                    │
+    # * ╰────────────────────────────────────────────────────────────────────────────╯
+    #
     def show_about(self):
         about_win = ctk.CTkToplevel(self)
         about_win.title("About ASTRAEOS")
         about_win.geometry("500x420")
         about_win.resizable(False, False)
         about_win.attributes("-topmost", True)
-
         txt = ctk.CTkTextbox(
             about_win,
             wrap="word",
@@ -316,40 +271,19 @@ class ConfigPage(ctk.CTkFrame):
             text_color="#ABB2BF",
         )
         txt.pack(fill="both", expand=True, padx=20, pady=20)
-
-        conteudo = (
-            "ASTRAEOS - Astrophysical Stellar Wind and Exoplanet Environment Simulator\n"
-            "Version: v0.1.0\n"
-            "Developer: Victor M. Acacio\n\n"
-            "■ Objective:\n"
-            "A highly customizable suite for Magnetohydrodynamic (MHD) modeling of stellar winds "
-            "in late-type stars (e.g., M-dwarfs) and analyzing their direct impact on exoplanet habitability "
-            "and magnetospheric boundaries.\n\n"
-            "■ Methods & Framework:\n"
-            "Powered by a robust Runge-Kutta (RK4) integrator coupled with dynamic critical point topology resolution "
-            "(L'Hôpital limits) in Julia. The software incorporates classical and Kopparapu habitable zones, "
-            "alongside Chapman-Ferraro standoff calculations.\n\n"
-            "■ Open Science & Reproducibility:\n"
-            "ASTRAEOS is built with a strong commitment to open reproducible research. All arrays and variables "
-            "are fully exportable for independent statistical analysis and plotting via external engines like R or Python.\n\n"
-            "■ Acknowledgments:\n"
-            "Developed at the Institute of Astronomy, Geophysics and Atmospheric Sciences (IAG/USP). "
-            "Special thanks to the academic guidance of Profa. Dra. Vera Jatenco Silva Pereira."
-        )
+        conteudo = "ASTRAEOS - Astrophysical Stellar Wind and Exoplanet Environment Simulator\nVersion: v0.1.0\nDeveloper: Victor M. Acacio\n\n■ Objective:\nA highly customizable suite for Magnetohydrodynamic (MHD) modeling of stellar winds in late-type stars (e.g., M-dwarfs) and analyzing their direct impact on exoplanet habitability and magnetospheric boundaries.\n\n■ Methods & Framework:\nPowered by a robust Runge-Kutta (RK4) integrator coupled with dynamic critical point topology resolution (L'Hôpital limits) in Julia. The software incorporates classical and Kopparapu habitable zones, alongside Chapman-Ferraro standoff calculations.\n\n■ Open Science & Reproducibility:\nASTRAEOS is built with a strong commitment to open reproducible research. All arrays and variables are fully exportable for independent statistical analysis and plotting via external engines like R or Python.\n\n■ Acknowledgments:\nDeveloped at the Institute of Astronomy, Geophysics and Atmospheric Sciences (IAG/USP). Special thanks to the academic guidance of Profa. Dra. Vera Jatenco Silva Pereira."
         txt.insert("0.0", conteudo)
         txt.configure(state="disabled")
 
     def export_data(self):
         cte = self.app_state.cte.get()
         filepath_npz = os.path.join(os.getcwd(), "data", f"curve_{cte}.npz")
-
         if not os.path.exists(filepath_npz):
             messagebox.showerror(
                 "Export Error",
                 "No simulation data found in memory. Please 'Run Star Simulation' first.",
             )
             return
-
         export_path = filedialog.asksaveasfilename(
             initialdir=os.path.join(os.getcwd(), "data"),
             title="Export Scientific Data",
@@ -362,15 +296,12 @@ class ConfigPage(ctk.CTkFrame):
         )
         if not export_path:
             return
-
         self.btn_export.configure(state="disabled")
 
         def tarefa_exportacao():
             try:
-                # allow_pickle=True é essencial para carregar strings/listas salvas no npz
                 dados = np.load(filepath_npz, allow_pickle=True)
 
-                # Função auxiliar para extrair escalares com segurança
                 def val(key):
                     if key in dados:
                         v = dados[key]
@@ -380,9 +311,6 @@ class ConfigPage(ctk.CTkFrame):
                     return "N/A"
 
                 with open(export_path, "w", encoding="utf-8") as f:
-                    # =======================================================
-                    # Cabeçalho Físico Analítico (Incluindo TODOS os metadados)
-                    # =======================================================
                     f.write("# " + "=" * 60 + "\n")
                     f.write("# ASTRAEOS - SCIENTIFIC DATA EXPORT\n")
                     f.write("# " + "=" * 60 + "\n")
@@ -397,7 +325,6 @@ class ConfigPage(ctk.CTkFrame):
                     f.write(
                         f"# Base Density [g/cm3]: {val('rho0')} | Surface B-Field [G]: {val('B0')} | Mean Mol. Weight: {val('mu')}\n"
                     )
-
                     f.write("#\n# [ 2. WIND & WAVES ]\n")
                     f.write(
                         f"# Expansion Factor (S): {val('S_divergencia')} | Transition Factor (F): {val('F')} | Initial Wave Amp (dv0^2): {val('deltav0')}\n"
@@ -405,7 +332,6 @@ class ConfigPage(ctk.CTkFrame):
                     f.write(
                         f"# Initial Flux (phi0): {val('phi0')} | Damping Length (L0): {val('L0')} | Constant Damping: {val('cte')}\n"
                     )
-
                     f.write("#\n# [ 3. NUMERICAL SETUP & TOPOLOGY ]\n")
                     f.write(
                         f"# Simulation Dist: {val('x_sim')} | Step (h_rk): {val('h_rk')} | ve0: {val('ve0')}\n"
@@ -422,7 +348,6 @@ class ConfigPage(ctk.CTkFrame):
                     f.write(
                         f"# Crit. Numerator Idx: {val('idx_crit_num')} | Crit. Denominator Idx: {val('idx_crit_den')}\n"
                     )
-
                     f.write("#\n# [ 4. EXOPLANET & HABITABILITY ]\n")
                     f.write(f"# Exoplanet Simulated: {val('habitabilidade')}\n")
                     f.write(
@@ -440,7 +365,6 @@ class ConfigPage(ctk.CTkFrame):
                     f.write(
                         f"# Classic Inner Edge: {val('dc_int')} | Classic Outer Edge: {val('dc_ext')}\n"
                     )
-
                     f.write("#\n# [ 5. PLOTTING PREFERENCES ]\n")
                     f.write(
                         f"# X-Scale: {val('x_scale')} | Y-Scale: {val('y_scale')} | X-units: {val('x_un')} | Y-units: {val('y_un')}\n"
@@ -452,10 +376,6 @@ class ConfigPage(ctk.CTkFrame):
                         f"# Sigma From: {val('sigmas_ref')} | Sigma Name: {val('sigmas_nome_ref')}\n"
                     )
                     f.write("# " + "=" * 60 + "\n")
-
-                    # =======================================================
-                    # Lógica inteligente para as colunas matriciais
-                    # =======================================================
                     colunas_possiveis = [
                         "x_tot",
                         "y_tot",
@@ -470,30 +390,19 @@ class ConfigPage(ctk.CTkFrame):
                         "num_alpha_array",
                         "den_alpha_array",
                     ]
-
                     colunas_validas = []
                     arrays_para_empilhar = []
-
-                    # O x_tot dita o tamanho que as arrays da malha principal devem ter
                     tamanho_alvo = len(dados["x_tot"]) if "x_tot" in dados else 0
-
                     for k in colunas_possiveis:
                         if k in dados:
                             v = dados[k]
-                            # Se for uma array exatamente com o tamanho da malha de simulação, é coluna!
                             if isinstance(v, np.ndarray) and v.size == tamanho_alvo:
                                 colunas_validas.append(k)
                                 arrays_para_empilhar.append(v)
-
-                    # Escreve o cabeçalho das colunas separadas por vírgula
                     f.write(",".join(colunas_validas) + "\n")
-
-                    # Despejo Matricial ultrarrápido
                     if arrays_para_empilhar:
                         matriz = np.column_stack(arrays_para_empilhar)
                         np.savetxt(f, matriz, delimiter=",", fmt="%.8e")
-
-                # Devolve o controlo à thread principal da Interface para mostrar o aviso
                 self.after(
                     0,
                     lambda: messagebox.showinfo(
@@ -511,14 +420,15 @@ class ConfigPage(ctk.CTkFrame):
             finally:
                 self.after(0, lambda: self.btn_export.configure(state="normal"))
 
-        # Inicia o processo isolado para não congelar o programa
         import threading
 
         threading.Thread(target=tarefa_exportacao, daemon=True).start()
 
-    # * ============================================
-    # * Gestão Dinâmica de Perfis (JSON)
-    # * ============================================
+    #
+    # * ╭────────────────────────────────────────────────────────────────────────────╮
+    # * │   Gestão Dinâmica de Perfis (JSON)                                         │
+    # * ╰────────────────────────────────────────────────────────────────────────────╯
+    #
     def save_profile(self):
         filepath = filedialog.asksaveasfilename(
             initialdir=os.path.join(os.getcwd(), "data"),
@@ -528,7 +438,6 @@ class ConfigPage(ctk.CTkFrame):
         )
         if not filepath:
             return
-
         try:
             data = {
                 "star": {
@@ -570,13 +479,6 @@ class ConfigPage(ctk.CTkFrame):
                     "k_cme": self.app_state.k_cme.get(),
                     "hion": self.app_state.hion.get(),
                 },
-                "advanced": {
-                    "multicurve": self.app_state.multicurve.get(),
-                    "searchdv2": self.app_state.searchdv2.get(),
-                    "ldv2": self.app_state.ldv2.get(),
-                    "hdv2": self.app_state.hdv2.get(),
-                    "stepdv2": self.app_state.stepdv2.get(),
-                },
                 "plot": {
                     "sigma_ini": self.app_state.sigma_ini.get(),
                     "sigma_fim": self.app_state.sigma_fim.get(),
@@ -613,11 +515,9 @@ class ConfigPage(ctk.CTkFrame):
         self._load_from_filepath(filepath)
 
     def _load_from_filepath(self, filepath):
-        """Função auxiliar unificada para carregar profiles a partir de um ficheiro json"""
         try:
             with open(filepath, "r", encoding="utf-8") as f:
                 data = json.load(f)
-
             mapping = {
                 "star": [
                     "nome",
@@ -658,15 +558,12 @@ class ConfigPage(ctk.CTkFrame):
                     "k_cme",
                     "hion",
                 ],
-                "advanced": ["multicurve", "searchdv2", "ldv2", "hdv2", "stepdv2"],
             }
-
             for group, keys in mapping.items():
                 if group in data:
                     for key in keys:
                         if key in data[group]:
                             getattr(self.app_state, key).set(data[group][key])
-
             if "plot" in data:
                 p = data["plot"]
                 if "sigma_ini" in p:
@@ -692,22 +589,21 @@ class ConfigPage(ctk.CTkFrame):
                             self.app_state.refs[i]["nome"].set(r.get("nome", ""))
                             self.app_state.refs[i]["cor"].set(r.get("cor", ""))
                             self.app_state.refs[i]["estilo"].set(r.get("estilo", "-"))
-
         except Exception as e:
             print(f"Error loading profile: {e}")
 
-    # * ============================================
-    # * Construtores de Abas (Estrela)
-    # * ============================================
+    #
+    # * ╭────────────────────────────────────────────────────────────────────────────╮
+    # * │   Construtores de Abas (Estrela)                                           │
+    # * ╰────────────────────────────────────────────────────────────────────────────╯
+    #
     def _construir_aba_astro(self, aba):
         aba.grid_columnconfigure(0, weight=1)
         aba.grid_columnconfigure(1, weight=1)
         aba.grid_columnconfigure(2, weight=1)
-
         fonte = ctk.CTkFont(family="Roboto", size=13, weight="normal")
         fonte_var = ctk.CTkFont(family="Roboto", size=12, weight="normal")
         fonte_uni = ctk.CTkFont(family="Roboto", size=12, weight="normal")
-
         campos = [
             (0, "Target Name:", self.app_state.nome, ""),
             (1, "Stellar Mass ( M★ ) :", self.app_state.Mstar, "[ M⊙ ]"),
@@ -719,26 +615,18 @@ class ConfigPage(ctk.CTkFrame):
             (7, "Surface Magnetic Field ( B₀ ) :", self.app_state.B0, "[ G ]"),
             (8, "Mean Molecular Weight ( μ ) :", self.app_state.mu, "[ adm ]"),
         ]
-
         for linha, texto, var, uni in campos:
             ctk.CTkLabel(aba, text=texto, font=fonte, text_color="#E5C07B").grid(
                 row=linha, column=0, padx=20, pady=5, sticky="w"
             )
-
             entry = ctk.CTkEntry(aba, textvariable=var, font=fonte_var)
             entry.grid(row=linha, column=1, padx=(10, 0), pady=5, sticky="sw")
-
-            # Captura a caixa B0 para ser desativada pelo Parker Wind
             if var == self.app_state.B0:
                 self.parker_disabled_inputs.append(entry)
-
             ctk.CTkLabel(aba, text=uni, font=fonte_uni, text_color="#8b949e").grid(
                 row=linha, column=2, padx=(0, 50), pady=5, sticky="w"
             )
-
         linha_atual = len(campos)
-
-        # ? --- NOVA LÓGICA: Bibliotecas de Presets Estelares ---
         linha_atual += 1
         ctk.CTkLabel(
             aba,
@@ -748,13 +636,9 @@ class ConfigPage(ctk.CTkFrame):
         ).grid(
             row=linha_atual, column=0, columnspan=3, pady=(25, 5), sticky="w", padx=20
         )
-
-        # Garante que o diretório base existe
         presets_dir = os.path.join(BASE_DIR, "presets")
         os.makedirs(presets_dir, exist_ok=True)
-
         arquivos_json = [f for f in os.listdir(presets_dir) if f.endswith(".json")]
-
         if not arquivos_json:
             linha_atual += 1
             ctk.CTkLabel(
@@ -767,8 +651,6 @@ class ConfigPage(ctk.CTkFrame):
             for arquivo in arquivos_json:
                 linha_atual += 1
                 nome_preset = arquivo.replace(".json", "")
-
-                # Container invisível para agrupar o nome e o botão perfeitamente alinhados
                 frame_preset = ctk.CTkFrame(aba, fg_color="transparent")
                 frame_preset.grid(
                     row=linha_atual,
@@ -779,26 +661,19 @@ class ConfigPage(ctk.CTkFrame):
                     pady=2,
                 )
                 frame_preset.grid_columnconfigure(1, weight=1)
-
-                # Indicador elegante
                 lbl_seta = ctk.CTkLabel(
                     frame_preset, text="➤", font=fonte_var, text_color="#61AFEF"
                 )
                 lbl_seta.grid(row=0, column=0, sticky="w", padx=(0, 10))
-
-                # Nome do arquivo
                 lbl_nome = ctk.CTkLabel(
                     frame_preset, text=nome_preset, font=fonte_var, text_color="#ABB2BF"
                 )
                 lbl_nome.grid(row=0, column=1, sticky="w")
-
                 caminho_completo = os.path.join(presets_dir, arquivo)
 
-                # Função isolada para capturar a variável correta dentro do loop
                 def carregar(caminho=caminho_completo):
                     self._load_from_filepath(caminho)
 
-                # Botão de Load estético
                 btn_load = ctk.CTkButton(
                     frame_preset,
                     text="Load",
@@ -813,27 +688,18 @@ class ConfigPage(ctk.CTkFrame):
                     command=carregar,
                 )
                 btn_load.grid(row=0, column=2, sticky="e")
-
-        # Configura a última linha do container para empurrar tudo para cima ordenadamente
         aba.grid_rowconfigure(linha_atual + 1, weight=1, minsize=10)
 
     def _construir_aba_onda(self, aba):
         aba.grid_columnconfigure(0, weight=1)
         aba.grid_columnconfigure(1, weight=1)
         aba.grid_columnconfigure(2, weight=1)
-
         fonte = ctk.CTkFont(family="Roboto", size=13, weight="normal")
         fonte_var = ctk.CTkFont(family="Roboto", size=12, weight="normal")
         fonte_uni = ctk.CTkFont(family="Roboto", size=12, weight="normal")
-
         campos = [
             (0, "Expansion Factor ( S ) :", self.app_state.S_divergencia, "[ adm ]"),
-            (
-                1,
-                "Transition Factor ( F ) :",
-                self.app_state.F,
-                "[ adm ]",
-            ),
+            (1, "Transition Factor ( F ) :", self.app_state.F, "[ adm ]"),
             (
                 2,
                 "Initial Wave Amplitude ( Δv₀² ) :",
@@ -843,23 +709,17 @@ class ConfigPage(ctk.CTkFrame):
             (3, "Initial Alfvén Flux ( φ₀ ) :", self.app_state.phi0, "[ erg/cm²/s ]"),
             (4, "Damping Length ( L₀ ) :", self.app_state.L0, "[ R★ ]"),
         ]
-
         for linha, texto, var, uni in campos:
             ctk.CTkLabel(aba, text=texto, font=fonte, text_color="#E5C07B").grid(
                 row=linha, column=0, padx=20, pady=5, sticky="w"
             )
-
             entry = ctk.CTkEntry(aba, textvariable=var, font=fonte_var)
             entry.grid(row=linha, column=1, padx=(10, 0), pady=5, sticky="sw")
-
-            # Todos os campos desta aba são inativados pelo modelo Parker
             self.parker_disabled_inputs.append(entry)
-
             ctk.CTkLabel(aba, text=uni, font=fonte_uni, text_color="#8b949e").grid(
                 row=linha, column=2, padx=(0, 50), pady=5, sticky="w"
             )
             aba.grid_rowconfigure(len(campos), weight=1, minsize=10)
-
         ctk.CTkLabel(aba, text="Damping Model:", font=fonte, text_color="#E5C07B").grid(
             row=7, column=0, padx=20, pady=15, sticky="w"
         )
@@ -888,7 +748,6 @@ class ConfigPage(ctk.CTkFrame):
             try:
                 is_cte = self.app_state.cte.get()
                 is_parker = self.app_state.parker.get()
-
                 if is_parker:
                     combo_damping.set("Undamped (Parker)")
                     self.set_parker_inputs_state("disabled")
@@ -909,11 +768,9 @@ class ConfigPage(ctk.CTkFrame):
         aba.grid_columnconfigure(0, weight=1)
         aba.grid_columnconfigure(1, weight=1)
         aba.grid_columnconfigure(2, weight=1)
-
         fonte = ctk.CTkFont(family="Roboto", size=13, weight="normal")
         fonte_var = ctk.CTkFont(family="Roboto", size=12, weight="normal")
         fonte_uni = ctk.CTkFont(family="Roboto", size=12, weight="normal")
-
         campos = [
             (0, "Simulation Distance :", self.app_state.x_sim, "[ R★ ]"),
             (1, "Integration Step :", self.app_state.h_rk, "[ R★ ]"),
@@ -925,14 +782,8 @@ class ConfigPage(ctk.CTkFrame):
             ),
             (3, "Base Velocity Search - Step :", self.app_state.u0_step, "[ ve0 ]"),
             (4, "Critical Point Jump Size :", self.app_state.tamanho_pulo, "[ R★ ]"),
-            (
-                5,
-                "Topology Backtrack Steps :",
-                self.app_state.recuo_pulo,
-                "[ 1e-5 R★ ]",
-            ),
+            (5, "Topology Backtrack Steps :", self.app_state.recuo_pulo, "[ 1e-5 R★ ]"),
         ]
-
         for linha, texto, var, uni in campos:
             ctk.CTkLabel(aba, text=texto, font=fonte, text_color="#E5C07B").grid(
                 row=linha, column=0, padx=20, pady=5, sticky="w"
@@ -948,14 +799,12 @@ class ConfigPage(ctk.CTkFrame):
     def _construir_aba_gp(self, aba):
         fonte = ctk.CTkFont(family="Roboto", size=13, weight="normal")
         fonte_var = ctk.CTkFont(family="Roboto", size=12, weight="normal")
-
         headers = ["Distance [R★]", "Label", "Color [Hex]", "Line Style"]
         for col, text in enumerate(headers):
             aba.grid_columnconfigure(col, weight=1)
             ctk.CTkLabel(aba, text=text, font=fonte, text_color="#E5C07B").grid(
                 row=0, column=col, pady=(5, 5)
             )
-
         for i, ref in enumerate(self.app_state.refs):
             row = i + 1
             ctk.CTkEntry(
@@ -981,7 +830,6 @@ class ConfigPage(ctk.CTkFrame):
                 state="readonly",
             ).grid(row=row, column=3, padx=5, pady=5)
 
-            # --- ADICIONE ESTE BLOCO AQUI (Ainda dentro do for loop) ---
             def make_clear_cmd(r=ref):
                 def clear():
                     r["x"].set("")
@@ -1002,13 +850,9 @@ class ConfigPage(ctk.CTkFrame):
                 command=make_clear_cmd(),
             )
             btn_clear.grid(row=row, column=4, padx=5, pady=5)
-            # -----------------------------------------------------------
-
         row_offset = len(self.app_state.refs) + 1
-
         frame_sigma_header = ctk.CTkFrame(aba, fg_color="transparent")
         frame_sigma_header.grid(row=row_offset, column=0, columnspan=5, pady=(10, 5))
-
         ctk.CTkLabel(
             frame_sigma_header, text="Sigma Zone", font=fonte, text_color="#E5C07B"
         ).pack(side="left", padx=(0, 10))
@@ -1023,27 +867,23 @@ class ConfigPage(ctk.CTkFrame):
             frame_sigma_header,
             text="" if self.img_cancel else "X",
             image=self.img_cancel,
-            width=24,  # Ligeiramente menor para acompanhar o texto
+            width=24,
             height=24,
             fg_color="#282C34",
             hover_color="#75353A",
             command=clear_sigma,
         )
         btn_clear_sigma.pack(side="left")
-
         frame_sigma = ctk.CTkFrame(aba, fg_color="transparent")
         frame_sigma.grid(row=row_offset + 1, column=0, columnspan=5, pady=5)
-
         ctk.CTkLabel(frame_sigma, text="From:").grid(row=0, column=0, padx=5)
         ctk.CTkEntry(
             frame_sigma, textvariable=self.app_state.sigma_ini, font=fonte_var, width=55
         ).grid(row=0, column=1, padx=5)
-
         ctk.CTkLabel(frame_sigma, text="To:").grid(row=0, column=2, padx=(15, 5))
         ctk.CTkEntry(
             frame_sigma, textvariable=self.app_state.sigma_fim, font=fonte_var, width=55
         ).grid(row=0, column=3, padx=5)
-
         ctk.CTkLabel(frame_sigma, text="Label:").grid(row=0, column=4, padx=(15, 5))
         ctk.CTkEntry(
             frame_sigma,
@@ -1051,20 +891,16 @@ class ConfigPage(ctk.CTkFrame):
             font=fonte_var,
             width=50,
         ).grid(row=0, column=5, padx=5)
-
         ctk.CTkLabel(frame_sigma, text="Color:").grid(row=0, column=6, padx=(15, 5))
         ctk.CTkEntry(
             frame_sigma, textvariable=self.app_state.sigma_cor, font=fonte_var, width=75
         ).grid(row=0, column=7, padx=5)
-
         row_offset += 2
         ctk.CTkLabel(aba, text="Axis Scales", font=fonte, text_color="#E5C07B").grid(
             row=row_offset, column=0, columnspan=5, pady=(10, 5)
         )
-
         frame_axis = ctk.CTkFrame(aba, fg_color="transparent")
         frame_axis.grid(row=row_offset + 1, column=0, columnspan=5, pady=5)
-
         estilos_escala = ["log", "linear"]
         ctk.CTkLabel(frame_axis, text="X Axis Scale:").grid(row=0, column=0, padx=5)
         ctk.CTkComboBox(
@@ -1075,7 +911,6 @@ class ConfigPage(ctk.CTkFrame):
             width=100,
             state="readonly",
         ).grid(row=0, column=1, padx=5)
-
         ctk.CTkLabel(frame_axis, text="Y Axis Scale:").grid(
             row=0, column=2, padx=(30, 5)
         )
@@ -1087,16 +922,12 @@ class ConfigPage(ctk.CTkFrame):
             width=100,
             state="readonly",
         ).grid(row=0, column=3, padx=5)
-
-        # ? --- NOVA LÓGICA: Axis Units ---
         row_offset += 2
         ctk.CTkLabel(aba, text="Axis Units", font=fonte, text_color="#E5C07B").grid(
             row=row_offset, column=0, columnspan=5, pady=(10, 5)
         )
-
         frame_units = ctk.CTkFrame(aba, fg_color="transparent")
         frame_units.grid(row=row_offset + 1, column=0, columnspan=5, pady=5)
-
         ctk.CTkLabel(frame_units, text="X Axis Unit:").grid(row=0, column=0, padx=5)
 
         def on_x_unit_change(choice):
@@ -1111,7 +942,6 @@ class ConfigPage(ctk.CTkFrame):
             command=on_x_unit_change,
         )
         combo_x_unit.grid(row=0, column=1, padx=5)
-
         ctk.CTkLabel(frame_units, text="Y Axis Unit:").grid(
             row=0, column=2, padx=(30, 5)
         )
@@ -1133,7 +963,6 @@ class ConfigPage(ctk.CTkFrame):
             try:
                 x_val = self.app_state.units["x_un"].get()
                 y_val = self.app_state.units["y_un"].get()
-
                 combo_x_unit.set("AU" if x_val == "r" else "Normalized")
                 combo_y_unit.set("km/s" if y_val == "u" else "Normalized")
             except Exception:
@@ -1142,8 +971,6 @@ class ConfigPage(ctk.CTkFrame):
         self.app_state.units["x_un"].trace_add("write", sync_combo_units)
         self.app_state.units["y_un"].trace_add("write", sync_combo_units)
         sync_combo_units()
-        # ? -------------------------------
-
         row_offset += 2
         self.btn_update_plot = ctk.CTkButton(
             aba,
@@ -1153,113 +980,23 @@ class ConfigPage(ctk.CTkFrame):
             state="disabled",
             height=25,
         )
-        self.btn_update_plot.grid(row=row_offset, column=0, columnspan=5, pady=(20, 10), sticky="ew")
-
-    def _construir_aba_more(self, aba):
-        aba.grid_columnconfigure(0, weight=1)
-
-        fonte_titulo = ctk.CTkFont(family="Consolas", size=14, weight="bold")
-        fonte_check = ctk.CTkFont(family="Roboto", size=13, weight="normal")
-        fonte_var = ctk.CTkFont(family="Roboto", size=12, weight="normal")
-
-        ctk.CTkLabel(
-            aba,
-            text="Advanced Execution Scripts",
-            font=fonte_titulo,
-            text_color="#E5C07B",
-        ).grid(row=0, column=0, pady=(20, 15), sticky="w", padx=30)
-
-        cb_multicurve = ctk.CTkCheckBox(
-            aba,
-            text="Run Multicurve Analysis (Resonant vs Constant Damping)",
-            variable=self.app_state.multicurve,
-            font=fonte_check,
-            fg_color="#61AFEF",
-            hover_color="#56B6C2",
-            command=self._on_multicurve_toggle,
-        )
-        cb_multicurve.grid(row=1, column=0, padx=30, pady=10, sticky="w")
-        ToolTip(
-            cb_multicurve,
-            "Runs the simulation twice to overlay resonant\n and constant damping velocity profiles.",
+        self.btn_update_plot.grid(
+            row=row_offset, column=0, columnspan=5, pady=(20, 10), sticky="ew"
         )
 
-        cb_searchdv2 = ctk.CTkCheckBox(
-            aba,
-            text="Run DeltaV0² Search Script",
-            variable=self.app_state.searchdv2,
-            font=fonte_check,
-            fg_color="#61AFEF",
-            hover_color="#56B6C2",
-            command=self._alternar_parametros_dv2,
-        )
-        cb_searchdv2.grid(row=2, column=0, padx=30, pady=(10, 0), sticky="w")
-        ToolTip(
-            cb_searchdv2,
-            "Enables optimization algorithm to find the optimal\n initial amplitude for Alfvén waves. \nComputationally expensive.",
-        )
-
-        self.frame_dv2 = ctk.CTkFrame(aba, fg_color="transparent")
-        self.frame_dv2.grid(row=3, column=0, padx=(60, 30), pady=(5, 15), sticky="w")
-
-        self.lbl_ldv2 = ctk.CTkLabel(
-            self.frame_dv2, text="Lower limit:", font=fonte_check
-        )
-        self.lbl_ldv2.grid(row=0, column=0, padx=(0, 5))
-        self.entry_ldv2 = ctk.CTkEntry(
-            self.frame_dv2, textvariable=self.app_state.ldv2, font=fonte_var, width=60
-        )
-        self.entry_ldv2.grid(row=0, column=1, padx=(0, 20))
-
-        self.lbl_hdv2 = ctk.CTkLabel(
-            self.frame_dv2, text="Upper limit:", font=fonte_check
-        )
-        self.lbl_hdv2.grid(row=0, column=2, padx=(0, 5))
-        self.entry_hdv2 = ctk.CTkEntry(
-            self.frame_dv2, textvariable=self.app_state.hdv2, font=fonte_var, width=60
-        )
-        self.entry_hdv2.grid(row=0, column=3, padx=(0, 20))
-
-        self.lbl_stepdv2 = ctk.CTkLabel(self.frame_dv2, text="Step:", font=fonte_check)
-        self.lbl_stepdv2.grid(row=0, column=4, padx=(0, 5))
-        self.entry_stepdv2 = ctk.CTkEntry(
-            self.frame_dv2,
-            textvariable=self.app_state.stepdv2,
-            font=fonte_var,
-            width=60,
-        )
-        self.entry_stepdv2.grid(row=0, column=5, padx=(0, 0))
-
-        self.lbl_contagem_dv2 = ctk.CTkLabel(
-            self.frame_dv2,
-            text="Estimated iterations: 0",
-            font=("Roboto", 11, "normal"),
-            text_color="#5c6269",
-        )
-        self.lbl_contagem_dv2.grid(
-            row=1, column=0, columnspan=6, pady=(8, 0), sticky="e"
-        )
-
-        self.app_state.ldv2.trace_add("write", self._atualizar_contagem_dv2)
-        self.app_state.hdv2.trace_add("write", self._atualizar_contagem_dv2)
-        self.app_state.stepdv2.trace_add("write", self._atualizar_contagem_dv2)
-
-        aba.grid_rowconfigure(4, weight=1)
-        self._alternar_parametros_dv2()
-
-    # * ============================================
-    # * Construtores de Abas (Exoplanetas)
-    # * ============================================
+    #
+    # * ╭────────────────────────────────────────────────────────────────────────────╮
+    # * │   Construtores de Abas (Exoplanetas)                                       │
+    # * ╰────────────────────────────────────────────────────────────────────────────╯
+    #
     def _construir_aba_orbita(self, aba):
         aba.grid_columnconfigure(0, weight=0, minsize=180)
         aba.grid_columnconfigure(1, weight=1)
         aba.grid_columnconfigure(2, weight=3)
         aba.grid_columnconfigure(3, weight=0, minsize=50)
-
         fonte = ctk.CTkFont(family="Roboto", size=13, weight="normal")
         fonte_var = ctk.CTkFont(family="Roboto", size=12, weight="normal")
         fonte_uni = ctk.CTkFont(family="Roboto", size=12, weight="normal")
-
         ctk.CTkLabel(
             aba, text="Exoplanet Designation:", font=fonte, text_color="#E5C07B"
         ).grid(row=0, column=0, padx=20, pady=5, sticky="w")
@@ -1270,7 +1007,6 @@ class ConfigPage(ctk.CTkFrame):
             row=0, column=1, columnspan=2, padx=(10, 0), pady=5, sticky="we"
         )
         self.exo_inputs.append(entry_nome_exo)
-
         ctk.CTkLabel(
             aba, text="Orbital Distance ( Dorb ) :", font=fonte, text_color="#E5C07B"
         ).grid(row=1, column=0, padx=20, pady=5, sticky="w")
@@ -1279,7 +1015,6 @@ class ConfigPage(ctk.CTkFrame):
         )
         entry_dorb.grid(row=1, column=1, padx=(10, 5), pady=5, sticky="w")
         self.exo_inputs.append(entry_dorb)
-
         try:
             valor_minimo = float(self.app_state.Rstar.get()) * rsunAU
             valor_maximo = (
@@ -1290,7 +1025,6 @@ class ConfigPage(ctk.CTkFrame):
         except ValueError:
             valor_minimo = 0.001
             valor_maximo = 0.100
-
         self.slider_dorb = ctk.CTkSlider(
             aba,
             from_=valor_minimo,
@@ -1304,7 +1038,6 @@ class ConfigPage(ctk.CTkFrame):
         )
         self.slider_dorb.grid(row=1, column=2, padx=(5, 10), pady=5, sticky="we")
         self.exo_inputs.append(self.slider_dorb)
-
         ctk.CTkLabel(aba, text=" [ AU ]", font=fonte_uni, text_color="#8b949e").grid(
             row=1, column=3, padx=(0, 20), pady=5, sticky="w"
         )
@@ -1317,7 +1050,6 @@ class ConfigPage(ctk.CTkFrame):
 
         self.app_state.Dorb.trace_add("write", update_dorb_slider)
         update_dorb_slider()
-
         ctk.CTkLabel(
             aba, text="Orbital Eccentricity ( e ) :", font=fonte, text_color="#E5C07B"
         ).grid(row=2, column=0, padx=20, pady=5, sticky="w")
@@ -1327,7 +1059,6 @@ class ConfigPage(ctk.CTkFrame):
         ctk.CTkLabel(aba, text="  [ adm ]", font=fonte_uni, text_color="#8b949e").grid(
             row=2, column=3, padx=(0, 20), pady=5, sticky="w"
         )
-
         ctk.CTkLabel(
             aba, text="Bond Albedo ( Ab ) :", font=fonte, text_color="#E5C07B"
         ).grid(row=3, column=0, padx=20, pady=5, sticky="w")
@@ -1343,11 +1074,9 @@ class ConfigPage(ctk.CTkFrame):
         aba.grid_columnconfigure(1, weight=1)
         aba.grid_columnconfigure(2, weight=3)
         aba.grid_columnconfigure(3, weight=0, minsize=50)
-
         fonte = ctk.CTkFont(family="Roboto", size=13, weight="normal")
         fonte_var = ctk.CTkFont(family="Roboto", size=12, weight="normal")
         fonte_uni = ctk.CTkFont(family="Roboto", size=12, weight="normal")
-
         ctk.CTkLabel(
             aba, text="Planetary Radius ( Rₚ ) :", font=fonte, text_color="#E5C07B"
         ).grid(row=0, column=0, padx=20, pady=5, sticky="w")
@@ -1361,7 +1090,6 @@ class ConfigPage(ctk.CTkFrame):
         ctk.CTkLabel(aba, text="  [ R⊕ ]", font=fonte_uni, text_color="#8b949e").grid(
             row=0, column=3, padx=(0, 20), pady=5, sticky="w"
         )
-
         ctk.CTkLabel(
             aba,
             text="Magnetic Dipole Moment ( Mmag ) :",
@@ -1373,7 +1101,6 @@ class ConfigPage(ctk.CTkFrame):
         )
         entry_mmag.grid(row=1, column=1, padx=(10, 5), pady=5, sticky="w")
         self.exo_inputs.append(entry_mmag)
-
         slider_mmag = ctk.CTkSlider(
             aba,
             from_=1e21,
@@ -1399,7 +1126,6 @@ class ConfigPage(ctk.CTkFrame):
 
         self.app_state.Mmag.trace_add("write", update_mmag_slider)
         update_mmag_slider()
-
         ctk.CTkLabel(
             aba,
             text="Chapman-Ferraro Factor ( f₀ ) :",
@@ -1412,12 +1138,8 @@ class ConfigPage(ctk.CTkFrame):
         ctk.CTkLabel(aba, text="  [ adm ]", font=fonte_uni, text_color="#8b949e").grid(
             row=2, column=3, padx=(0, 20), pady=5, sticky="w"
         )
-
         ctk.CTkLabel(
-            aba,
-            text="Compression Factor ( k ):",
-            font=fonte,
-            text_color="#E5C07B",
+            aba, text="Compression Factor ( k ):", font=fonte, text_color="#E5C07B"
         ).grid(row=3, column=0, padx=20, pady=5, sticky="w")
         entry_k_cme = ctk.CTkEntry(
             aba, textvariable=self.app_state.k_cme, font=fonte_var
@@ -1429,12 +1151,8 @@ class ConfigPage(ctk.CTkFrame):
         ctk.CTkLabel(aba, text="  [ adm ]", font=fonte_uni, text_color="#8b949e").grid(
             row=3, column=3, padx=(0, 20), pady=5, sticky="w"
         )
-
         ctk.CTkLabel(
-            aba,
-            text="Ionosphere Height ( hion ):",
-            font=fonte,
-            text_color="#E5C07B",
+            aba, text="Ionosphere Height ( hion ):", font=fonte, text_color="#E5C07B"
         ).grid(row=4, column=0, padx=20, pady=5, sticky="w")
         entry_hion = ctk.CTkEntry(aba, textvariable=self.app_state.hion, font=fonte_var)
         entry_hion.grid(
@@ -1445,24 +1163,21 @@ class ConfigPage(ctk.CTkFrame):
             row=4, column=3, padx=(0, 20), pady=5, sticky="w"
         )
 
-    # * ============================================
-    # * Lógica Dinâmica da Interface
-    # * ============================================
+    #
+    # * ╭────────────────────────────────────────────────────────────────────────────╮
+    # * │   Lógica Dinâmica da Interface e Ações de Controle                         │
+    # * ╰────────────────────────────────────────────────────────────────────────────╯
+    #
     def _alterar_visual_widget(self, widget, state_str):
-        """Função auxiliar para aplicar cores baseadas no estado."""
         widget.configure(state=state_str)
         if isinstance(widget, ctk.CTkEntry):
             if state_str == "disabled":
                 widget.configure(
-                    text_color="#3c4044",
-                    border_color="#282C34",
-                    fg_color="#1E1E1E",
+                    text_color="#3c4044", border_color="#282C34", fg_color="#1E1E1E"
                 )
             else:
                 widget.configure(
-                    text_color="white",
-                    border_color="#565b5e",
-                    fg_color="#343638",
+                    text_color="white", border_color="#565b5e", fg_color="#343638"
                 )
         elif isinstance(widget, ctk.CTkSlider):
             if state_str == "disabled":
@@ -1486,50 +1201,6 @@ class ConfigPage(ctk.CTkFrame):
         for widget in self.parker_disabled_inputs:
             self._alterar_visual_widget(widget, state_str)
 
-    def _alternar_parametros_dv2(self):
-        estado_ativo = self.app_state.searchdv2.get()
-        if estado_ativo:
-            self.app_state.multicurve.set(False)
-
-        cor_texto = "#8b949e" if estado_ativo else "#5c6269"
-        estado_widget = "normal" if estado_ativo else "disabled"
-
-        self.lbl_ldv2.configure(text_color=cor_texto)
-        self.lbl_hdv2.configure(text_color=cor_texto)
-        self.lbl_stepdv2.configure(text_color=cor_texto)
-
-        self.entry_ldv2.configure(state=estado_widget)
-        self.entry_hdv2.configure(state=estado_widget)
-        self.entry_stepdv2.configure(state=estado_widget)
-
-        if estado_ativo:
-            self.lbl_contagem_dv2.grid()
-            self._atualizar_contagem_dv2()
-        else:
-            self.lbl_contagem_dv2.grid_remove()
-
-    def _on_multicurve_toggle(self):
-        if self.app_state.multicurve.get():
-            self.app_state.searchdv2.set(False)
-            self._alternar_parametros_dv2()
-
-    def _atualizar_contagem_dv2(self, *args):
-        try:
-            min_val = float(self.app_state.ldv2.get())
-            max_val = float(self.app_state.hdv2.get())
-            step_val = float(self.app_state.stepdv2.get())
-
-            if step_val > 0 and max_val > min_val:
-                runs = int(round((max_val - min_val) / step_val, 5))
-                self.lbl_contagem_dv2.configure(text=f"Estimated iterations: {runs}")
-            else:
-                self.lbl_contagem_dv2.configure(text="Estimated iterations: 0")
-        except ValueError:
-            self.lbl_contagem_dv2.configure(text="Estimated iterations: --")
-
-    # * ============================================
-    # * Ações de Controle
-    # * ============================================
     def iniciar_processo(self):
         self.btn_run.configure(state="disabled", text="Calculating...")
         self.on_run_click()

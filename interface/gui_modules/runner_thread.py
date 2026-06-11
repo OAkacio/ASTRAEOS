@@ -1,6 +1,8 @@
-# * ============================================
-# * Importações
-# * ============================================
+#
+# * ╭────────────────────────────────────────────────────────────────────────────╮
+# * │   Importações                                                              │
+# * ╰────────────────────────────────────────────────────────────────────────────╯
+#
 import os
 import sys
 import queue
@@ -8,9 +10,11 @@ import threading
 import multiprocessing
 
 
-# * ============================================
-# * Classes de Controle de Fluxo
-# * ============================================
+#
+# * ╭────────────────────────────────────────────────────────────────────────────╮
+# * │   Classes de Controle de Fluxo                                             │
+# * ╰────────────────────────────────────────────────────────────────────────────╯
+#
 class RedirecionadorPrint:
     def __init__(self, fila):
         self.fila = fila
@@ -31,49 +35,51 @@ class RedirecionadorPrint:
         return False
 
 
-# * ============================================
-# * Rotinas de Execução Isolada
-# * ============================================
+#
+# * ╭────────────────────────────────────────────────────────────────────────────╮
+# * │   Rotinas de Execução Isolada                                              │
+# * ╰────────────────────────────────────────────────────────────────────────────╯
+#
 def motor_isolado(parametros, fila_de_mensagens, fila_de_logs):
-    # ? --- Mapeamento e Segurança de Caminhos ---
+    #
+    # ? ╭────────────────────────────────────────────────────╮
+    # ? │   Mapeamento e Segurança de Caminhos               │
+    # ? ╰────────────────────────────────────────────────────╯
+    #
     ARQUIVO_ATUAL = os.path.abspath(__file__)
     DIR_GUI = os.path.dirname(ARQUIVO_ATUAL)
     DIR_SRC = os.path.dirname(DIR_GUI)
     DIR_RAIZ = os.path.dirname(DIR_SRC)
-
     if DIR_SRC not in sys.path:
         sys.path.insert(0, DIR_SRC)
     if DIR_RAIZ not in sys.path:
         sys.path.insert(0, DIR_RAIZ)
-
     sys.stdout = RedirecionadorPrint(fila_de_logs)
     sys.stderr = RedirecionadorPrint(fila_de_logs)
-
     script_type = parametros.pop("script_type", "main")
-
     try:
-        # ? --- Roteamento Dinâmico de Scripts ---
+        #
+        # ? ╭────────────────────────────────────────────────────╮
+        # ? │   Roteamento Dinâmico de Scripts                   │
+        # ? ╰────────────────────────────────────────────────────╯
+        #
         if script_type == "multicurve":
             from scripts.multiCURVE import main_mc as simulation
 
             simulation(**parametros)
-
         elif script_type == "searchdv2":
             from scripts.searchDV2 import main_sd as simulation
 
             simulation(**parametros)
-
         elif script_type == "exoplanet":
             import numpy as np
             from astraeos_core.habitability import main_hab
             from astropy import constants as const
 
             rsun = const.R_sun.cgs.value
-
             cte = parametros["cte"]
             dados = np.load(f"data/curve_{cte}.npz")
             r0 = parametros["Rstar"] * rsun
-
             main_hab(
                 Lstar=parametros["Lstar"],
                 Teff=parametros["Teff"],
@@ -94,33 +100,29 @@ def motor_isolado(parametros, fila_de_mensagens, fila_de_logs):
                 k_cme=parametros["k_cme"],
                 hion=parametros["hion"],
             )
-
         else:
             from astraeos_core.main import main as simulation
 
             simulation(**parametros)
-
         fila_de_mensagens.put({"success": True})
-
     except Exception as err:
         fila_de_mensagens.put({"success": False, "error": str(err)})
 
 
-# * ============================================
-# * Orquestrador de Threads
-# * ============================================
+#
+# * ╭────────────────────────────────────────────────────────────────────────────╮
+# * │   Orquestrador de Threads                                                  │
+# * ╰────────────────────────────────────────────────────────────────────────────╯
+#
 def run(parametros, callback_sucesso, callback_erro, callback_log):
     def vigia_de_processo():
         fila_msg = multiprocessing.Queue()
         fila_logs = multiprocessing.Queue()
-
         p = multiprocessing.Process(
             target=motor_isolado, args=(parametros, fila_msg, fila_logs)
         )
-
         p.daemon = True
         p.start()
-
         while p.is_alive():
             while True:
                 try:
@@ -129,10 +131,8 @@ def run(parametros, callback_sucesso, callback_erro, callback_log):
                 except queue.Empty:
                     break
             p.join(0.05)
-
         while not fila_logs.empty():
             callback_log(fila_logs.get())
-
         if not fila_msg.empty():
             resposta = fila_msg.get()
             if resposta["success"]:

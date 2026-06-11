@@ -1,15 +1,23 @@
-# * ============================================
-# * Importações
-# * ============================================
+#
+# * ╭────────────────────────────────────────────────────────────────────────────╮
+# * │   Importações                                                              │
+# * ╰────────────────────────────────────────────────────────────────────────────╯
+#
 import customtkinter as ctk
 
 
-# * ============================================
-# * Gerenciador de Estado (AppState)
-# * ============================================
+#
+# * ╭────────────────────────────────────────────────────────────────────────────╮
+# * │   Gerenciador de Estado (AppState)                                         │
+# * ╰────────────────────────────────────────────────────────────────────────────╯
+#
 class AppState:
     def __init__(self):
-        # ? --- Variáveis Astrofísicas e Numéricas ---
+        #
+        # ? ╭────────────────────────────────────────────────────╮
+        # ? │   Variáveis Astrofísicas, Numéricas e Exoplanetas  │
+        # ? ╰────────────────────────────────────────────────────╯
+        #
         self.nome = ctk.StringVar(value="TRAPPIST 1a")
         self.Mstar = ctk.StringVar(value="0.0898")
         self.Rstar = ctk.StringVar(value="0.1192")
@@ -32,8 +40,6 @@ class AppState:
         self.tamanho_pulo = ctk.StringVar(value="0.1")
         self.cte = ctk.BooleanVar(value=False)
         self.parker = ctk.BooleanVar(value=False)
-
-        # ? --- Variáveis de Habitabilidade e Exoplanetas ---
         self.habitabilidade = ctk.BooleanVar(value=False)
         self.exoplanet_name = ctk.StringVar(value="TRAPPIST-1f")
         self.e = ctk.StringVar(value="0.0056")
@@ -44,8 +50,11 @@ class AppState:
         self.Rplan = ctk.StringVar(value="1.045")
         self.k_cme = ctk.StringVar(value="240")
         self.hion = ctk.StringVar(value="1000")
-
-        # ? --- Variáveis de Referência e Gráficos ---
+        #
+        # ? ╭────────────────────────────────────────────────────╮
+        # ? │   Variáveis de Referência e Gráficos               │
+        # ? ╰────────────────────────────────────────────────────╯
+        #
         self.refs = [
             {
                 "x": ctk.StringVar(value="37.0"),
@@ -85,20 +94,12 @@ class AppState:
             "y_un": ctk.StringVar(value="u/ve0"),
         }
 
-        # ? --- Variáveis de Scripts Avançados ---
-        self.multicurve = ctk.BooleanVar(value=False)
-        self.searchdv2 = ctk.BooleanVar(value=False)
-        self.ldv2 = ctk.StringVar(value="0.001")
-        self.hdv2 = ctk.StringVar(value="0.010")
-        self.stepdv2 = ctk.StringVar(value="0.001")
-
-    # * ============================================
-    # * Exportação de Dados (Cofres)
-    # * ============================================
+    #
+    # * ╭────────────────────────────────────────────────────────────────────────────╮
+    # * │   Exportação de Dados (Cofres)                                             │
+    # * ╰────────────────────────────────────────────────────────────────────────────╯
+    #
     def parameters_input(self):
-        """
-        Gera o dicionário de parâmetros físicos e numéricos atuais da interface.
-        """
         return {
             "nome": self.nome.get(),
             "Mstar": float(self.Mstar.get()),
@@ -144,16 +145,13 @@ class AppState:
                 nome_ref.append(rf"{nome_bruto} ; ${round(float(val_x), 1)}$ $R★$")
                 color_ref.append(ref["cor"].get())
                 linestyle_ref.append(ref["estilo"].get())
-
         sigmas_ref, sigmas_nome_ref, sigmas_color_ref = [], [], []
         val_ini = self.sigma_ini.get().strip()
         val_fim = self.sigma_fim.get().strip()
-
         if val_ini and val_fim:
             sigmas_ref.append([float(val_ini), float(val_fim)])
             sigmas_nome_ref.append(self.sigma_nome.get())
             sigmas_color_ref.append(self.sigma_cor.get())
-
         return {
             "x_ref": tuple(x_ref),
             "linestyle_ref": tuple(linestyle_ref),
@@ -166,13 +164,4 @@ class AppState:
             "y_scale": self.axis["Y Axis"].get(),
             "x_un": self.units["x_un"].get(),
             "y_un": self.units["y_un"].get(),
-        }
-
-    def parameters_more_options(self):
-        return {
-            "multicurve": self.multicurve.get(),
-            "searchdv2": self.searchdv2.get(),
-            "ldv2": self.ldv2.get(),
-            "hdv2": self.hdv2.get(),
-            "stepdv2": self.stepdv2.get(),
         }
