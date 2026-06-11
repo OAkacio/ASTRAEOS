@@ -278,12 +278,14 @@ class ConfigPage(ctk.CTkFrame):
     def export_data(self):
         cte = self.app_state.cte.get()
         filepath_npz = os.path.join(os.getcwd(), "data", f"curve_{cte}.npz")
+
         if not os.path.exists(filepath_npz):
             messagebox.showerror(
                 "Export Error",
                 "No simulation data found in memory. Please 'Run Star Simulation' first.",
             )
             return
+
         export_path = filedialog.asksaveasfilename(
             initialdir=os.path.join(os.getcwd(), "data"),
             title="Export Scientific Data",
@@ -330,11 +332,12 @@ class ConfigPage(ctk.CTkFrame):
                         f"# Expansion Factor (S): {val('S_divergencia')} | Transition Factor (F): {val('F')} | Initial Wave Amp (dv0^2): {val('deltav0')}\n"
                     )
                     f.write(
-                        f"# Initial Flux (phi0): {val('phi0')} | Damping Length (L0): {val('L0')} | Constant Damping: {val('cte')}\n"
+                        f"# Initial Flux (phi0): {val('phi0')} | Damping Length (L0): {val('L0')} | Constant Damping: {val('cte')} | Parker Wind: {val('parker')}\n"
                     )
+                    f.write(f"# Mass Loss Rate (dM/dt): {val('dmdt0')} Msun/yr\n")
                     f.write("#\n# [ 3. NUMERICAL SETUP & TOPOLOGY ]\n")
                     f.write(
-                        f"# Simulation Dist: {val('x_sim')} | Step (h_rk): {val('h_rk')} | ve0: {val('ve0')}\n"
+                        f"# Simulation Dist: {val('x_sim')} | Step (h_rk): {val('h_rk')} | ve0: {val('ve0')} | Sound Speed (cs): {val('cs')}\n"
                     )
                     f.write(
                         f"# Search Lower Limit: {val('u0_ini')} | Search Step: {val('u0_step')} | Final Base Vel (u0): {val('u0')}\n"
@@ -349,21 +352,26 @@ class ConfigPage(ctk.CTkFrame):
                         f"# Crit. Numerator Idx: {val('idx_crit_num')} | Crit. Denominator Idx: {val('idx_crit_den')}\n"
                     )
                     f.write("#\n# [ 4. EXOPLANET & HABITABILITY ]\n")
-                    f.write(f"# Exoplanet Simulated: {val('habitabilidade')}\n")
                     f.write(
-                        f"# Exoplanet Name: {val('exoplanet_name')} | Orbital Dist [AU]: {val('Dorb')}\n"
+                        f"# Exoplanet Simulated: {val('habitabilidade')} | Exoplanet Name: {val('exoplanet_name')}\n"
                     )
                     f.write(
-                        f"# Eccentricity: {val('e')} | Bond Albedo: {val('Ab')} | Planet Radius [Rearth]: {val('Rplan')}\n"
+                        f"# Orbital Dist [AU]: {val('Dorb')} | Eccentricity: {val('e')} | Bond Albedo: {val('Ab')} | Planet Radius [Rearth]: {val('Rplan')}\n"
                     )
                     f.write(
-                        f"# Dipole Moment [Am2]: {val('Mmag')} | Magnetospheric compression factor (f0): {val('f0')}\n"
+                        f"# Dipole Moment [Am2]: {val('Mmag')} | Chapman-Ferraro factor (f0): {val('f0')} | CME Factor (k): {val('k_cme')} | Ionosphere (hion): {val('hion')} km\n"
                     )
                     f.write(
-                        f"# Kopparapu Inner Edge: {val('d_int')} | Kopparapu Outer Edge: {val('d_ext')}\n"
+                        f"# Dynamic Pressure at Orbit (P_din): {val('P_din')} dyn/cm2 | Standoff Radius (Rmag): {val('Rmag')} R_earth | Atmos. Lost Area: {val('Aperdida')}%\n"
                     )
                     f.write(
-                        f"# Classic Inner Edge: {val('dc_int')} | Classic Outer Edge: {val('dc_ext')}\n"
+                        f"# Kopparapu Inner Edges: Recent Venus = {val('d_int_rv')} | Runaway = {val('d_int_rg')} | Moist = {val('d_int_mg')}\n"
+                    )
+                    f.write(
+                        f"# Kopparapu Outer Edges: Max Greenhouse = {val('d_ext_mg')} | Early Mars = {val('d_ext_em')}\n"
+                    )
+                    f.write(
+                        f"# Classic Edges: Inner = {val('dc_int')} | Outer = {val('dc_ext')}\n"
                     )
                     f.write("#\n# [ 5. PLOTTING PREFERENCES ]\n")
                     f.write(
@@ -380,13 +388,11 @@ class ConfigPage(ctk.CTkFrame):
                         "x_tot",
                         "y_tot",
                         "va_total",
-                        "cs",
                         "rho_total",
                         "phi_total",
                         "deltav2_total",
-                        "dmdt_total",
-                        "P_din",
-                        "Rmag",
+                        "L_total",
+                        "Pdin_total",
                         "num_alpha_array",
                         "den_alpha_array",
                     ]

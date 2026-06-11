@@ -393,7 +393,6 @@ class AppWindow(ctk.CTk):
     def executar_fisica(self):
         parametros_fisica = self.app_state.parameters_input()
         parametros_plot = self.app_state.parameters_plot()
-        parametros_more = self.app_state.parameters_more_options()
         parametros_completos = {**parametros_fisica, **parametros_plot}
         self.limpar_aba_grafico(self.tab_zh)
         self.limpar_aba_grafico(self.tab_magnetospheric)
