@@ -44,6 +44,14 @@ Além do estudo do plasma estelar, o ASTRAEOS projeta estes ventos na distância
 ## 📸 Interface e Visualizações
 
 <div align="center">
+  <img src="interface/assets/examples/ex.inter.png" width="100%">
+  <p><i>Interface do ASTRAEOS. Contém uma região de exibição de gráficos, configurações de parâmetros de ventos estelares, configurações de parâmetros de simulação de exoplanetas e exibição de feedbacks do software.</i></p>
+</div>
+
+<br>
+
+
+<div align="center">
   <img src="interface/assets/examples/ex.mg.png" width="100%">
   <p><i>Simulação 2D vetorial do impacto do plasma na magnetosfera planetária. Curva azul e vermelha representam a magnetosfera do vento quiescente e atingido por CME, respectivamente. Círculo verde e vermelho pontilhados representam limites empíricos terrestres de raio de magnetopausa para os dias atuais e para o periodo paleoarqueano, respectivamente.</i></p>
 </div>
