@@ -84,3 +84,33 @@ Além do estudo do plasma estelar, o ASTRAEOS projeta estes ventos na distância
 ### Pré-requisitos
 - **Python:** `3.10` ou superior.
 - **Julia:** `1.9` ou superior (Necessário pacote `QuadGK`).
+
+---
+
+## 📜 Citação e Uso Acadêmico
+O **ASTRAEOS** é um projeto de código aberto focado na filosofia de Open Science e pesquisa reprodutível. Se este software foi útil para o seu trabalho, simulação ou artigo acadêmico, por favor, cite-o utilizando o formato abaixo:
+
+```bash
+@misc{acacio2026astraeos,
+  author       = {Acacio, Victor M. and Pereira, Vera J. S.},
+  title        = {ASTRAEOS: Astrophysical Stellar Wind and Exoplanet Environment Simulator},
+  year         = {2026},
+  publisher    = {Zenodo},
+  version      = {v0.1.0},
+  doi          = {10.5281/zenodo.xxxxxxx},
+  url          = {[https://doi.org/10.5281/zenodo.xxxxxxx](https://doi.org/10.5281/zenodo.xxxxxxx)},
+  note         = {Trabalho de Graduação -- Instituto de Astronomia, Geofísica e Ciências Atmosféricas (IAG/USP)}
+}
+```
+
+
+---
+
+## 📄 Licença
+Este projeto está licenciado sob a *Licença MIT*. O uso acadêmico, modificação e distribuição são encorajados.
+
+## 🙏 Agradecimentos
+
+Gostaria de expressar minha profunda gratidão à **Profa. Dra. Vera Jatenco Silva Pereira** pela orientação acadêmica. À **Yasmmin Ferreira Tamburus** por me auxiliar no desenvolvimento do código. Agradecimentos estendidos ao **Instituto de Astronomia, Geofísica e Ciências Atmosféricas da USP** por fornecer o ambiente intelectual para o desenvolvimento desta pesquisa.
+
+---
