@@ -8,7 +8,7 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.xxxxxxx.svg)](https://doi.org/10.5281/zenodo.xxxxxxx)
 [![Status](https://img.shields.io/badge/Status-Beta_v0.1.0-2EA043)](#)
 
-*Uma ferramenta computacional para modelagem Magnetohidrodinâmica (MHD) de ventos estelares e análise de habitabilidade exoplanetária.*
+*O **Astraeos** (ou Atraeu) é um titã grego da astronomia e do crepúsculo, pai das estrelas, dos planetas e dos quatro ventos cardeais: Bóreas, Zéfiro, Noto e Euro.*
 
 </div>
 
