@@ -438,8 +438,8 @@ def plot_plasmaprop(
         v_alpha=0.8,
         v_linestyle=["--", *linestyle_ref],
         hlines=[1],
-        h_colors=["#6C95E0"],
-        h_alpha=0.7,
+        h_colors=["#5C6370"],
+        h_alpha=0.2,
         h_labels=None,
         h_linestyle=[":"],
         curve_names=[
