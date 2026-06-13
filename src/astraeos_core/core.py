@@ -11,6 +11,8 @@ except ImportError:
     from lib import *
     from utils import *
     from parameters import *
+
+
 #
 # * ╭────────────────────────────────────────────────────────────────────────────╮
 # * │   Rotinas Principais                                                       │
@@ -58,6 +60,8 @@ def calc_param(
     vT = cs / ve0
     x_t = 0 if S_divergencia == 2.0 else F ** (1.0 / (S_divergencia - 2.0))
     return ve0, cs, vA0, vT, x_t, r0, M
+
+
 #
 # ? ╭────────────────────────────────────────────────────╮
 # ? │   Encontra Pontos de Anulamento                    │
@@ -98,6 +102,8 @@ def zerosND(x_int, y_int, x_ext, y_ext, num_alpha_list, den_alpha_list):
         idx_crit_num,
         idx_crit_den,
     )
+
+
 #
 # ? ╭────────────────────────────────────────────────────╮
 # ? │   Encontra o Valor X que se aproxima do valor Y    │
@@ -105,6 +111,8 @@ def zerosND(x_int, y_int, x_ext, y_ext, num_alpha_list, den_alpha_list):
 #
 def find_i(lista, valor):
     return min(range(len(lista)), key=lambda i: abs(lista[i] - valor))
+
+
 #
 # * ╭────────────────────────────────────────────────────────────────────────────╮
 # * │   Rotinas de Zona Habitável                                                │
@@ -142,6 +150,8 @@ def Seff_int(Teff, tipo):
             + d_int_mg * T_dif**4
         )
     return x
+
+
 #
 # ? ╭────────────────────────────────────────────────────╮
 # ? │   Fluxo Efetivo Externo                            │
@@ -166,6 +176,8 @@ def Seff_ext(Teff, tipo):
             + d_ext_em * T_dif**4
         )
     return x
+
+
 #
 # ? ╭────────────────────────────────────────────────────╮
 # ? │   Distância de Zona Habitável                      │
@@ -185,6 +197,8 @@ def distancia_habitavel(Lstar, Teff, e, Rstar_sun):
     d_ext_mg = d_ext_au_mg * fator_conversao
     d_ext_em = d_ext_au_em * fator_conversao
     return d_int_rv, d_int_rg, d_int_mg, d_ext_mg, d_ext_em
+
+
 #
 # ? ╭────────────────────────────────────────────────────╮
 # ? │   Distância de Zona Habitável Clássica             │
@@ -196,6 +210,8 @@ def distancia_habitavel_classic(Rstar_sun, Teff, Ab):
     d_ext_au = Rstar_au * 0.5 * (Teff / Teq_ext) ** 2 * (1 - Ab) ** 0.5
     fator_conversao = au_cgs / (Rstar_sun * rsun)
     return d_int_au * fator_conversao, d_ext_au * fator_conversao
+
+
 #
 # * ╭────────────────────────────────────────────────────────────────────────────╮
 # * │   Rotinas de Magnetosfera                                                  │
@@ -210,6 +226,8 @@ def Pram(rho_cgs, u_ve0, ve0_cgs):
     u_cgs = u_ve0 * ve0_cgs
     conversao_cgs_to_SI = 0.1
     return (rho_cgs * u_cgs**2) * conversao_cgs_to_SI
+
+
 #
 # ? ╭────────────────────────────────────────────────────╮
 # ? │   Raio Magnetosfera                                │
@@ -220,6 +238,8 @@ def raio_magnetosfera(rho_cgs, u_ve0, ve0_cgs, f0, Mmag_AM2):
     D = 8 * pi**2 * Pram(rho_cgs, u_ve0, ve0_cgs)
     convcersao_SI_to_RaiosTerrastres = 1 / Rterra
     return ((N / D) ** (1 / 6)) * convcersao_SI_to_RaiosTerrastres
+
+
 #
 # ? ╭────────────────────────────────────────────────────╮
 # ? │   Status da Magnetosfera                           │
@@ -233,6 +253,8 @@ def exo_status(Rmag_RT, Rplan_RT):
         return "Compressed Magnetosphere", "Marginal Zone", "cyan"
     else:
         return "Sub-critical Shield", "Unsafe Zone", "red"
+
+
 #
 # ? ╭────────────────────────────────────────────────────╮
 # ? │   Área de Erosão Direta                            │
@@ -240,5 +262,6 @@ def exo_status(Rmag_RT, Rplan_RT):
 #
 def Apc(Rmg_terra, Rio_km):
     Rmg, Rio = Rmg_terra * Rterra / 1000, Rio_km
-    At=4*pi*Rio**2
-    return (100*(2 * pi * Rio ** 3) / (Rmg))/At
+    At = 4 * pi * Rio**2
+    x = (100 * (2 * pi * Rio**3) / (Rmg)) / At
+    return x if x <= 100 else 100
