@@ -1,5 +1,9 @@
 <div align="center">
 
+<div align="center">
+  <img src="interface/assets/logo_a_astraeos.png" width="100%">
+</div>
+
 # 🌌 ASTRAEOS
 
 [![Python Version](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)](#)
