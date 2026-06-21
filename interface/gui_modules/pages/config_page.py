@@ -6,17 +6,29 @@
 import tkinter as tk
 import customtkinter as ctk
 import json
+import sys
 import os
 import numpy as np
 from tkinter import filedialog, messagebox
 from PIL import Image
 import threading
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+def get_resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except AttributeError:
+        base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    return os.path.join(base_path, relative_path)
+#
+# ? ╭────────────────────────────────────────────────────╮
+# ? │   Configuração de Caminhos Globais                 │
+# ? ╰────────────────────────────────────────────────────╯
+#
+PRESETS_PATH = get_resource_path("interface/gui_modules/presets")
+BASE_DIR = get_resource_path("")
 SRC_PATH = os.path.join(BASE_DIR, "src")
+if SRC_PATH not in sys.path:
+    sys.path.append(SRC_PATH)
 from astraeos_core.utils import *
-
-
 #
 # * ╭────────────────────────────────────────────────────────────────────────────╮
 # * │   Componentes de Interface Auxiliares                                      │
@@ -271,7 +283,7 @@ class ConfigPage(ctk.CTkFrame):
             text_color="#ABB2BF",
         )
         txt.pack(fill="both", expand=True, padx=20, pady=20)
-        conteudo = "ASTRAEOS - Astrophysical Stellar Wind and Exoplanet Environment Simulator\nVersion: v0.1.0\nDeveloper: Victor M. Acacio\n\n■ Objective:\nA highly customizable suite for Magnetohydrodynamic (MHD) modeling of stellar winds in late-type stars (e.g., M-dwarfs) and analyzing their direct impact on exoplanet habitability and magnetospheric boundaries.\n\n■ Methods & Framework:\nPowered by a robust Runge-Kutta (RK4) integrator coupled with dynamic critical point topology resolution (L'Hôpital limits) in Julia. The software incorporates classical and Kopparapu habitable zones, alongside Chapman-Ferraro standoff calculations.\n\n■ Open Science & Reproducibility:\nASTRAEOS is built with a strong commitment to open reproducible research. All arrays and variables are fully exportable for independent statistical analysis and plotting via external engines like R or Python.\n\n■ Acknowledgments:\nDeveloped at the Institute of Astronomy, Geophysics and Atmospheric Sciences (IAG/USP). Special thanks to the academic guidance of Profa. Dra. Vera Jatenco Silva Pereira."
+        conteudo = "ASTRAEOS - Astrophysical Stellar Wind and Exoplanet Environment Simulator\nVersion: v1.0.0\nDeveloper: Victor M. Acacio\n\n■ Objective:\nA highly customizable suite for Magnetohydrodynamic (MHD) modeling of stellar winds in late-type stars (e.g., M-dwarfs) and analyzing their direct impact on exoplanet habitability and magnetospheric boundaries.\n\n■ Methods & Framework:\nPowered by a robust Runge-Kutta (RK4) integrator coupled with dynamic critical point topology resolution (L'Hôpital limits) in Julia. The software incorporates classical and Kopparapu habitable zones, alongside Chapman-Ferraro standoff calculations.\n\n■ Open Science & Reproducibility:\nASTRAEOS is built with a strong commitment to open reproducible research. All arrays and variables are fully exportable for independent statistical analysis and plotting via external engines like R or Python.\n\n■ Acknowledgments:\nDeveloped at the Institute of Astronomy, Geophysics and Atmospheric Sciences (IAG/USP). Special thanks to the academic guidance of Profa. Dra. Vera Jatenco Silva Pereira."
         txt.insert("0.0", conteudo)
         txt.configure(state="disabled")
 

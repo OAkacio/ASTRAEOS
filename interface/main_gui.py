@@ -12,16 +12,25 @@ from PIL import Image
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from tkinter import filedialog
 
+
 #
 # ? ╭────────────────────────────────────────────────────╮
 # ? │   Configuração de Caminhos Globais                 │
 # ? ╰────────────────────────────────────────────────────╯
 #
+def get_resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except AttributeError:
+        base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
+
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC_PATH = os.path.join(BASE_DIR, "src")
 if SRC_PATH not in sys.path:
     sys.path.append(SRC_PATH)
-ASSETS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
+ASSETS_PATH = get_resource_path("interface/assets")
 caminho_icone = os.path.join(ASSETS_PATH, "icon.ico")
 from gui_modules.app_state import AppState
 from gui_modules.pages.config_page import ConfigPage
@@ -50,7 +59,7 @@ class AppWindow(ctk.CTk):
         # ? │   Configurações da Janela                          │
         # ? ╰────────────────────────────────────────────────────╯
         #
-        self.title("ASTRAEOS v0.1.0")
+        self.title("ASTRAEOS v1.0.0")
         self.geometry("1280x720")
         self.minsize(1024, 768)
         self.after(0, lambda: self.state("zoomed"))
