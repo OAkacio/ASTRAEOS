@@ -12,12 +12,18 @@ import numpy as np
 from tkinter import filedialog, messagebox
 from PIL import Image
 import threading
+
+
 def get_resource_path(relative_path):
     try:
         base_path = sys._MEIPASS
     except AttributeError:
-        base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        base_path = os.path.dirname(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        )
     return os.path.join(base_path, relative_path)
+
+
 #
 # ? ╭────────────────────────────────────────────────────╮
 # ? │   Configuração de Caminhos Globais                 │
@@ -29,6 +35,8 @@ SRC_PATH = os.path.join(BASE_DIR, "src")
 if SRC_PATH not in sys.path:
     sys.path.append(SRC_PATH)
 from astraeos_core.utils import *
+
+
 #
 # * ╭────────────────────────────────────────────────────────────────────────────╮
 # * │   Componentes de Interface Auxiliares                                      │
@@ -283,7 +291,15 @@ class ConfigPage(ctk.CTkFrame):
             text_color="#ABB2BF",
         )
         txt.pack(fill="both", expand=True, padx=20, pady=20)
-        conteudo = "ASTRAEOS - Astrophysical Stellar Wind and Exoplanet Environment Simulator\nVersion: v1.0.0\nDeveloper: Victor M. Acacio\n\n■ Objective:\nA highly customizable suite for Magnetohydrodynamic (MHD) modeling of stellar winds in late-type stars (e.g., M-dwarfs) and analyzing their direct impact on exoplanet habitability and magnetospheric boundaries.\n\n■ Methods & Framework:\nPowered by a robust Runge-Kutta (RK4) integrator coupled with dynamic critical point topology resolution (L'Hôpital limits) in Julia. The software incorporates classical and Kopparapu habitable zones, alongside Chapman-Ferraro standoff calculations.\n\n■ Open Science & Reproducibility:\nASTRAEOS is built with a strong commitment to open reproducible research. All arrays and variables are fully exportable for independent statistical analysis and plotting via external engines like R or Python.\n\n■ Acknowledgments:\nDeveloped at the Institute of Astronomy, Geophysics and Atmospheric Sciences (IAG/USP). Special thanks to the academic guidance of Profa. Dra. Vera Jatenco Silva Pereira."
+        conteudo = (
+            "ASTRAEOS\nDeveloper: Victor M. Acacio\n\n"
+            "■ Objective:\n"
+            "A highly customizable suite for Magnetohydrodynamic (MHD) modeling of stellar winds in late-type stars (e.g., M-dwarfs) and analyzing their direct impact on exoplanet habitability and magnetospheric boundaries.\n\n"
+            "■ Methods & Framework:\n"
+            "Powered by a robust Runge-Kutta (RK4) integrator coupled with dynamic critical point topology resolution (L'Hôpital limits) in Julia. The software incorporates classical and Kopparapu habitable zones, alongside Chapman-Ferraro standoff calculations.\n\n"
+            "■ Open Science & Reproducibility:\n"
+            "ASTRAEOS is built with a strong commitment to open reproducible research. All arrays and variables are fully exportable for independent statistical analysis and plotting via external engines like R or Python.\n\n"
+        )
         txt.insert("0.0", conteudo)
         txt.configure(state="disabled")
 
@@ -654,9 +670,17 @@ class ConfigPage(ctk.CTkFrame):
         ).grid(
             row=linha_atual, column=0, columnspan=3, pady=(25, 5), sticky="w", padx=20
         )
-        presets_dir = os.path.join(BASE_DIR, "presets")
-        os.makedirs(presets_dir, exist_ok=True)
-        arquivos_json = [f for f in os.listdir(presets_dir) if f.endswith(".json")]
+        presets_dir = PRESETS_PATH
+        try:
+            os.makedirs(presets_dir, exist_ok=True)
+        except OSError:
+            pass
+
+        if os.path.exists(presets_dir):
+            arquivos_json = [f for f in os.listdir(presets_dir) if f.endswith(".json")]
+        else:
+            arquivos_json = []
+
         if not arquivos_json:
             linha_atual += 1
             ctk.CTkLabel(
