@@ -7,10 +7,10 @@
 # 🌌 ASTRAEOS
 
 [![Python Version](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)](#)
-[![Julia Core](https://img.shields.io/badge/Julia-1.9%2B-9558B2?logo=julia&logoColor=white)](#)
+[![C23](https://img.shields.io/badge/C-23-00599C?logo=c&logoColor=white)](#)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.xxxxxxx.svg)](https://doi.org/10.5281/zenodo.xxxxxxx)
-[![Status](https://img.shields.io/badge/Status-Beta_v0.1.0-2EA043)](#)
+[![Status](https://img.shields.io/badge/Status-Beta_v1.0.0-2EA043)](#)
 
 *O **Astraeos** (ou Atraeu) é um titã grego da astronomia e do crepúsculo, pai das estrelas, dos planetas e dos quatro ventos cardeais: Bóreas, Zéfiro, Noto e Euro.*
 
@@ -21,7 +21,7 @@
 ## 🏛️ Informações Acadêmicas
 > **Instituição:** Instituto de Astronomia, Geofísica e Ciências Atmosféricas (IAG) — Universidade de São Paulo (USP) <br>
 > **Desenvolvedor:** Victor Moreira Acacio [![ORCID](https://img.shields.io/badge/ORCID-0009--0007--4484--2129-A6CE39?logo=orcid&logoColor=white)](https://orcid.org/0009-0007-4484-2129) <br>
-> **Orientação:** Profa. Dra. Vera Jatenco Silva Pereira <br>
+> **Orientação:** Profa. Dra. Vera Jatenco Silva Pereira [![ORCID](https://img.shields.io/badge/ORCID-0000--0002--1517--0710-A6CE39?logo=orcid&logoColor=white)](https://orcid.org/0000-0002-1517-0710) <br>
 > **Projeto:** Trabalho de Graduação (TG) — Bacharelado em Astronomia <br>
 > **Data:** 2026
 
@@ -29,18 +29,18 @@
 
 ## 🔭 Sobre o ASTRAEOS
 
-O **ASTRAEOS** foi criado para estudar a física entre a astrofísica estelar teórica e a análise de ambientes exoplanetários. Utilizando uma arquitetura híbrida (Python e Julia), o software permite calcular perfis de vento estelar através de modelos de amortecimento de ondas de Alfvén (Jatenco-Pereira & Opher, 1989), contrastando-os com o clássico vento termo-dirigido de Parker.
+O **ASTRAEOS** foi criado para estudar a física entre a astrofísica estelar teórica e a análise de ambientes exoplanetários. Utilizando uma arquitetura híbrida (Python e C), o software permite calcular perfis de vento estelar através de modelos distintos como por amortecimento de ondas de Alfvén (Jatenco-Pereira & Opher, 1989) ou o clássico vento térmico de Parker.
 
-Além do estudo do plasma estelar, o ASTRAEOS projeta estes ventos na distância orbital de exoplanetas, calculando a **pressão dinâmica**, os **limites da magnetopausa** e o impacto severo de **Ejeções de Massa Coronal (CMEs)**. Também é dotado de um mapeamento das Zonas Habitáveis clássicas e modernas (Kopparapu et al., 2013).
+Além do estudo do plasma estelar, o ASTRAEOS projeta estes ventos na distância orbital de exoplanetas, calculando a **pressão dinâmica**, os **limites da magnetopausa** e o impacto severo de **Ejeções de Massa Coronal (CMEs)**. Também é dotado de um mapeamento das Zonas Habitáveis clássicas e de Kopparapu et al. (2013).
 
 ---
 
 ## ✨ Principais Funcionalidades
 
-- 🚀 **Motor Numérico em JULIA:** Algoritmo de busca topológica com integração Runge-Kutta (RK4) escrito em Julia para máxima performance, lidando dinamicamente com as singularidades através das regras de L'Hôpital.
-- 🌊 **Modelagem de Ventos:** Suporte a modelos de amortecimento de onda Constante e Ressonante, além da solução de vento térmico puro (Parker Wind).
+- 🚀 **Motor Numérico em C:** Algoritmo de busca topológica com integração Runge-Kutta (RK4) escrito em C para máxima performance, lidando dinamicamente com as singularidades através das regras de L'Hôpital.
+- 🌊 **Modelagem de Ventos:** Atualmente conta com suporte a modelo JPO de amortecimento de onda (Constante e Ressonante) e modelo de vento térmico puro (Parker).
 - 🪐 **Mapa de Habitabilidade:** Visualização polar das fronteiras da Zona Habitável (Recent Venus, Runaway/Moist/Maximum Greenhouse, Early Mars).
-- 🛡️ **Escudo Magnetosférico:** Simulação vetorial 2D da magnetosfera do exoplaneta com Dipolo comprimido sob fluxo de plasma quiescente e durante impactos de CME.
+- 🛡️ **Escudo Magnetosférico:** Simulação vetorial 2D da magnetosfera do exoplaneta com campo magnético comprimido sob fluxo de plasma quiescente e durante impactos de CME.
 - 📊 **Open Science:** Exportação limpa de matrizes `.npz` e `.csv` contendo todas as variáveis físicas e resultados obtidos para reprodutibilidade e plotagem independente.
 
 ---
@@ -86,35 +86,23 @@ Além do estudo do plasma estelar, o ASTRAEOS projeta estes ventos na distância
 ## ⚙️ Instalação e Requisitos
 
 ### Pré-requisitos
-- **Python:** `3.10` ou superior.
-- **Julia:** `1.9` ou superior (Necessário pacote `QuadGK`).
+O seu simulador já vem empacotado e pronto para uso! Tudo o que você precisa é:
+- **Sistema Operacional:** Windows 10 ou superior
 
----
-
-## 📜 Citação e Uso Acadêmico
-O **ASTRAEOS** é um projeto de código aberto focado na filosofia de Open Science e pesquisa reprodutível. Se este software foi útil para o seu trabalho, simulação ou artigo acadêmico, por favor, cite-o utilizando o formato abaixo:
-
-```bash
-@misc{acacio2026astraeos,
-  author       = {Acacio, Victor M. and Pereira, Vera J. S.},
-  title        = {ASTRAEOS: Astrophysical Stellar Wind and Exoplanet Environment Simulator},
-  year         = {2026},
-  publisher    = {Zenodo},
-  version      = {v0.1.0},
-  doi          = {10.5281/zenodo.xxxxxxx},
-  url          = {[https://doi.org/10.5281/zenodo.xxxxxxx](https://doi.org/10.5281/zenodo.xxxxxxx)},
-  note         = {Trabalho de Graduação -- Instituto de Astronomia, Geofísica e Ciências Atmosféricas (IAG/USP)}
-}
-```
-
+### Como rodar
+1. Baixe o arquivo `.zip` ou o instalador mais recente na aba [Releases](#).
+2. Extraia o conteúdo para uma pasta de sua preferência.
+3. Dê dois cliques no executável `ASTRAEOS.exe` para iniciar.
 
 ---
 
 ## 📄 Licença
 Este projeto está licenciado sob a *Licença MIT*. O uso acadêmico, modificação e distribuição são encorajados.
 
+---
+
 ## 🙏 Agradecimentos
 
-Gostaria de expressar minha profunda gratidão à **Profa. Dra. Vera Jatenco Silva Pereira** pela orientação acadêmica. À **Yasmmin Ferreira Tamburus** por me auxiliar no desenvolvimento do código. Agradecimentos estendidos ao **Instituto de Astronomia, Geofísica e Ciências Atmosféricas da USP** por fornecer o ambiente intelectual para o desenvolvimento desta pesquisa.
+Gostaria de expressar minha profunda gratidão à **Profa. Dra. Vera Jatenco Silva Pereira** pela orientação acadêmica. À **Yasmmin Ferreira Tamburus** pelo auxílio no desenvolvimento do código. Agradecimentos estendidos ao **Instituto de Astronomia, Geofísica e Ciências Atmosféricas da USP** por fornecer o ambiente intelectual para o desenvolvimento desta pesquisa.
 
 ---
