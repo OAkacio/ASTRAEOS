@@ -291,15 +291,29 @@ class ConfigPage(ctk.CTkFrame):
             text_color="#ABB2BF",
         )
         txt.pack(fill="both", expand=True, padx=20, pady=20)
-        conteudo = (
-            "ASTRAEOS\nDeveloper: Victor M. Acacio\n\n"
-            "■ Objective:\n"
-            "A highly customizable suite for Magnetohydrodynamic (MHD) modeling of stellar winds in late-type stars (e.g., M-dwarfs) and analyzing their direct impact on exoplanet habitability and magnetospheric boundaries.\n\n"
-            "■ Methods & Framework:\n"
-            "Powered by a robust Runge-Kutta (RK4) integrator coupled with dynamic critical point topology resolution (L'Hôpital limits) in Julia. The software incorporates classical and Kopparapu habitable zones, alongside Chapman-Ferraro standoff calculations.\n\n"
-            "■ Open Science & Reproducibility:\n"
-            "ASTRAEOS is built with a strong commitment to open reproducible research. All arrays and variables are fully exportable for independent statistical analysis and plotting via external engines like R or Python.\n\n"
-        )
+        VERSAO_ASTRAEOS = "v1.0.0"
+        MODELO_MHD_ATUAL = "Modelo JPO (Jatenco-Pereira & Opher) com amortecimento de Ondas de Alfvén"
+        MODELO_TERMICO = "Modelo de Parker (Termicamente Impulsionado)"
+
+        texto_about = f"""ASTRAEOS Version: {VERSAO_ASTRAEOS} 
+        Developer: Victor M. Acacio
+
+        ■ Scientific Objective
+        A computational suite optimized for magnetohydrodynamic (MHD) modeling of stellar winds. ASTRAEOS aims to investigate wind topology and quantify the impact of dynamic pressure on magnetospheric compression and the habitability of exoplanetary systems.
+
+        ■ Physical and Numerical Models
+        The key advantage of the simulator's architecture is its ability to contrast purely thermal winds ({MODELO_TERMICO}) with models driven by plasma wave pressure ({MODELO_MHD_ATUAL}). The software numerically resolves the momentum balance by incorporating Alfvén wave flux and different damping regimes (constant or resonant), which are crucial for explaining the high mass-loss rates in red dwarfs. The numerical core is powered by high-precision Runge-Kutta (RK4) integrators coupled with optimized search algorithms to solve the critical point topology.
+
+        ■ Key Features
+        • Generation of dynamic radial profiles (velocity, density, wave flux, and dynamic pressure).
+        • Delimitation of classic Habitable Zones (Kopparapu limits).
+        • Calculation of the magnetopause radius and analysis of CME impacts on the magnetosphere.
+        • Native and structured export of numerical data matrices, ensuring full compliance with Open Science best practices and reproducibility.
+
+        ■ Academic Information
+        Developed with the support of the Institute of Astronomy, Geophysics and Atmospheric Sciences of the University of São Paulo (IAG-USP). Undergraduate Thesis (TG) under the advisement of Prof. Dr. Vera Jatenco Silva Pereira."""
+
+        conteudo = (texto_about)
         txt.insert("0.0", conteudo)
         txt.configure(state="disabled")
 
