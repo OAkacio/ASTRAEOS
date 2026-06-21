@@ -9,7 +9,7 @@
 [![Python Version](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)](#)
 [![C23](https://img.shields.io/badge/C-23-00599C?logo=c&logoColor=white)](#)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.xxxxxxx.svg)](https://doi.org/10.5281/zenodo.xxxxxxx)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20786605.svg)](https://doi.org/10.5281/zenodo.20786605)
 [![Status](https://img.shields.io/badge/Status-Beta_v1.0.0-2EA043)](#)
 
 *O **Astraeos** (ou Atraeu) é um titã grego da astronomia e do crepúsculo, pai das estrelas, dos planetas e dos quatro ventos cardeais: Bóreas, Zéfiro, Noto e Euro.*
