@@ -152,7 +152,7 @@ def main(
         #
         sy.status("Searching for base velocity and critical point...", flush=True)
         time.sleep(1)
-        u0, x_crit, y_crit, r_crit, x_append, y_append, vetor = jl.busca_u0(
+        u0, x_crit, y_crit, r_crit, x_append, y_append, vetor = busca_u0(
             vT,
             [B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S_divergencia, 0.0, phi0, F],
             u0_step,
@@ -191,7 +191,7 @@ def main(
             dmdt0,
             L_total,
             Pdin_total,
-        ) = jl.integra_perfil(
+        ) = integra_perfil(
             u0,
             x_crit,
             y_crit,
@@ -231,7 +231,7 @@ def main(
             dmdt0,
             L_total,
             Pdin_total,
-        ) = jl.integra_perfil_parker(cs, G, M, ve0, r0, rho0, x_sim, h_rk, rsun)
+        ) = integra_perfil_parker(cs, G, M, ve0, r0, rho0, x_sim, h_rk, rsun)
         r_crit = 1.0
         sy.param(
             ("Base Velocity", u0 * ve0 / 1e5, "km/s"),
