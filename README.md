@@ -94,6 +94,11 @@ O seu simulador já vem empacotado e pronto para uso! Tudo o que você precisa �
 2. Extraia o conteúdo para uma pasta de sua preferência.
 3. Dê dois cliques no executável `ASTRAEOS.exe` para iniciar.
 
+### *Alerta de Vírus*
+O ASTRAEOS é empacotado utilizando a biblioteca PyInstaller. O mecanismo cria arquivos temporários que, por vezes, são classificados incorretamente pelo Windows Defender como um trojan (falso positivo). Para solucionar isso, basta adicionar o executável às exceções de segurança nas configurações de proteção do Windows.
+
+Como alternativa, se preferir executar o código-fonte integralmente, basta baixar o *source-code* e rodar o arquivo `main_gui.py` (é necessário ter o Python e o compilador C configurados em sua máquina).
+
 ---
 
 ## 📄 Licença
