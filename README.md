@@ -9,8 +9,8 @@
 [![Python Version](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)](#)
 [![C23](https://img.shields.io/badge/C-23-00599C?logo=c&logoColor=white)](#)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.xxxxxxx.svg)](https://doi.org/10.5281/zenodo.xxxxxxx)
-[![Status](https://img.shields.io/badge/Status-Beta_v1.0.0-2EA043)](#)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20786605.svg)](https://doi.org/10.5281/zenodo.20786605)
+[![Status](https://img.shields.io/badge/Status-v1.0.0-2EA043)](#)
 
 *O **Astraeos** (ou Atraeu) é um titã grego da astronomia e do crepúsculo, pai das estrelas, dos planetas e dos quatro ventos cardeais: Bóreas, Zéfiro, Noto e Euro.*
 
@@ -93,6 +93,11 @@ O seu simulador já vem empacotado e pronto para uso! Tudo o que você precisa �
 1. Baixe o arquivo `.zip` ou o instalador mais recente na aba [Releases](#).
 2. Extraia o conteúdo para uma pasta de sua preferência.
 3. Dê dois cliques no executável `ASTRAEOS.exe` para iniciar.
+
+### *Alerta de Vírus*
+O ASTRAEOS é empacotado utilizando a biblioteca PyInstaller. O mecanismo cria arquivos temporários que, por vezes, são classificados incorretamente pelo Windows Defender como um trojan (falso positivo). Para solucionar isso, basta adicionar o executável às exceções de segurança nas configurações de proteção do Windows.
+
+Como alternativa, se preferir executar o código-fonte integralmente, basta baixar o *source-code* e rodar o arquivo `main_gui.py` (é necessário ter o Python e o compilador C configurados em sua máquina).
 
 ---
 
