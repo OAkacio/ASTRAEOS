@@ -161,7 +161,6 @@ def main(
             u0ini = u0_ini
 
             while err > autotol:
-                print("entrou")
                 u0, x_crit, y_crit, r_crit, x_append, y_append, vetor = busca_u0(
                     vT,
                     [
@@ -184,13 +183,12 @@ def main(
                     cb_u0,
                 )
                 err = np.abs(u0 - u0test)
-                print("saiu")
                 if err < autotol:
                     break
                 else:
                     u0test = u0
                     u0ini = u0 - u0step
-                    u0step = u0step / 2
+                    u0step = u0step / 10
         else:
             u0, x_crit, y_crit, r_crit, x_append, y_append, vetor = busca_u0(
                 vT,
