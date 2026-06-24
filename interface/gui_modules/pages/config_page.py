@@ -214,7 +214,7 @@ class ConfigPage(ctk.CTkFrame):
         )
         self.btn_about.grid(row=0, column=4, sticky="e")
         ToolTip(self.btn_about, "About")
-        self.tabview = ctk.CTkTabview(self.scroll_area, height=250)
+        self.tabview = ctk.CTkTabview(self.scroll_area, height=440)
         self.tabview.grid(row=1, column=0, padx=20, pady=5, sticky="nsew")
         aba_astro = self.tabview.add("Star & Corona")
         aba_onda = self.tabview.add("Wind & Wave")
@@ -292,7 +292,9 @@ class ConfigPage(ctk.CTkFrame):
         )
         txt.pack(fill="both", expand=True, padx=20, pady=20)
         VERSAO_ASTRAEOS = "v1.0.0"
-        MODELO_MHD_ATUAL = "Modelo JPO (Jatenco-Pereira & Opher) com amortecimento de Ondas de Alfvén"
+        MODELO_MHD_ATUAL = (
+            "Modelo JPO (Jatenco-Pereira & Opher) com amortecimento de Ondas de Alfvén"
+        )
         MODELO_TERMICO = "Modelo de Parker (Termicamente Impulsionado)"
 
         texto_about = f"""ASTRAEOS Version: {VERSAO_ASTRAEOS} 
@@ -313,7 +315,7 @@ class ConfigPage(ctk.CTkFrame):
         ■ Academic Information
         Developed with the support of the Institute of Astronomy, Geophysics and Atmospheric Sciences of the University of São Paulo (IAG-USP). Undergraduate Thesis (TG) under the advisement of Prof. Dr. Vera Jatenco Silva Pereira."""
 
-        conteudo = (texto_about)
+        conteudo = texto_about
         txt.insert("0.0", conteudo)
         txt.configure(state="disabled")
 
@@ -747,24 +749,84 @@ class ConfigPage(ctk.CTkFrame):
         aba.grid_rowconfigure(linha_atual + 1, weight=1, minsize=10)
 
     def _construir_aba_onda(self, aba):
-        aba.grid_columnconfigure(0, weight=1)
+        aba.grid_columnconfigure(0, weight=0, minsize=200)
         aba.grid_columnconfigure(1, weight=1)
         aba.grid_columnconfigure(2, weight=1)
+
+        # ====================================================================
+        # WIDGET DO GRÁFICO DINÂMICO (NO TOPO)
+        # ====================================================================
+        self.frame_geom = ctk.CTkFrame(aba, fg_color="#1E1E1E", corner_radius=8, height=160)
+        self.frame_geom.grid(row=0, column=0, columnspan=3, padx=20, pady=(10, 15), sticky="ew")
+        self.frame_geom.pack_propagate(False)
+
+        self.lbl_geom_wait = ctk.CTkLabel(
+            self.frame_geom,
+            text="Loading Geometry...",
+            text_color="#5c5c5c",
+            font=("Consolas", 14, "italic"),
+        )
+        self.lbl_geom_wait.place(relx=0.5, rely=0.5, anchor="center")
+        self.update_timer = None
+
+        def update_live_geometry(*args):
+            if self.update_timer:
+                self.after_cancel(self.update_timer)
+            self.update_timer = self.after(500, perform_update)
+
+        def perform_update():
+            try:
+                s_val = float(self.app_state.S_divergencia.get())
+                f_val = float(self.app_state.F.get())
+            except ValueError:
+                return
+
+            try:
+                from astraeos_core.plot_curve import plot_preview_wind
+                fig_geom = plot_preview_wind(F_val=f_val, S_val=s_val, theme="dark")
+                
+                for widget in self.frame_geom.winfo_children():
+                    widget.destroy()
+                    
+                from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+                canvas = FigureCanvasTkAgg(fig_geom, master=self.frame_geom)
+                tk_widget = canvas.get_tk_widget()
+                tk_widget.configure(bg="#1E1E1E", highlightthickness=0)
+                tk_widget.pack(side="top", fill="both", expand=True)
+                
+                import matplotlib.pyplot as plt
+                plt.close(fig_geom)
+            except Exception:
+                pass
+            caixa_S.focus_set()
+
+        self.app_state.S_divergencia.trace_add("write", update_live_geometry)
+        self.app_state.F.trace_add("write", update_live_geometry)
+
+        self.app_state.S_divergencia.trace_add("write", update_live_geometry)
+        self.app_state.F.trace_add("write", update_live_geometry)
+        self.after(300, update_live_geometry)
+
+        # ====================================================================
+        # INPUTS DA ABA (ABAIXO DO GRÁFICO)
+        # ====================================================================
         fonte = ctk.CTkFont(family="Roboto", size=13, weight="normal")
         fonte_var = ctk.CTkFont(family="Roboto", size=12, weight="normal")
         fonte_uni = ctk.CTkFont(family="Roboto", size=12, weight="normal")
+
         campos = [
-            (0, "Expansion Factor ( S ) :", self.app_state.S_divergencia, "[ adm ]"),
-            (1, "Transition Factor ( F ) :", self.app_state.F, "[ adm ]"),
+            (1, "Expansion Factor ( S ) :", self.app_state.S_divergencia, "[ adm ]"),
+            (2, "Transition Factor ( F ) :", self.app_state.F, "[ adm ]"),
             (
-                2,
+                3,
                 "Initial Wave Amplitude ( Δv₀² ) :",
                 self.app_state.deltav0,
                 "[ ve0² ]",
             ),
-            (3, "Initial Alfvén Flux ( φ₀ ) :", self.app_state.phi0, "[ erg/cm²/s ]"),
-            (4, "Damping Length ( L₀ ) :", self.app_state.L0, "[ R★ ]"),
+            (4, "Initial Alfvén Flux ( φ₀ ) :", self.app_state.phi0, "[ erg/cm²/s ]"),
+            (5, "Damping Length ( L₀ ) :", self.app_state.L0, "[ R★ ]"),
         ]
+
         for linha, texto, var, uni in campos:
             ctk.CTkLabel(aba, text=texto, font=fonte, text_color="#E5C07B").grid(
                 row=linha, column=0, padx=20, pady=5, sticky="w"
@@ -773,11 +835,13 @@ class ConfigPage(ctk.CTkFrame):
             entry.grid(row=linha, column=1, padx=(10, 0), pady=5, sticky="sw")
             self.parker_disabled_inputs.append(entry)
             ctk.CTkLabel(aba, text=uni, font=fonte_uni, text_color="#8b949e").grid(
-                row=linha, column=2, padx=(0, 50), pady=5, sticky="w"
+                row=linha, column=2, padx=(0, 10), pady=5, sticky="w"
             )
-            aba.grid_rowconfigure(len(campos), weight=1, minsize=10)
+            aba.grid_rowconfigure(linha, weight=1, minsize=10)
+            caixa_S = self.parker_disabled_inputs[0]
+
         ctk.CTkLabel(aba, text="Damping Model:", font=fonte, text_color="#E5C07B").grid(
-            row=7, column=0, padx=20, pady=15, sticky="w"
+            row=6, column=0, padx=20, pady=15, sticky="w"
         )
 
         def on_combo_change(choice):
@@ -798,7 +862,7 @@ class ConfigPage(ctk.CTkFrame):
             state="readonly",
             command=on_combo_change,
         )
-        combo_damping.grid(row=7, column=1, padx=(10, 0), pady=15, sticky="sw")
+        combo_damping.grid(row=6, column=1, padx=(10, 0), pady=15, sticky="sw")
 
         def sync_combo_damping(*args):
             try:

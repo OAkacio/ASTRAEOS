@@ -7,6 +7,8 @@ import os
 import math
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.patches import Circle
+import matplotlib.patheffects as pe
 from scipy.integrate import *
 import time
 from astropy import constants as const

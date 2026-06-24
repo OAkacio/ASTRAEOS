@@ -762,3 +762,62 @@ def plot_magnetosphere_shield(
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
     fig.savefig(filepath, dpi=100, bbox_inches="tight", facecolor="#1E1E1E")
     return fig
+
+
+#
+# * ╭────────────────────────────────────────────────────────────────────────────╮
+# * │   Gráfico de Preview de Vento                                              │
+# * ╰────────────────────────────────────────────────────────────────────────────╯
+#
+def plot_preview_wind(F_val, S_val, theme="dark"):
+    bg_color = "#1E1E1E" if theme == "dark" else "white"
+    star_col = "#E5C07B"
+    geom_col = "#E06C75"
+    ref_col = "#61AFEF"
+    fig, ax = plt.subplots(figsize=(4.5, 2.6), dpi=100)
+    fig.patch.set_facecolor(bg_color)
+    ax.set_facecolor(bg_color)
+    if S_val == 2.0:
+        rt_norm = np.inf
+    else:
+        exp_val = 1.0 / (S_val - 2.0)
+        try:
+            rt_norm = float(F_val) ** exp_val
+        except (OverflowError, ZeroDivisionError):
+            rt_norm = np.inf
+    if np.isinf(rt_norm) or rt_norm > 500.0:
+        x_max = 5.0
+    else:
+        delta = max(2.0, rt_norm * 0.2)
+        x_max = rt_norm + delta
+    x_norm = np.linspace(1, x_max, 200)
+    A0 = 0.05**2
+    y0_init = np.sqrt(A0)
+    y_wind = np.zeros_like(x_norm)
+    for i, x in enumerate(x_norm):
+        if x < rt_norm:
+            A1 = A0 * (x**S_val)
+            y_wind[i] = np.sqrt(A1)
+        else:
+            A2 = A0 * (rt_norm**S_val) * ((x / rt_norm) ** 2)
+            y_wind[i] = np.sqrt(A2)
+    y_ref = y0_init * x_norm
+    ax.plot(x_norm, y_ref, color=ref_col, linestyle="--", linewidth=1.2, alpha=0.5)
+    ax.plot(x_norm, -y_ref, color=ref_col, linestyle="--", linewidth=1.2, alpha=0.5)
+    ax.fill_between(x_norm, y_wind, -y_wind, color=geom_col, alpha=0.15)
+    ax.plot(x_norm, y_wind, color=geom_col, linewidth=1.5)
+    ax.plot(x_norm, -y_wind, color=geom_col, linewidth=1.5)
+    theta = np.linspace(-np.pi / 2, np.pi / 2, 100)
+    x_star = np.cos(theta)
+    y_star = np.sin(theta)
+    ax.fill_betweenx(y_star, 0, x_star, color=star_col, alpha=0.9, zorder=5)
+    ax.plot(x_star, y_star, color=bg_color, linewidth=1.5, zorder=6)
+    ax.set_xlim(0, x_max)
+    max_y = max(np.max(y_wind), np.max(y_ref)) * 1.2
+    max_y = min(max_y, 4.0)
+    ax.set_ylim(-max_y, max_y)
+    if 1.0 < rt_norm < x_max:
+        ax.axvline(rt_norm, color="#C678DD", linestyle=":", linewidth=1.5, zorder=1)
+    ax.axis("off")
+    plt.tight_layout(pad=0.2)
+    return fig
