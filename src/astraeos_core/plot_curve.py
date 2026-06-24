@@ -814,7 +814,7 @@ def plot_preview_wind(F_val, S_val, theme="dark"):
     ax.plot(x_star, y_star, color=bg_color, linewidth=1.5, zorder=6)
     ax.set_xlim(0, x_max)
     max_y = max(np.max(y_wind), np.max(y_ref)) * 1.2
-    max_y = min(max_y, 4.0)
+    max_y = min(max_y, 30.0)
     ax.set_ylim(-max_y, max_y)
     if 1.0 < rt_norm < x_max:
         ax.axvline(rt_norm, color="#C678DD", linestyle=":", linewidth=1.5, zorder=1)
