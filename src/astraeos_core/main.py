@@ -68,6 +68,8 @@ def main(
     y_un,
     k_cme,
     hion,
+    autotol,
+    checkautotol,
     show_progress=True,
     **kwargs,
 ):
@@ -152,14 +154,52 @@ def main(
         #
         sy.status("Searching for base velocity and critical point...", flush=True)
         time.sleep(1)
-        u0, x_crit, y_crit, r_crit, x_append, y_append, vetor = busca_u0(
-            vT,
-            [B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S_divergencia, 0.0, phi0, F],
-            u0_step,
-            u0_ini,
-            cte,
-            cb_u0,
-        )
+        if checkautotol:
+            err = 1e6
+            u0test = 1e6
+            u0step = u0_step
+            u0ini = u0_ini
+
+            while err > autotol:
+                print("entrou")
+                u0, x_crit, y_crit, r_crit, x_append, y_append, vetor = busca_u0(
+                    vT,
+                    [
+                        B0,
+                        rho0,
+                        vT,
+                        vA0,
+                        L0,
+                        r0,
+                        ve0,
+                        deltav0,
+                        S_divergencia,
+                        0.0,
+                        phi0,
+                        F,
+                    ],
+                    u0step,
+                    u0ini,
+                    cte,
+                    cb_u0,
+                )
+                err = np.abs(u0 - u0test)
+                print("saiu")
+                if err < autotol:
+                    break
+                else:
+                    u0test = u0
+                    u0ini = u0 - u0step
+                    u0step = u0step / 2
+        else:
+            u0, x_crit, y_crit, r_crit, x_append, y_append, vetor = busca_u0(
+                vT,
+                [B0, rho0, vT, vA0, L0, r0, ve0, deltav0, S_divergencia, 0.0, phi0, F],
+                u0_step,
+                u0_ini,
+                cte,
+                cb_u0,
+            )
         sy.param(
             ("Base Velocity", u0 * ve0 / 1e5, "km/s"),
             ("Normalized Base Velocity", u0, "ve0"),
@@ -530,5 +570,7 @@ if __name__ == "__main__":
         y_un=y_un_,
         k_cme=k_cme_,
         hion=hion_,
+        autotol=autotol_,
+        checkautotol=checkautotol_,
         show_progress=False,
     )

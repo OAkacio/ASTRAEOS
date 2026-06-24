@@ -45,6 +45,8 @@ x_sim_ = 500
 recuo_pulo_ = 484
 tamanho_pulo_ = 0.1
 h_rk_ = 5e-4
+autotol_ = 1e-6
+checkautotol_ = False
 #
 # ? ╭────────────────────────────────────────────────────╮
 # ? │   Personalização                                   │
