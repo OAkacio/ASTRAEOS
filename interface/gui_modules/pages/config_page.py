@@ -756,8 +756,12 @@ class ConfigPage(ctk.CTkFrame):
         # ====================================================================
         # WIDGET DO GRÁFICO DINÂMICO (NO TOPO)
         # ====================================================================
-        self.frame_geom = ctk.CTkFrame(aba, fg_color="#1E1E1E", corner_radius=8, height=160)
-        self.frame_geom.grid(row=0, column=0, columnspan=3, padx=20, pady=(10, 15), sticky="ew")
+        self.frame_geom = ctk.CTkFrame(
+            aba, fg_color="#1E1E1E", corner_radius=8, height=160
+        )
+        self.frame_geom.grid(
+            row=0, column=0, columnspan=3, padx=20, pady=(10, 15), sticky="ew"
+        )
         self.frame_geom.pack_propagate(False)
 
         self.lbl_geom_wait = ctk.CTkLabel(
@@ -783,18 +787,21 @@ class ConfigPage(ctk.CTkFrame):
 
             try:
                 from astraeos_core.plot_curve import plot_preview_wind
+
                 fig_geom = plot_preview_wind(F_val=f_val, S_val=s_val, theme="dark")
-                
+
                 for widget in self.frame_geom.winfo_children():
                     widget.destroy()
-                    
+
                 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
                 canvas = FigureCanvasTkAgg(fig_geom, master=self.frame_geom)
                 tk_widget = canvas.get_tk_widget()
                 tk_widget.configure(bg="#1E1E1E", highlightthickness=0)
                 tk_widget.pack(side="top", fill="both", expand=True)
-                
+
                 import matplotlib.pyplot as plt
+
                 plt.close(fig_geom)
             except Exception:
                 pass
@@ -888,9 +895,11 @@ class ConfigPage(ctk.CTkFrame):
         aba.grid_columnconfigure(0, weight=1)
         aba.grid_columnconfigure(1, weight=1)
         aba.grid_columnconfigure(2, weight=1)
+
         fonte = ctk.CTkFont(family="Roboto", size=13, weight="normal")
         fonte_var = ctk.CTkFont(family="Roboto", size=12, weight="normal")
         fonte_uni = ctk.CTkFont(family="Roboto", size=12, weight="normal")
+
         campos = [
             (0, "Simulation Distance :", self.app_state.x_sim, "[ R★ ]"),
             (1, "Integration Step :", self.app_state.h_rk, "[ R★ ]"),
@@ -904,6 +913,7 @@ class ConfigPage(ctk.CTkFrame):
             (4, "Critical Point Jump Size :", self.app_state.tamanho_pulo, "[ R★ ]"),
             (5, "Topology Backtrack Steps :", self.app_state.recuo_pulo, "[ 1e-5 R★ ]"),
         ]
+
         for linha, texto, var, uni in campos:
             ctk.CTkLabel(aba, text=texto, font=fonte, text_color="#E5C07B").grid(
                 row=linha, column=0, padx=20, pady=5, sticky="w"
@@ -914,7 +924,76 @@ class ConfigPage(ctk.CTkFrame):
             ctk.CTkLabel(aba, text=uni, font=fonte_uni, text_color="#8b949e").grid(
                 row=linha, column=2, padx=(0, 50), pady=5, sticky="w"
             )
-            aba.grid_rowconfigure(len(campos), weight=1, minsize=10)
+            # Removemos o weight=1 daqui para não esticar as linhas
+            aba.grid_rowconfigure(linha, weight=0)
+
+        linha_atual = len(campos)
+
+        def toggle_tol():
+            if self.app_state.checkautotol.get():
+                entry_tol.configure(
+                    state="normal",
+                    text_color="white",
+                    fg_color="#343638",
+                    border_color="#565b5e",
+                )
+            else:
+                entry_tol.configure(
+                    state="disabled",
+                    text_color="#3c4044",
+                    fg_color="#1E1E1E",
+                    border_color="#282C34",
+                )
+
+        cb_optimize = ctk.CTkCheckBox(
+            aba,
+            text="Optimize Guess",
+            variable=self.app_state.checkautotol,
+            font=fonte,
+            text_color="#E5C07B",
+            checkbox_width=18,
+            checkbox_height=18,
+            border_width=1.5,
+            corner_radius=3,
+            border_color="#5C6370",
+            hover_color="#2C313A",
+            fg_color="#282C34",
+            checkmark_color="#E5C07B",
+            command=toggle_tol,
+        )
+        cb_optimize.grid(row=linha_atual, column=0, padx=20, pady=(15, 5), sticky="w")
+        ToolTip(
+            cb_optimize,
+            "Optimize the initial guess for the velocity profile.\n\n"
+            "The algorithm repeatedly updates the profile to converge toward the ideal \n"
+            "initial value, stopping once the user-defined tolerance is reached.\n\n"
+            "Lower tolerance values will require more iterations and increase computation time.",
+        )
+
+        frame_tol = ctk.CTkFrame(aba, fg_color="transparent")
+        frame_tol.grid(
+            row=linha_atual,
+            column=1,
+            columnspan=2,
+            padx=(10, 0),
+            pady=(15, 5),
+            sticky="sw",
+        )
+
+        ctk.CTkLabel(
+            frame_tol, text="Tolerance:", font=fonte, text_color="#E5C07B"
+        ).pack(side="left", padx=(0, 10))
+        entry_tol = ctk.CTkEntry(
+            frame_tol, textvariable=self.app_state.autotol, font=fonte_var, width=80
+        )
+        entry_tol.pack(side="left")
+        ctk.CTkLabel(
+            frame_tol, text="[ ve0 ]", font=fonte_uni, text_color="#8b949e"
+        ).pack(side="left", padx=(10, 0))
+
+        self.after(100, toggle_tol)
+        aba.grid_rowconfigure(linha_atual, weight=0)
+        aba.grid_rowconfigure(linha_atual + 1, weight=1)
 
     def _construir_aba_gp(self, aba):
         fonte = ctk.CTkFont(family="Roboto", size=13, weight="normal")

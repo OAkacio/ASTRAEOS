@@ -50,6 +50,8 @@ class AppState:
         self.Rplan = ctk.StringVar(value="1.045")
         self.k_cme = ctk.StringVar(value="240")
         self.hion = ctk.StringVar(value="1000")
+        self.autotol = ctk.StringVar(value="1e-6")
+        self.checkautotol = ctk.BooleanVar(value=False)
         #
         # ? ╭────────────────────────────────────────────────────╮
         # ? │   Variáveis de Referência e Gráficos               │
@@ -133,6 +135,8 @@ class AppState:
             "parker": self.parker.get(),
             "k_cme": float(self.k_cme.get()),
             "hion": float(self.hion.get()),
+            "autotol": float(self.autotol.get()),
+            "checkautotol": self.checkautotol.get(),
         }
 
     def parameters_plot(self):
