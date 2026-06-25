@@ -50,8 +50,8 @@ class AppState:
         self.Rplan = ctk.StringVar(value="1.045")
         self.k_cme = ctk.StringVar(value="240")
         self.hion = ctk.StringVar(value="1000")
-        self.autotol = ctk.StringVar(value="1e-6")
-        self.checkautotol = ctk.BooleanVar(value=False)
+        self.autotol = ctk.StringVar(value="1e-9")
+        self.checkautotol = ctk.BooleanVar(value=True)
         #
         # ? ╭────────────────────────────────────────────────────╮
         # ? │   Variáveis de Referência e Gráficos               │
