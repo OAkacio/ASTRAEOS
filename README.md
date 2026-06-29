@@ -84,9 +84,11 @@ Além do estudo do plasma estelar, o ASTRAEOS projeta estes ventos na distância
 ---
 
 ## ⚙️ Instalação e Requisitos
+### Sistema Operacional
+A interface gráfica (GUI) do ASTRAEOS é suportada exclusivamente no sistema operacional Windows.
 
 ### Pré-requisitos
-O seu simulador já vem empacotado e pronto para uso! Tudo o que você precisa é:
+O simulador já vem empacotado e pronto para uso! Tudo o que você precisa é:
 - **Sistema Operacional:** Windows 10 ou superior
 
 ### Como rodar
