@@ -59,7 +59,7 @@ class AppWindow(ctk.CTk):
         # ? │   Configurações da Janela                          │
         # ? ╰────────────────────────────────────────────────────╯
         #
-        self.title("ASTRAEOS v1.0.0")
+        self.title("ASTRAEOS v1.1.0")
         self.geometry("1280x720")
         self.minsize(1024, 768)
         self.after(0, lambda: self.state("zoomed"))
